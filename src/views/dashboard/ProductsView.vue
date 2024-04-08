@@ -44,8 +44,8 @@
               btn-sm" @click="openModal('edit', item)">
                 編輯
               </button>
-              <button type="button"
-              class="btn btn-outline-danger btn-sm" @click="openModal('delete', item)">
+              <button type="button" class="btn btn-outline-danger btn-sm"
+                @click="openModal('delete', item)">
                 刪除
               </button>
             </div>
@@ -56,8 +56,8 @@
     <PaginationComponent :pages="pagination" @emit-change-pages="getProducts"></PaginationComponent>
   </div>
 
-  <ProductModal ref="productModal"
-  :temp-product="tempProduct" :is-new="isNew" @update="getProducts"></ProductModal>
+  <ProductModal ref="productModal" :temp-product="tempProduct" :is-new="isNew"
+    @update-product="updateProduct"></ProductModal>
 
   <DeleteModal ref="deleteModal" :temp-product="tempProduct" @update="getProducts"></DeleteModal>
 
@@ -65,6 +65,9 @@
 
 <script>
 import axios from 'axios';
+import { mapActions } from 'pinia';
+import useToastMessageStore from '@/stores/toastMessage';
+
 import ProductModal from '../../components/ProductModal.vue';
 import DeleteModal from '../../components/DeleteModal.vue';
 import PaginationComponent from '../../components/PaginationComponent.vue';
@@ -81,37 +84,32 @@ export default {
         imagesUrl: [],
       },
       pagination: {},
-      isLoading: true,
+      isLoading: false,
     };
   },
   methods: {
-    checkLogin() {
-      axios
-        .post(`${VITE_APP_URL}/api/user/check`)
-        .then((res) => {
-          // console.log(res.data);
-          if (res.data.success) {
-            this.getProducts();
-          }
-        })
-        .catch((err) => {
-          alert(err.response.data.message);
-          window.location = 'login.html';
-        });
-    },
+    ...mapActions(useToastMessageStore, ['addMessage']),
     getProducts(page = 1) {
       axios
         .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/products?page=${page}`)
         .then((res) => {
-          // console.log(res.data);
-          // this.products = res.data.products;
           const { products, pagination } = res.data;
           this.products = products;
           this.pagination = pagination;
           this.isLoading = false;
+          this.addMessage({
+            title: '成功取得產品資訊',
+            content: res.data.message,
+            style: 'success',
+          });
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isLoading = false;
+          this.addMessage({
+            title: '取得產品資訊失敗',
+            content: err.response.data.message,
+            style: 'danger',
+          });
         });
     },
     openModal(status, item) {
@@ -125,13 +123,70 @@ export default {
       } else if (status === 'edit') {
         this.tempProduct = { ...item };
         this.isNew = false;
-        // console.log('editTemp', this.tempProduct);
         this.$refs.productModal.openModal();
       } else if (status === 'delete') {
         this.tempProduct = { ...item };
-        // console.log('delTemp', this.tempProduct);
         this.$refs.deleteModal.openModal();
       }
+    },
+    updateProduct3(product) {
+      this.isLoading = true;
+      let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product/${product.id}`;
+      let http = 'put';
+
+      if (this.isNew) {
+        url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product`;
+        http = 'post';
+      }
+
+      axios[http](url, { data: product })
+        .then((res) => {
+          this.isLoading = false;
+          this.$refs.productModal.closeModal();
+          this.addMessage({
+            title: '成功更新產品',
+            content: res.data.message,
+            style: 'success',
+          });
+          this.getProducts(); // 更新成功後重新獲取產品列表
+        })
+        .catch((err) => {
+          this.isLoading = false;
+          this.addMessage({
+            title: '更新產品失敗',
+            content: err.response.data.message,
+            style: 'danger',
+          });
+        });
+    },
+    updateProduct(item) {
+      this.isLoading = true;
+      let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product/${this.tempProduct.id}`;
+      let http = 'put';
+
+      if (this.isNew) {
+        url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product`;
+        http = 'post';
+      }
+      axios[http](url, { data: item })
+        .then((res) => {
+          this.isLoading = false;
+          this.getProducts();
+          this.$refs.productModal.closeModal();
+          this.addMessage({
+            title: '成功更新產品',
+            content: res.data.message,
+            style: 'success',
+          });
+        })
+        .catch((err) => {
+          this.isLoading = false;
+          this.addMessage({
+            title: '更新產品失敗',
+            content: err.response.data.message,
+            style: 'danger',
+          });
+        });
     },
   },
   mounted() {

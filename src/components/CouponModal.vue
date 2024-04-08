@@ -42,20 +42,37 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
           <button type="button" class="btn btn-primary"
-            @click="updateCoupon(tempCoupon)">更新優惠券</button>
+            @click="$emit('update-coupon', tempCoupon)">{{ isNew ? '新增優惠券' : '更新優惠券' }}</button>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
+import modalMixin from '@/mixins/modalMixin';
+
 export default {
+  props: {
+    coupon: Object,
+    isNew: Boolean,
+  },
   data() {
     return {
-      tempCoupon: {
-      },
+      tempCoupon: {},
       due_date: '',
     };
   },
+  emits: ['update-coupon'],
+  watch: {
+    due_date() {
+      this.tempCoupon.due_date = Math.floor(new Date(this.due_date) / 1000);
+    },
+    coupon() {
+      this.tempCoupon = this.coupon;
+      const dateAndTime = new Date(this.tempCoupon.due_date * 1000).toISOString().split('T');
+      [this.due_date] = dateAndTime;
+    },
+  },
+  mixins: [modalMixin],
 };
 </script>

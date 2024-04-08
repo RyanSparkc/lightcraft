@@ -28,6 +28,8 @@
 </template>
 <script>
 import axios from 'axios';
+import { mapActions } from 'pinia';
+import useToastMessageStore from '@/stores/toastMessage';
 import { Modal } from 'bootstrap';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
@@ -51,17 +53,26 @@ export default {
     );
   },
   methods: {
+    ...mapActions(useToastMessageStore, ['addMessage']),
     deleteProduct() {
       axios
         .delete(`${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product/${this.tempProduct.id}`)
         .then((res) => {
           // console.log(res.data);
-          alert(res.data.message);
+          this.addMessage({
+            title: '成功刪除產品',
+            content: res.data.message,
+            style: 'success',
+          });
           this.closeModal();
           this.$emit('update');
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.addMessage({
+            title: '刪除產品失敗',
+            content: err.response.data.message,
+            style: 'danger',
+          });
         });
     },
     openModal() {
