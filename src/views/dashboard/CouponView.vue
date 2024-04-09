@@ -1,6 +1,5 @@
 <template>
   <LoadingOverlay :active="isLoading" />
-  <div class="container">
     <h2>優惠券</h2>
     <div class="text-end mt-4">
       <button class="btn btn-primary" type="button" @click="openCouponModal(true)">建立新優惠券</button>
@@ -35,7 +34,6 @@
         </tr>
       </tbody>
     </table>
-  </div>
   <CouponModal :coupon="tempCoupon" :isNew="isNew"
    ref="couponModal" @update-coupon="updateCoupon" />
   <DelModal ref="delModal" :item="tempCoupon" @del-item="deleteCoupon" />

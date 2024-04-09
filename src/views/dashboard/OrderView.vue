@@ -1,6 +1,6 @@
 <template>
   <LoadingOverlay :active="isLoading" />
-  <div class="container">
+  <div>
     <h2>訂單列表</h2>
     <table class="table mt-4">
       <thead>

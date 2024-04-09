@@ -31,6 +31,11 @@ export default {
   props: {
     item: Object,
   },
+  data() {
+    return {
+      modal: '',
+    };
+  },
   emits: ['del-item'],
   mixins: [modalMixin],
 };
