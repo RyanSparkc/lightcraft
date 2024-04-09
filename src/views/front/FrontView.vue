@@ -3,7 +3,7 @@
     <!-- <h2>這是前台</h2> -->
     <div class="position-relative">
       <ToastMessages />
-      <div class="container my-7">
+      <div class="container">
         <RouterView />
       </div>
       <div class="bg-light py-4">
