@@ -18,7 +18,7 @@ export default defineStore('counter', {
           this.carts = res.data.data.carts;
           this.total = res.data.data.total;
           this.final_total = res.data.data.final_total;
-          console.log('pinia cart', this.carts);
+          // console.log('pinia cart', this.carts);
         })
         .catch((err) => {
           alert(err.response.data.message);
@@ -32,7 +32,7 @@ export default defineStore('counter', {
       axios
         .post(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart`, { data: cart })
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           alert(res.data.message);
           this.getCart();
         })

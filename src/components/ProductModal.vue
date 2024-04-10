@@ -146,7 +146,7 @@ export default {
     };
   },
   props: ['tempProduct', 'isNew'],
-  emits: ['update'],
+  emits: ['update', 'update-product'],
   mixins: [modalMixin],
   mounted() {
     this.editProduct = this.tempProduct;

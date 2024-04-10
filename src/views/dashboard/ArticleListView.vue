@@ -81,14 +81,12 @@ export default {
   methods: {
     ...mapActions(useToastMessageStore, ['addMessage']),
     getArticles(page = 1) {
-      console.log(2);
       this.currentPage = page;
       this.isLoading = true;
       const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/articles?page=${page}`;
       this.axios.get(url).then((res) => {
         this.articles = res.data.articles;
         this.isLoading = false;
-        console.log(this.articles);
         this.addMessage({
           title: '取得文章成功',
           content: `共有${res.data.articles.length}筆文章`,
@@ -136,7 +134,6 @@ export default {
       this.$refs.articleModal.openModal();
     },
     updateArticle(item) {
-      console.log(item);
       this.isLoading = true;
       this.tempArticle = { ...item };
       let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/article`;

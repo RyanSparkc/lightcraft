@@ -95,13 +95,11 @@ export default {
       });
     },
     openModal(item) {
-      console.log('訂單', item);
       this.tempOrder = { ...item };
       this.isNew = false;
       this.$refs.orderModal.openModal();
     },
     openDelModal(item) {
-      console.log('刪除訂單', item);
       this.tempOrder = { ...item };
       this.$refs.delModal.openModal();
     },

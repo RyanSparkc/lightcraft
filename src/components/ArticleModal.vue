@@ -53,7 +53,7 @@
                   </div>
                 </div>
                 <div class="col-md-2 mb-1"
-                  v-if="tempArticle.tag[tempArticle.tag.length - 1] || !tempArticle.tag.length">
+                  v-if="tempArticle.tag[this.tagLength - 1] || !this.tagLength">
                   <button class="btn btn-outline-primary btn-sm d-block w-100" type="button"
                     @click="tempArticle.tag.push('')">新增標籤
                   </button>
@@ -158,6 +158,12 @@ export default {
       this.tempArticle.create_at = new Date(this.create_at).getTime() / 1000;
     },
   },
+  computed: {
+    tagLength() {
+      return this.tempArticle.tag.length;
+    },
+  },
+
 };
 </script>
 <style>
