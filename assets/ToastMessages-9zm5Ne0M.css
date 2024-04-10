@@ -1,0 +1,1 @@
+.move-enter-active,.move-leave-active{transition:opacity .5s ease,transform .5s ease}.move-enter-from{opacity:0;transform:translateY(50%)}.move-leave-to{opacity:0;transform:translateY(0)}
