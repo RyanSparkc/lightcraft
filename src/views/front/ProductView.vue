@@ -181,7 +181,6 @@ export default {
       axios
         .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`)
         .then((res) => {
-          console.log(res);
           this.product = res.data.product;
         }).catch((err) => {
           console.log(err.response.data.message);
@@ -205,7 +204,6 @@ export default {
     // },
   },
   mounted() {
-    console.log(this.$route);
     this.getProduct();
   },
 };

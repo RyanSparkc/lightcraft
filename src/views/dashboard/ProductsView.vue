@@ -90,6 +90,7 @@ export default {
   methods: {
     ...mapActions(useToastMessageStore, ['addMessage']),
     getProducts(page = 1) {
+      this.isLoading = true;
       axios
         .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/products?page=${page}`)
         .then((res) => {
@@ -97,11 +98,6 @@ export default {
           this.products = products;
           this.pagination = pagination;
           this.isLoading = false;
-          this.addMessage({
-            title: '成功取得產品資訊',
-            content: res.data.message,
-            style: 'success',
-          });
         })
         .catch((err) => {
           this.isLoading = false;
