@@ -1,1 +1,0 @@
-import{n as o}from"./index-X4kEHME8.js";const i=o("toastMessage",{state:()=>({messages:[]}),actions:{addMessage(s){const{style:e="success",title:t,content:a}=s;this.messages.push({style:e,title:t,content:a}),this.showMessage()},removeMessage(s){this.messages.splice(s,1)},showMessage(){setTimeout(()=>{this.removeMessage(0)},5e3)}}});export{i as u};

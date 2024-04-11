@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as s,b as o}from"./index-X4kEHME8.js";const a={name:"CartListView"},c=o("h2",null,"購物車列表管理",-1),n=[c];function r(_,i,d,l,p,f){return t(),s("div",null,n)}const m=e(a,[["render",r]]);export{m as default};
