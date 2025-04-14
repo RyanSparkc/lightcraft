@@ -20,7 +20,7 @@ module.exports = {
     'import/core-modules': ['vite', '@vitejs/plugin-vue'],
   },
   plugins: ['vue'],
-  // rules: {
-  //   'max-len': ['error', { code: 150 }],
-  // },
+  rules: {
+    'max-len': ['error', { code: 150, ignoreUrls: true }],
+  },
 };
