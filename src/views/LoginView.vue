@@ -15,7 +15,7 @@
           </div>
           <div class="form-floating">
             <input type="password" class="form-control"
-             id="password" placeholder="Password" required autocomplete
+             id="password" placeholder="Password" required
               v-model="user.password">
             <label for="password">Password</label>
           </div>

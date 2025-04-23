@@ -122,11 +122,7 @@ export default {
       const formData = new FormData();
       formData.append('file-to-upload', upLoadFile);
       const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/upload`;
-      this.axios.post(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      this.axios.post(url, formData)
         .then((res) => {
           this.tempArticle.imageUrl = res.data.imageUrl;
           this.$refs.fileInput.value = '';
