@@ -211,6 +211,7 @@ export default {
     };
   },
   watch: {
+    // eslint-disable-next-line func-names
     '$route.query': function () {
       this.getProducts();
     },

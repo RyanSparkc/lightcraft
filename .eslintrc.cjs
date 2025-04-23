@@ -22,5 +22,6 @@ module.exports = {
   plugins: ['vue'],
   rules: {
     'max-len': ['error', { code: 150, ignoreUrls: true }],
+    'implicit-arrow-linebreak': 'off',
   },
 };
