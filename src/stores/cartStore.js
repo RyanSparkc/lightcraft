@@ -16,10 +16,10 @@ export default defineStore('counter', {
       axios
         .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart`)
         .then((res) => {
-          // console.log('pinia cart', res);
+          console.log('購物車 API 回應:', res.data);
           this.carts = res.data.data.carts;
           this.total = res.data.data.total;
-          this.final_total = res.data.data.final_total;
+          this.final_total = this.total - res.data.data.final_total;
           // console.log('pinia cart', this.carts);
         })
         .catch((err) => {

@@ -112,9 +112,20 @@
                 type="text"
                 class="form-control me-2"
                 placeholder="請輸入優惠碼"
+                v-model="couponCode"
+                :disabled="isApplyingCoupon"
               />
-              <button class="btn btn-outline-primary" style="min-width: 70px">
-                套用
+              <button
+                class="btn btn-outline-primary"
+                style="min-width: 70px"
+                @click="applyCoupon"
+                :disabled="isApplyingCoupon || !couponCode"
+              >
+                <i
+                  class="bi bi-arrow-clockwise spinner-icon"
+                  v-if="isApplyingCoupon"
+                ></i>
+                <span v-else>套用</span>
               </button>
             </div>
             <div class="col-md-6">
@@ -130,14 +141,40 @@
                 <span class="text-muted">運費：</span>
                 <span>NT$ 0</span>
               </div>
+              <div
+                v-if="cartStore.carts[0]?.coupon"
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <span class="text-muted">已套用優惠券：</span>
+                <span class="fw-bold text-success">
+                  {{ cartStore.carts[0].coupon.code }}
+                  <button
+                    class="btn btn-sm btn-outline-danger ms-2"
+                    @click="removeCoupon"
+                    :disabled="isApplyingCoupon"
+                  >
+                    移除優惠券
+                  </button>
+                </span>
+              </div>
+              <div
+                v-if="cartStore.carts[0]?.coupon"
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <span class="text-muted">折扣金額：</span>
+                <span class="fw-bold text-success">
+                  -NT$
+                  {{ formatPrice(cartStore.total - cartStore.final_total) }}
+                </span>
+              </div>
               <hr />
               <div
                 class="d-flex justify-content-between align-items-center mb-0"
               >
                 <span class="fs-5 fw-bold">總計金額：</span>
-                <span class="fs-5 fw-bold text-danger"
-                  >NT$ {{ formatPrice(cartStore.final_total) }}</span
-                >
+                <span class="fs-5 fw-bold text-danger">
+                  NT$ {{ formatPrice(cartStore.final_total) }}
+                </span>
               </div>
             </div>
           </div>
@@ -197,6 +234,8 @@ const cartStore = useCartStore();
 const toastStore = useToastMessageStore();
 const loadingItem = ref('');
 const isClearing = ref(false);
+const couponCode = ref('');
+const isApplyingCoupon = ref(false);
 
 // 格式化價格
 const formatPrice = (price) =>
@@ -284,6 +323,59 @@ const clearCart = () => {
         style: 'danger',
       });
     });
+};
+
+// 套用優惠券
+const applyCoupon = () => {
+  if (!couponCode.value) {
+    toastStore.addMessage({
+      title: '提示',
+      content: '請輸入優惠碼',
+      style: 'warning',
+    });
+    return;
+  }
+
+  const code = couponCode.value;
+  isApplyingCoupon.value = true;
+  axios
+    .post(`${VITE_APP_URL}/api/${VITE_APP_PATH}/coupon`, { data: { code } })
+    .then((res) => {
+      toastStore.addMessage({
+        title: '成功',
+        content: res.data.message,
+        style: 'success',
+      });
+      couponCode.value = '';
+      cartStore.getCart();
+    })
+    .catch((err) => {
+      toastStore.addMessage({
+        title: '錯誤',
+        content: err.response?.data?.message || '套用優惠券失敗',
+        style: 'danger',
+      });
+    })
+    .finally(() => {
+      isApplyingCoupon.value = false;
+    });
+};
+
+// 移除優惠券（純前端）
+const removeCoupon = () => {
+  // 重新為每個 item 建立新物件，移除 coupon 與 coupon_code
+  cartStore.carts = cartStore.carts.map((item) => ({
+    ...item,
+    coupon: undefined,
+    coupon_code: undefined,
+  }));
+  // 重設總計金額為原始商品小計
+  cartStore.final_total = cartStore.total;
+  toastStore.addMessage({
+    title: '提示',
+    content: '已移除優惠券',
+    style: 'success',
+  });
 };
 
 // 元件掛載時獲取購物車列表
