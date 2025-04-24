@@ -142,29 +142,22 @@
                 <span>NT$ 0</span>
               </div>
               <div
-                v-if="cartStore.carts[0]?.coupon"
+                v-if="showCoupon"
                 class="d-flex justify-content-between align-items-center mb-2"
               >
                 <span class="text-muted">已套用優惠券：</span>
                 <span class="fw-bold text-success">
                   {{ cartStore.carts[0].coupon.code }}
-                  <button
-                    class="btn btn-sm btn-outline-danger ms-2"
-                    @click="removeCoupon"
-                    :disabled="isApplyingCoupon"
-                  >
-                    移除優惠券
-                  </button>
                 </span>
               </div>
               <div
-                v-if="cartStore.carts[0]?.coupon"
+                v-if="showCoupon"
                 class="d-flex justify-content-between align-items-center mb-2"
               >
                 <span class="text-muted">折扣金額：</span>
                 <span class="fw-bold text-success">
                   -NT$
-                  {{ formatPrice(cartStore.total - cartStore.final_total) }}
+                  {{ formatPrice(discountAmount) }}
                 </span>
               </div>
               <hr />
@@ -221,167 +214,116 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script>
 import { RouterLink } from 'vue-router';
 import useCartStore from '@/stores/cartStore';
 import useToastMessageStore from '@/stores/toastMessage';
-import axios from 'axios';
 
-const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
-
-const cartStore = useCartStore();
-const toastStore = useToastMessageStore();
-const loadingItem = ref('');
-const isClearing = ref(false);
-const couponCode = ref('');
-const isApplyingCoupon = ref(false);
-
-// 格式化價格
-const formatPrice = (price) =>
-  price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-// 更新購物車項目
-const updateCartItem = (item) => {
-  const data = {
-    product_id: item.product_id,
-    qty: item.qty,
-  };
-  loadingItem.value = item.id;
-  axios
-    .put(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart/${item.id}`, { data })
-    .then((res) => {
-      toastStore.addMessage({
-        title: '成功',
-        content: res.data.message,
-        style: 'success',
-      });
-      loadingItem.value = '';
-      cartStore.getCart();
-    })
-    .catch((err) => {
-      loadingItem.value = '';
-      toastStore.addMessage({
-        title: '錯誤',
-        content: err.response.data.message,
-        style: 'danger',
-      });
-    });
+export default {
+  components: {
+    RouterLink,
+  },
+  data() {
+    return {
+      loadingItem: '',
+      isClearing: false,
+      couponCode: '',
+      isApplyingCoupon: false,
+      cartStore: null,
+      toastStore: null,
+    };
+  },
+  computed: {
+    // 計算優惠券是否已套用與折扣金額
+    showCoupon() {
+      return !!this.cartStore?.carts[0]?.coupon;
+    },
+    discountAmount() {
+      // 計算折扣金額並四捨五入
+      const discount = this.cartStore.total - this.cartStore.final_total;
+      return Math.round(discount);
+    },
+  },
+  methods: {
+    // 格式化價格
+    formatPrice(price) {
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    },
+    // 更新購物車項目
+    async updateCartItem(item) {
+      this.loadingItem = item.id;
+      try {
+        await this.cartStore.updateCartItem(item);
+        // 成功後 store action 會自動調用 getCart
+      } catch (err) {
+        // 錯誤信息已由 store action 處理
+        console.error('更新購物車項目失敗:', err);
+      } finally {
+        this.loadingItem = '';
+      }
+    },
+    // 更新數量的輔助函數
+    updateQuantity(item, newQty) {
+      if (newQty >= 1 && newQty <= 20) {
+        const updatedItem = { ...item, qty: newQty };
+        this.updateCartItem(updatedItem);
+      }
+    },
+    // 移除購物車項目
+    async removeCartItem(id) {
+      this.loadingItem = id;
+      try {
+        await this.cartStore.removeCartItem(id);
+        // 成功後 store action 會自動調用 getCart
+      } catch (err) {
+        console.error('移除購物車項目失敗:', err);
+      } finally {
+        this.loadingItem = '';
+      }
+    },
+    // 清空購物車
+    async clearCart() {
+      this.isClearing = true;
+      try {
+        await this.cartStore.clearCart();
+        // 成功後 store action 會自動調用 getCart
+      } catch (err) {
+        console.error('清空購物車失敗:', err);
+      } finally {
+        this.isClearing = false;
+      }
+    },
+    // 套用優惠券（使用 store action）
+    async applyCoupon() {
+      if (!this.couponCode) {
+        this.toastStore.addMessage({
+          title: '提示',
+          content: '請輸入優惠碼',
+          style: 'warning',
+        });
+        return;
+      }
+      this.isApplyingCoupon = true;
+      try {
+        await this.cartStore.applyCoupon(this.couponCode);
+        this.couponCode = '';
+      } catch (err) {
+        // 錯誤已在 store 處理
+      } finally {
+        this.isApplyingCoupon = false;
+      }
+    },
+  },
+  created() {
+    // 初始化store
+    this.cartStore = useCartStore();
+    this.toastStore = useToastMessageStore();
+  },
+  mounted() {
+    // 元件掛載時獲取購物車列表
+    this.cartStore.getCart();
+  },
 };
-
-// 更新數量的輔助函數
-const updateQuantity = (item, newQty) => {
-  if (newQty >= 1 && newQty <= 20) {
-    const updatedItem = { ...item, qty: newQty };
-    updateCartItem(updatedItem);
-  }
-};
-
-// 移除購物車項目
-const removeCartItem = (id) => {
-  loadingItem.value = id;
-  axios
-    .delete(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart/${id}`)
-    .then((res) => {
-      toastStore.addMessage({
-        title: '成功',
-        content: res.data.message,
-        style: 'success',
-      });
-      loadingItem.value = '';
-      cartStore.getCart();
-    })
-    .catch((err) => {
-      loadingItem.value = '';
-      toastStore.addMessage({
-        title: '錯誤',
-        content: err.response.data.message,
-        style: 'danger',
-      });
-    });
-};
-
-// 清空購物車
-const clearCart = () => {
-  isClearing.value = true;
-  axios
-    .delete(`${VITE_APP_URL}/api/${VITE_APP_PATH}/carts`)
-    .then((res) => {
-      toastStore.addMessage({
-        title: '成功',
-        content: res.data.message,
-        style: 'success',
-      });
-      isClearing.value = false;
-      cartStore.getCart();
-    })
-    .catch((err) => {
-      isClearing.value = false;
-      toastStore.addMessage({
-        title: '錯誤',
-        content: err.response.data.message,
-        style: 'danger',
-      });
-    });
-};
-
-// 套用優惠券
-const applyCoupon = () => {
-  if (!couponCode.value) {
-    toastStore.addMessage({
-      title: '提示',
-      content: '請輸入優惠碼',
-      style: 'warning',
-    });
-    return;
-  }
-
-  const code = couponCode.value;
-  isApplyingCoupon.value = true;
-  axios
-    .post(`${VITE_APP_URL}/api/${VITE_APP_PATH}/coupon`, { data: { code } })
-    .then((res) => {
-      toastStore.addMessage({
-        title: '成功',
-        content: res.data.message,
-        style: 'success',
-      });
-      couponCode.value = '';
-      cartStore.getCart();
-    })
-    .catch((err) => {
-      toastStore.addMessage({
-        title: '錯誤',
-        content: err.response?.data?.message || '套用優惠券失敗',
-        style: 'danger',
-      });
-    })
-    .finally(() => {
-      isApplyingCoupon.value = false;
-    });
-};
-
-// 移除優惠券（純前端）
-const removeCoupon = () => {
-  // 重新為每個 item 建立新物件，移除 coupon 與 coupon_code
-  cartStore.carts = cartStore.carts.map((item) => ({
-    ...item,
-    coupon: undefined,
-    coupon_code: undefined,
-  }));
-  // 重設總計金額為原始商品小計
-  cartStore.final_total = cartStore.total;
-  toastStore.addMessage({
-    title: '提示',
-    content: '已移除優惠券',
-    style: 'success',
-  });
-};
-
-// 元件掛載時獲取購物車列表
-onMounted(() => {
-  cartStore.getCart();
-});
 </script>
 
 <style scoped>
