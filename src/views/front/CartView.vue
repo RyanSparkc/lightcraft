@@ -58,7 +58,7 @@
                     v-model.number="item.qty"
                     min="1"
                     max="20"
-                    @change="updateCartItem(item)"
+                    @change="updateCartItemLocal(item)"
                     :disabled="loadingItem === item.id"
                   />
                   <button
@@ -88,7 +88,7 @@
                 <button
                   type="button"
                   class="btn btn-outline-danger btn-sm"
-                  @click="removeCartItem(item.id)"
+                  @click="removeCartItemLocal(item.id)"
                   :disabled="loadingItem === item.id"
                 >
                   <i
@@ -118,7 +118,7 @@
               <button
                 class="btn btn-outline-primary"
                 style="min-width: 70px"
-                @click="applyCoupon"
+                @click="applyCouponLocal"
                 :disabled="isApplyingCoupon || !couponCode"
               >
                 <i
@@ -182,7 +182,7 @@
           <button
             type="button"
             class="btn btn-outline-danger me-2"
-            @click="clearCart"
+            @click="clearCartLocal"
             :disabled="cartStore.carts.length === 0 || isClearing"
           >
             <i class="bi bi-arrow-clockwise spinner-icon" v-if="isClearing"></i>
@@ -216,6 +216,7 @@
 
 <script>
 import { RouterLink } from 'vue-router';
+import { mapStores, mapActions } from 'pinia';
 import useCartStore from '@/stores/cartStore';
 import useToastMessageStore from '@/stores/toastMessage';
 
@@ -229,11 +230,10 @@ export default {
       isClearing: false,
       couponCode: '',
       isApplyingCoupon: false,
-      cartStore: null,
-      toastStore: null,
     };
   },
   computed: {
+    ...mapStores(useCartStore, useToastMessageStore),
     // 計算優惠券是否已套用與折扣金額
     showCoupon() {
       return !!this.cartStore?.carts[0]?.coupon;
@@ -245,18 +245,24 @@ export default {
     },
   },
   methods: {
+    ...mapActions(useCartStore, [
+      'getCart',
+      'updateCartItem',
+      'removeCartItem',
+      'clearCart',
+      'applyCoupon',
+    ]),
+    ...mapActions(useToastMessageStore, ['addMessage']),
     // 格式化價格
     formatPrice(price) {
       return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     },
     // 更新購物車項目
-    async updateCartItem(item) {
+    async updateCartItemLocal(item) {
       this.loadingItem = item.id;
       try {
-        await this.cartStore.updateCartItem(item);
-        // 成功後 store action 會自動調用 getCart
+        await this.updateCartItem(item);
       } catch (err) {
-        // 錯誤信息已由 store action 處理
         console.error('更新購物車項目失敗:', err);
       } finally {
         this.loadingItem = '';
@@ -266,15 +272,14 @@ export default {
     updateQuantity(item, newQty) {
       if (newQty >= 1 && newQty <= 20) {
         const updatedItem = { ...item, qty: newQty };
-        this.updateCartItem(updatedItem);
+        this.updateCartItemLocal(updatedItem);
       }
     },
     // 移除購物車項目
-    async removeCartItem(id) {
+    async removeCartItemLocal(id) {
       this.loadingItem = id;
       try {
-        await this.cartStore.removeCartItem(id);
-        // 成功後 store action 會自動調用 getCart
+        await this.removeCartItem(id);
       } catch (err) {
         console.error('移除購物車項目失敗:', err);
       } finally {
@@ -282,21 +287,20 @@ export default {
       }
     },
     // 清空購物車
-    async clearCart() {
+    async clearCartLocal() {
       this.isClearing = true;
       try {
-        await this.cartStore.clearCart();
-        // 成功後 store action 會自動調用 getCart
+        await this.clearCart();
       } catch (err) {
         console.error('清空購物車失敗:', err);
       } finally {
         this.isClearing = false;
       }
     },
-    // 套用優惠券（使用 store action）
-    async applyCoupon() {
+    // 套用優惠券
+    async applyCouponLocal() {
       if (!this.couponCode) {
-        this.toastStore.addMessage({
+        this.addMessage({
           title: '提示',
           content: '請輸入優惠碼',
           style: 'warning',
@@ -305,7 +309,7 @@ export default {
       }
       this.isApplyingCoupon = true;
       try {
-        await this.cartStore.applyCoupon(this.couponCode);
+        await this.applyCoupon(this.couponCode);
         this.couponCode = '';
       } catch (err) {
         // 錯誤已在 store 處理
@@ -314,14 +318,9 @@ export default {
       }
     },
   },
-  created() {
-    // 初始化store
-    this.cartStore = useCartStore();
-    this.toastStore = useToastMessageStore();
-  },
   mounted() {
     // 元件掛載時獲取購物車列表
-    this.cartStore.getCart();
+    this.getCart();
   },
 };
 </script>
