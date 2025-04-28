@@ -26,6 +26,29 @@ const routes = [
         component: () => import('@/views/front/CartView.vue'),
       },
       {
+        path: 'checkout',
+        component: () => import('@/views/front/CheckoutLayout.vue'),
+        children: [
+          { path: '', redirect: 'address' },
+          {
+            path: 'address',
+            component: () => import('@/views/front/CheckoutAddress.vue'),
+          },
+          {
+            path: 'payment',
+            component: () => import('@/views/front/CheckoutPayment.vue'),
+          },
+          {
+            path: 'review',
+            component: () => import('@/views/front/CheckoutReview.vue'),
+          },
+          {
+            path: 'complete',
+            component: () => import('@/views/front/CheckoutComplete.vue'),
+          },
+        ],
+      },
+      {
         path: 'articles',
         component: () => import('@/views/front/ArticlesView.vue'),
       },
