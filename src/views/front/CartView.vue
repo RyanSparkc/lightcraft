@@ -1,6 +1,6 @@
 <template>
   <div class="container my-5">
-    <h2 class="fw-bold mb-4">購物車</h2>
+    <h2 class="section-title mb-4">購物車</h2>
     <div v-if="cartStore.carts && cartStore.carts.length > 0">
       <div class="table-responsive">
         <table class="table align-middle">
@@ -46,7 +46,7 @@
                   style="max-width: 140px"
                 >
                   <button
-                    class="btn btn-outline-secondary"
+                    class="qty-btn qty-btn-minus"
                     @click="updateQuantity(item, item.qty - 1)"
                     :disabled="loadingItem === item.id || item.qty <= 1"
                   >
@@ -54,7 +54,7 @@
                   </button>
                   <input
                     type="number"
-                    class="form-control text-center"
+                    class="form-control text-center qty-input"
                     v-model.number="item.qty"
                     min="1"
                     max="20"
@@ -62,7 +62,7 @@
                     :disabled="loadingItem === item.id"
                   />
                   <button
-                    class="btn btn-outline-secondary"
+                    class="qty-btn qty-btn-plus"
                     @click="updateQuantity(item, item.qty + 1)"
                     :disabled="loadingItem === item.id || item.qty >= 20"
                   >
@@ -87,7 +87,7 @@
               <td class="text-center">
                 <button
                   type="button"
-                  class="btn btn-outline-danger btn-sm"
+                  class="btn-danger-outline"
                   @click="removeCartItemLocal(item.id)"
                   :disabled="loadingItem === item.id"
                 >
@@ -110,14 +110,13 @@
             <div class="col-md-6 d-flex align-items-center mb-md-0 mb-3">
               <input
                 type="text"
-                class="form-control me-2"
+                class="form-control coupon-input me-2"
                 placeholder="請輸入優惠碼"
                 v-model="couponCode"
                 :disabled="isApplyingCoupon"
               />
               <button
-                class="btn btn-outline-primary"
-                style="min-width: 70px"
+                class="btn-apply"
                 @click="applyCouponLocal"
                 :disabled="isApplyingCoupon || !couponCode"
               >
@@ -175,13 +174,13 @@
       </div>
 
       <div class="d-flex justify-content-between mt-4">
-        <RouterLink to="/products" class="btn btn-outline-secondary">
+        <RouterLink to="/products" class="btn-secondary">
           <i class="bi bi-arrow-left me-2"></i>繼續購物
         </RouterLink>
         <div>
           <button
             type="button"
-            class="btn btn-outline-danger me-2"
+            class="btn-danger-outline me-2"
             @click="clearCartLocal"
             :disabled="cartStore.carts.length === 0 || isClearing"
           >
@@ -190,8 +189,8 @@
             清空購物車
           </button>
           <RouterLink
-            to="/checkout"
-            class="btn btn-danger"
+            to="/checkout/address"
+            class="btn-primary"
             :class="{ disabled: cartStore.carts.length === 0 }"
           >
             前往結帳
@@ -207,7 +206,7 @@
       </div>
       <h4 class="mb-3">購物車目前沒有任何商品</h4>
       <p class="text-muted mb-4">快去商城挑選您喜愛的商品吧！</p>
-      <RouterLink to="/products" class="btn btn-primary px-4 py-2">
+      <RouterLink to="/products" class="btn-primary">
         <i class="bi bi-bag me-2"></i>瀏覽商品
       </RouterLink>
     </div>
@@ -352,5 +351,190 @@ export default {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* 數量調整按鈕 */
+.qty-btn {
+  background: white;
+  border: 1px solid #ddd;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+  background: #f5f5f5;
+}
+
+.qty-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.qty-btn-minus {
+  border-radius: 8px 0 0 8px;
+}
+
+.qty-btn-plus {
+  border-radius: 0 8px 8px 0;
+}
+
+.qty-input {
+  border-left: 0;
+  border-right: 0;
+  height: 40px;
+  border-color: #ddd;
+}
+
+/* 刪除按鈕 */
+.btn-danger-outline {
+  background: white;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.btn-danger-outline:hover {
+  background: #f8d7da;
+  transform: translateY(-2px);
+}
+
+.btn-danger-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 優惠碼輸入 */
+.coupon-input {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 16px;
+  transition: all 0.3s ease;
+}
+
+.coupon-input:focus {
+  border-color: #888;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.05);
+}
+
+/* 套用按鈕 */
+.btn-apply {
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  min-width: 70px;
+  transition: all 0.3s ease;
+}
+
+.btn-apply:hover {
+  background: #f8f8f8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-apply:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 清空購物車按鈕 */
+.btn-danger-outline {
+  background: white;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-danger-outline:hover {
+  background: #f8d7da;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.1);
+}
+
+.btn-danger-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 下一步/前往結帳按鈕 */
+.btn-primary {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 上一步/繼續購物按鈕 */
+.btn-secondary {
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-secondary:hover {
+  background: #f8f8f8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 瀏覽商品按鈕 */
+.btn-primary {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

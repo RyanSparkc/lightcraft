@@ -96,80 +96,81 @@ export default defineStore('cart', {
       }
     },
     // 新增：更新購物車項目數量
-    updateCartItem(item) {
+    async updateCartItem(item) {
       const toastStore = useToastMessageStore();
       const data = {
         product_id: item.product_id,
         qty: item.qty,
       };
       // 返回 Promise 以便組件處理加載狀態
-      return axios
-        .put(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart/${item.id}`, { data })
-        .then((res) => {
-          toastStore.addMessage({
-            title: '成功',
-            content: res.data.message,
-            style: 'success',
-          });
-          this.getCart(); // 成功後更新購物車
-          return res; // 將響應傳遞下去
-        })
-        .catch((err) => {
-          toastStore.addMessage({
-            title: '錯誤',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-          throw err; // 拋出錯誤以便組件處理
+      try {
+        const res = await axios.put(
+          `${VITE_APP_URL}/api/${VITE_APP_PATH}/cart/${item.id}`,
+          { data }
+        );
+        toastStore.addMessage({
+          title: '成功',
+          content: res.data.message,
+          style: 'success',
         });
+        this.getCart(); // 成功後更新購物車
+        return res;
+      } catch (err) {
+        toastStore.addMessage({
+          title: '錯誤',
+          content: err.response.data.message,
+          style: 'danger',
+        });
+        throw err; // 拋出錯誤以便組件處理
+      }
     },
     // 新增：移除購物車單個項目
-    removeCartItem(id) {
+    async removeCartItem(id) {
       const toastStore = useToastMessageStore();
       // 返回 Promise
-      return axios
-        .delete(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart/${id}`)
-        .then((res) => {
-          toastStore.addMessage({
-            title: '成功',
-            content: res.data.message,
-            style: 'success',
-          });
-          this.getCart();
-          return res;
-        })
-        .catch((err) => {
-          toastStore.addMessage({
-            title: '錯誤',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-          throw err;
+      try {
+        const res = await axios.delete(
+          `${VITE_APP_URL}/api/${VITE_APP_PATH}/cart/${id}`
+        );
+        toastStore.addMessage({
+          title: '成功',
+          content: res.data.message,
+          style: 'success',
         });
+        this.getCart();
+        return res;
+      } catch (err) {
+        toastStore.addMessage({
+          title: '錯誤',
+          content: err.response.data.message,
+          style: 'danger',
+        });
+        throw err;
+      }
     },
     // 新增：清空購物車
-    clearCart() {
+    async clearCart() {
       const toastStore = useToastMessageStore();
       // 返回 Promise
-      return axios
-        .delete(`${VITE_APP_URL}/api/${VITE_APP_PATH}/carts`)
-        .then((res) => {
-          toastStore.addMessage({
-            title: '成功',
-            content: res.data.message,
-            style: 'success',
-          });
-          this.getCart();
-          return res;
-        })
-        .catch((err) => {
-          toastStore.addMessage({
-            title: '錯誤',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-          throw err;
+      try {
+        const res = await axios.delete(
+          `${VITE_APP_URL}/api/${VITE_APP_PATH}/carts`
+        );
+        toastStore.addMessage({
+          title: '成功',
+          content: res.data.message,
+          style: 'success',
         });
+        this.getCart();
+        return res;
+      } catch (err) {
+        toastStore.addMessage({
+          title: '錯誤',
+          content: err.response.data.message,
+          style: 'danger',
+        });
+        throw err;
+      }
     },
   },
 });
