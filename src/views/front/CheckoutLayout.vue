@@ -8,18 +8,16 @@
       </div>
       <div class="step" :class="{ active: activeStep >= 2 }">
         <div class="step-number">2</div>
-        <div class="step-label">付款方式</div>
+        <div class="step-label">付款與訂單確認</div>
       </div>
       <div class="step" :class="{ active: activeStep >= 3 }">
         <div class="step-number">3</div>
-        <div class="step-label">訂單確認</div>
-      </div>
-      <div class="step" :class="{ active: activeStep >= 4 }">
-        <div class="step-number">4</div>
         <div class="step-label">完成訂單</div>
       </div>
     </div>
-    <RouterView />
+    <div class="checkout-content">
+      <RouterView />
+    </div>
   </div>
 </template>
 
@@ -31,8 +29,7 @@ export default {
       const { path } = this.$route;
       if (path.includes('/checkout/address')) return 1;
       if (path.includes('/checkout/payment')) return 2;
-      if (path.includes('/checkout/review')) return 3;
-      if (path.includes('/checkout/complete')) return 4;
+      if (path.includes('/checkout/complete')) return 3;
       return 1;
     },
   },
@@ -40,6 +37,19 @@ export default {
 </script>
 
 <style scoped>
+/* 確保結帳頁面至少佔滿視窗高度 */
+.checkout-layout {
+  /* min-height: calc(100vh - 200px); 減去頁首頁尾和其他固定元素的高度 */
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 /* 步驟指示器樣式 */
 .checkout-steps {
   display: flex;

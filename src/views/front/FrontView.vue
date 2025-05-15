@@ -6,7 +6,7 @@
     <div class="container">
       <RouterView />
     </div>
-    <div class="py-4">
+    <div class="py-4 d-none">
       <div class="container">
         <div
           class="d-flex flex-column flex-md-row justify-content-between align-items-md-center align-items-start"
