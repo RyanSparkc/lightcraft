@@ -1,9 +1,28 @@
 <template>
   <RouterView />
+  <StagewiseToolbar v-if="isDevelopment" :config="stagewiseConfig" />
 </template>
 
 <script>
-export default {};
+import { StagewiseToolbar } from '@stagewise/toolbar-vue';
+
+export default {
+  components: {
+    StagewiseToolbar,
+  },
+  data() {
+    return {
+      stagewiseConfig: {
+        plugins: [],
+      },
+    };
+  },
+  computed: {
+    isDevelopment() {
+      return import.meta.env.DEV;
+    },
+  },
+};
 </script>
 
 <style lang="scss">

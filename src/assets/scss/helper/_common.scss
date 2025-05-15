@@ -1,5 +1,26 @@
 // Common styles shared across multiple components
 
+// ===== GLOBAL LAYOUT =====
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 // ===== BUTTONS =====
 // Primary button (black)
 .btn-primary {
