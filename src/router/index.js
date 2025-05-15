@@ -39,14 +39,14 @@ const routes = [
             component: () => import('@/views/front/CheckoutPayment.vue'),
           },
           {
-            path: 'review',
-            component: () => import('@/views/front/CheckoutReview.vue'),
-          },
-          {
             path: 'complete',
             component: () => import('@/views/front/CheckoutComplete.vue'),
           },
         ],
+      },
+      {
+        path: 'order/:id',
+        component: () => import('@/views/front/OrderDetailView.vue'),
       },
       {
         path: 'articles',
