@@ -28,6 +28,7 @@ deploy.sh
 
 
 .cursor/*
+/doc/api/*
 
 
 
