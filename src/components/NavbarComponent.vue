@@ -14,7 +14,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
           <li class="nav-item">
             <RouterLink class="nav-link" to="/about">關於我們</RouterLink>
           </li>
@@ -25,9 +25,11 @@
             <RouterLink class="nav-link" to="/cart">購物車</RouterLink>
           </li>
         </ul>
-        <ul class="navbar-nav">
+        <ul class="navbar-nav gap-3">
           <li class="nav-item">
-            <RouterLink class="btn btn-outline-primary position-relative" to="/"
+            <RouterLink
+              class="btn btn-outline-secondary position-relative"
+              to="/"
               ><i class="bi bi-cart"></i>
               <span
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
