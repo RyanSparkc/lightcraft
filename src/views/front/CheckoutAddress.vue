@@ -126,9 +126,22 @@ export default {
     },
     nextStep() {
       if (this.validate()) {
+        // 將地址數據保存到 localStorage
+        localStorage.setItem('checkoutAddress', JSON.stringify(this.form));
         this.$router.push('/checkout/payment');
       }
     },
+    // 從 localStorage 讀取之前保存的地址數據
+    loadAddressData() {
+      const savedAddress = localStorage.getItem('checkoutAddress');
+      if (savedAddress) {
+        this.form = JSON.parse(savedAddress);
+      }
+    },
+  },
+  mounted() {
+    // 組件載入時讀取之前保存的地址數據
+    this.loadAddressData();
   },
 };
 </script>
