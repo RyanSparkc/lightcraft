@@ -8,7 +8,7 @@
     </div>
 
     <!-- 訂單狀態卡片 -->
-    <div class="card mb-4">
+    <div class="card mb-4" v-if="order && order.id">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="card-title mb-0">訂單 #{{ order.id || '123456' }}</h4>
@@ -50,7 +50,7 @@
     </div>
 
     <!-- 配送追蹤區塊 (移到了商品上方) -->
-    <div class="card mb-4">
+    <div class="card mb-4" v-if="order && order.id">
       <div class="card-header bg-white border-bottom-0 py-3">
         <h5 class="mb-0">配送追蹤</h5>
       </div>
@@ -107,7 +107,7 @@
     </div>
 
     <!-- 訂單內容與收件人資訊 -->
-    <div class="row">
+    <div class="row" v-if="order && order.id">
       <!-- 訂單商品 -->
       <div class="col-lg-8 mb-4">
         <div class="card h-100">
@@ -196,41 +196,38 @@
           <div class="card-body">
             <div class="d-flex justify-content-between mb-2">
               <span>商品總額</span>
-              <span>NT$ {{ formatPrice(order.total) }}</span>
+              <span>NT$ {{ formatPrice(subtotal) }}</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
               <span>運費</span>
               <span>NT$ 0</span>
             </div>
-            <div
-              class="d-flex justify-content-between mb-3"
-              v-if="order.total !== order.final_total"
-            >
+            <div class="d-flex justify-content-between mb-3" v-if="hasDiscount">
               <span>優惠折扣</span>
               <span class="text-danger"
-                >-NT$ {{ formatPrice(order.total - order.final_total) }}</span
+                >-NT$ {{ formatPrice(discountAmount) }}</span
               >
             </div>
             <hr />
             <div class="d-flex justify-content-between">
               <span class="fw-bold">總計</span>
-              <span class="fw-bold"
-                >NT$ {{ formatPrice(order.final_total) }}</span
-              >
+              <span class="fw-bold">NT$ {{ formatPrice(safeFinalTotal) }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 無訂單資料時顯示的內容 -->
+    <!-- 載入中狀態 -->
     <div class="text-center py-5" v-if="isLoading">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="mt-3">正在獲取訂單資料...</p>
     </div>
-    <div class="text-center py-5" v-if="!isLoading && !order.id">
+
+    <!-- 無訂單資料時顯示的內容 -->
+    <div class="text-center py-5" v-if="!isLoading && (!order || !order.id)">
       <h4>找不到訂單資料</h4>
       <p class="text-muted">請確認訂單號碼是否正確</p>
       <button class="btn btn-primary mt-3" @click="$router.push('/')">
@@ -241,51 +238,13 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'OrderDetailView',
   data() {
     return {
-      order: {
-        id: '123456',
-        create_at: Date.now() / 1000,
-        is_paid: true,
-        paid_date: Date.now() / 1000,
-        total: 3600,
-        final_total: 3200,
-        user: {
-          name: '王小明',
-          email: 'user@example.com',
-          tel: '0912345678',
-          address: '台北市信義區松高路1號',
-        },
-        products: {
-          '-NhtLCr6J2EEJQPbYz0o': {
-            id: '-NhtLCr6J2EEJQPbYz0o',
-            product_id: '-NhiJPttcwr6FDk-F9Gv',
-            qty: 2,
-            product: {
-              title: '質感皮革後背包',
-              price: 1200,
-              imageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1049&q=80',
-              category: '包款',
-            },
-            final_total: 2400,
-          },
-          '-NhtLCr6J2EEJQPbYz0p': {
-            id: '-NhtLCr6J2EEJQPbYz0p',
-            product_id: '-NhiJPttcwr6FDk-F9Gw',
-            qty: 1,
-            product: {
-              title: '時尚運動鞋',
-              price: 1200,
-              imageUrl: 'https://images.unsplash.com/photo-1549298916-b21f9d7c1ae1?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1001&q=80',
-              category: '鞋類',
-            },
-            final_total: 1200,
-          },
-        },
-        payment_method: 'credit_card',
-      },
+      order: {},
       isLoading: false,
     };
   },
@@ -294,22 +253,63 @@ export default {
       if (!this.order.products) return [];
       return Object.values(this.order.products);
     },
+    // 計算商品原始總額（基於商品原價）
+    subtotal() {
+      if (!this.orderProducts.length) return 0;
+      const total = this.orderProducts.reduce((sum, item) => {
+        const originalPrice = Number(item.product?.price) || 0;
+        const qty = Number(item.qty) || 0;
+        return sum + (originalPrice * qty);
+      }, 0);
+      return total;
+    },
+    // 計算優惠折扣金額
+    discountAmount() {
+      if (!this.subtotal || !this.safeFinalTotal) return 0;
+      const discount = this.subtotal - this.safeFinalTotal;
+      return discount > 0 ? discount : 0;
+    },
+    // 是否有優惠折扣
+    hasDiscount() {
+      return this.discountAmount > 0;
+    },
+    // 安全的最終金額（計算所有商品的 final_total 總和）
+    safeFinalTotal() {
+      if (!this.orderProducts.length) return 0;
+
+      // 計算所有商品的 final_total 總和
+      const total = this.orderProducts.reduce((sum, item) => {
+        const itemFinalTotal = Number(item.final_total) || 0;
+        return sum + itemFinalTotal;
+      }, 0);
+
+      return total;
+    },
   },
   methods: {
-    getOrder(orderId) {
-      // 這裡實際專案中應該從 API 獲取訂單數據
-      // this.isLoading = true;
-      // const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/order/${orderId}`;
-      // axios.get(url).then((response) => {
-      //   this.order = response.data.order;
-      // }).catch((error) => {
-      //   console.error('獲取訂單失敗', error);
-      // }).finally(() => {
-      //   this.isLoading = false;
-      // });
+    async getOrder(orderId) {
+      if (!orderId) {
+        console.error('訂單 ID 無效');
+        return;
+      }
 
-      console.log('獲取訂單：', orderId);
-      // 目前使用模擬數據
+      const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
+      this.isLoading = true;
+
+      try {
+        const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/order/${orderId}`;
+        const response = await axios.get(url);
+        this.order = response.data.order;
+        console.log('訂單資料:', this.order);
+      } catch (error) {
+        console.error('獲取訂單失敗', error);
+        // 如果是 404，顯示找不到訂單
+        if (error.response?.status === 404) {
+          this.order = null;
+        }
+      } finally {
+        this.isLoading = false;
+      }
     },
     formatDate(timestamp) {
       if (!timestamp) return '無資料';
@@ -323,16 +323,28 @@ export default {
       });
     },
     formatPrice(price) {
-      return Math.round(price).toLocaleString();
+      // 處理 null, undefined 或非數值的情況
+      if (price === null || price === undefined || Number.isNaN(Number(price))) {
+        return '0';
+      }
+      // 確保 price 是數值類型
+      const numericPrice = Number(price);
+      if (Number.isNaN(numericPrice)) {
+        return '0';
+      }
+      return Math.round(numericPrice).toLocaleString();
     },
     getShippingStatus(order) {
       if (!order.is_paid) return '待付款';
       return '備貨中';
     },
     getPaymentMethod(order) {
+      if (!order || !order.payment_method) return '未設定';
       const methods = {
         credit_card: '信用卡',
+        credit: '信用卡',
         atm: 'ATM 轉帳',
+        transfer: '銀行轉帳',
         bank_transfer: '銀行轉帳',
       };
       return methods[order.payment_method] || '其他方式';

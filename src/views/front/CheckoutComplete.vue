@@ -11,7 +11,9 @@
       class="mb-4"
     />
     <h2 class="mb-3">訂單完成</h2>
-    <p class="mb-4">您的訂單已成立，訂單編號：<strong>#123456</strong></p>
+    <p class="mb-4">
+      您的訂單已成立，訂單編號：<strong>#{{ displayOrderId }}</strong>
+    </p>
     <div class="d-flex justify-content-center mt-2">
       <button class="btn-primary me-3" @click="$router.push('/')">
         回首頁
@@ -36,10 +38,23 @@ export default {
       completeAnimationData,
     };
   },
+  computed: {
+    orderId() {
+      return this.$route.params.orderId;
+    },
+    displayOrderId() {
+      return this.orderId || 'N/A';
+    },
+  },
   methods: {
     viewOrder() {
-      // 使用訂單 ID 跳轉到訂單詳情頁面
-      this.$router.push('/order/123456');
+      // 使用實際的訂單 ID 跳轉到訂單詳情頁面
+      if (this.orderId) {
+        this.$router.push(`/order/${this.orderId}`);
+      } else {
+        // 如果沒有訂單 ID，跳轉到首頁
+        this.$router.push('/');
+      }
     },
   },
 };

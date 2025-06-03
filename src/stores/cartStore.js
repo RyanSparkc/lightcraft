@@ -172,5 +172,29 @@ export default defineStore('cart', {
         throw err;
       }
     },
+    // 新增：送出購物車建立訂單
+    async createOrder(orderData) {
+      const toastStore = useToastMessageStore();
+      try {
+        const res = await axios.post(
+          `${VITE_APP_URL}/api/${VITE_APP_PATH}/order`,
+          { data: orderData } // API 期望的格式 { data: { user: {}, message: ''} }
+        );
+        toastStore.addMessage({
+          title: '成功',
+          content: res.data.message || '訂單已成功送出',
+          style: 'success',
+        });
+        this.getCart(); // 訂單送出後，重新整理購物車 (通常會變空)
+        return res.data; // 返回包含 orderId 等資訊的回應
+      } catch (err) {
+        toastStore.addMessage({
+          title: '錯誤',
+          content: err.response?.data?.message || '訂單送出失敗，請稍後再試',
+          style: 'danger',
+        });
+        throw err;
+      }
+    },
   },
 });

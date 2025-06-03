@@ -1,234 +1,240 @@
 <template>
   <div class="container my-5">
-    <h2 class="section-title mb-4">付款與訂單確認</h2>
+    <h2 class="section-title mb-4">付款方式</h2>
 
     <div class="row">
-      <!-- 左側：購物車商品列表 -->
-      <div class="col-lg-7 mb-4 mb-lg-0">
-        <div class="cart-items-card">
-          <h3 class="card-title">購物車商品</h3>
-
-          <div
-            v-if="cartStore.carts && cartStore.carts.length > 0"
-            class="cart-items"
-          >
-            <div
-              v-for="item in cartStore.carts"
-              :key="item.id"
-              class="cart-item"
-            >
-              <div class="item-image">
-                <img
-                  :src="item.product.imageUrl"
-                  :alt="item.product.title"
-                  class="img-fluid rounded"
-                />
-              </div>
-              <div class="item-details">
-                <h5 class="item-title">{{ item.product.title }}</h5>
-                <div class="item-category">{{ item.product.category }}</div>
-                <div class="item-quantity">數量：{{ item.qty }}</div>
-              </div>
-              <div class="item-price">
-                <div class="price">NT$ {{ formatPrice(item.total) }}</div>
-                <div
-                  v-if="item.product.origin_price > item.product.price"
-                  class="original-price"
-                >
-                  NT$ {{ formatPrice(item.product.origin_price * item.qty) }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="empty-cart-message">
-            購物車中沒有商品，請先選購商品。
-          </div>
-        </div>
-      </div>
-
-      <!-- 右側：寄送地址、付款方式與訂單資訊 -->
-      <div class="col-lg-5">
-        <!-- 寄送地址摘要 -->
-        <div class="info-card mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="card-title mb-0">寄送地址</h3>
-            <button class="btn-edit" @click="goToAddress">
-              <i class="bi bi-pencil-fill"></i> 編輯
-            </button>
-          </div>
-          <div class="address-summary">
-            <div v-if="addressData">
-              <div>
-                <span class="fw-medium">姓名：</span>{{ addressData.name }}
-              </div>
-              <div>
-                <span class="fw-medium">電話：</span>{{ addressData.phone }}
-              </div>
-              <div>
-                <span class="fw-medium">Email：</span>{{ addressData.email }}
-              </div>
-              <div>
-                <span class="fw-medium">地址：</span>{{ addressData.address }}
-              </div>
-            </div>
-            <div v-else class="text-muted">尚未填寫寄送資訊</div>
-          </div>
-        </div>
-
-        <!-- 付款方式選擇 -->
-        <div class="info-card mb-4">
-          <h3 class="card-title mb-3">選擇付款方式</h3>
+      <!-- 左欄：付款方式 -->
+      <div class="col-md-8">
+        <div class="form-card mb-4">
+          <h3 class="payment-subtitle mb-3">選擇付款方式</h3>
 
           <div class="payment-options">
-            <div
-              class="payment-option"
-              :class="{ active: paymentMethod === 'credit' }"
-              @click="selectPayment('credit')"
-            >
-              <div class="payment-radio">
-                <div
-                  class="radio-inner"
-                  v-if="paymentMethod === 'credit'"
-                ></div>
-              </div>
-              <div class="payment-label">
+            <div class="payment-option">
+              <input
+                type="radio"
+                id="credit"
+                name="payment"
+                value="credit"
+                class="payment-radio"
+                checked
+              />
+              <label for="credit" class="payment-label">
                 <span class="payment-name">信用卡付款</span>
                 <span class="payment-desc">Visa, Mastercard, JCB</span>
-              </div>
+              </label>
             </div>
 
-            <div
-              class="payment-option"
-              :class="{ active: paymentMethod === 'transfer' }"
-              @click="selectPayment('transfer')"
-            >
-              <div class="payment-radio">
-                <div
-                  class="radio-inner"
-                  v-if="paymentMethod === 'transfer'"
-                ></div>
-              </div>
-              <div class="payment-label">
+            <div class="payment-option">
+              <input
+                type="radio"
+                id="transfer"
+                name="payment"
+                value="transfer"
+                class="payment-radio"
+              />
+              <label for="transfer" class="payment-label">
                 <span class="payment-name">銀行轉帳</span>
                 <span class="payment-desc">收到款項後才出貨</span>
-              </div>
+              </label>
             </div>
 
-            <div
-              class="payment-option"
-              :class="{ active: paymentMethod === 'atm' }"
-              @click="selectPayment('atm')"
-            >
-              <div class="payment-radio">
-                <div class="radio-inner" v-if="paymentMethod === 'atm'"></div>
-              </div>
-              <div class="payment-label">
+            <div class="payment-option">
+              <input
+                type="radio"
+                id="atm"
+                name="payment"
+                value="atm"
+                class="payment-radio"
+              />
+              <label for="atm" class="payment-label">
                 <span class="payment-name">ATM 轉帳</span>
                 <span class="payment-desc">收到款項確認後才出貨</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 訂單資訊摘要 -->
-        <div class="info-card">
-          <h3 class="card-title">訂單資訊</h3>
-          <div class="info-item">
-            <div class="info-label">商品小計</div>
-            <div class="info-value">NT$ {{ formatPrice(cartStore.total) }}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">運費</div>
-            <div class="info-value">NT$ 0</div>
-          </div>
-          <div v-if="showCoupon" class="info-item">
-            <div class="info-label">已套用優惠券</div>
-            <div class="info-value text-success">
-              {{ cartStore.carts[0].coupon.code }}
-            </div>
-          </div>
-          <div v-if="showCoupon" class="info-item">
-            <div class="info-label">折扣金額</div>
-            <div class="info-value text-success">
-              -NT$ {{ formatPrice(discountAmount) }}
-            </div>
-          </div>
-          <div class="info-item total">
-            <div class="info-label">總計</div>
-            <div class="info-value text-danger">
-              NT$ {{ formatPrice(cartStore.final_total) }}
+              </label>
             </div>
           </div>
         </div>
 
         <!-- 安全說明 -->
-        <div class="security-notice mt-2 mb-2">
-          <i class="bi bi-shield-lock me-2"></i>
-          所有交易均使用SSL加密技術進行保護，確保您的個人資料安全。
+        <div class="security-info mt-3 mb-4">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-shield-lock me-2"></i>
+            <span>本站使用 SSL 加密技術，保障您的交易安全</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右欄：訂單摘要 -->
+      <div class="col-md-4">
+        <div class="info-card">
+          <h3 class="card-title">訂單資訊</h3>
+
+          <!-- 優惠券輸入 -->
+          <div class="coupon-section mb-3">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                v-model="couponCode"
+                placeholder="請輸入優惠券代碼"
+              />
+              <button
+                class="btn-apply"
+                @click="applyCouponCode"
+                :disabled="!couponCode.trim()"
+              >
+                套用
+              </button>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">商品總額</div>
+            <div class="info-value">NT$ {{ formattedTotal }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">運費</div>
+            <div class="info-value">NT$ 0</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">稅金</div>
+            <div class="info-value">NT$ 0</div>
+          </div>
+          <div class="info-item discount" v-if="hasDiscount">
+            <div class="info-label">優惠折扣</div>
+            <div class="info-value">
+              -NT$ {{ discountAmount.toLocaleString() }}
+            </div>
+          </div>
+          <div class="info-item total">
+            <div class="info-label">總計</div>
+            <div class="info-value">NT$ {{ formattedFinalTotal }}</div>
+          </div>
+
+          <!-- 條款確認 -->
+          <div class="terms-section mt-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="terms"
+                checked
+              />
+              <label class="form-check-label" for="terms">
+                我已閱讀並同意<a href="#" class="terms-link">服務條款</a>與<a
+                  href="#"
+                  class="terms-link"
+                  >隱私政策</a
+                >
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="d-flex justify-content-between mt-3">
-      <button class="btn-secondary" @click="$router.push('/checkout/address')">
-        上一步
+    <!-- 底部按鈕 -->
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn-secondary" @click="$router.back()">上一步</button>
+      <button
+        class="btn-primary"
+        @click="completeOrder"
+        :disabled="isSubmitting"
+      >
+        {{ isSubmitting ? '處理中...' : '確認付款並送出訂單' }}
       </button>
-      <button class="btn-primary" @click="nextStep">確認付款並送出訂單</button>
     </div>
   </div>
 </template>
 
 <script>
-import { mapStores } from 'pinia';
+import { mapState, mapActions } from 'pinia';
 import useCartStore from '@/stores/cartStore';
 
 export default {
   name: 'CheckoutPayment',
   data() {
     return {
-      paymentMethod: 'credit',
-      addressData: null,
+      selectedPayment: 'credit',
+      couponCode: '',
+      isSubmitting: false,
+      termsAccepted: true,
     };
   },
   computed: {
-    ...mapStores(useCartStore),
-    showCoupon() {
-      return this.cartStore.carts
-        && this.cartStore.carts.length > 0
-        && this.cartStore.carts[0].coupon;
+    ...mapState(useCartStore, ['carts', 'total', 'final_total']),
+    formattedTotal() {
+      return Math.round(this.total).toLocaleString();
+    },
+    formattedFinalTotal() {
+      return Math.round(this.final_total).toLocaleString();
     },
     discountAmount() {
-      if (this.showCoupon) {
-        return this.cartStore.total - this.cartStore.final_total;
-      }
-      return 0;
+      return Math.round(this.total - this.final_total);
+    },
+    hasDiscount() {
+      return this.discountAmount > 0;
     },
   },
   methods: {
-    formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    ...mapActions(useCartStore, ['getCart', 'applyCoupon', 'createOrder']),
+    async applyCouponCode() {
+      if (!this.couponCode.trim()) return;
+
+      try {
+        await this.applyCoupon(this.couponCode.trim());
+        this.couponCode = '';
+      } catch (error) {
+        // 錯誤已在 store 中處理
+      }
     },
-    selectPayment(method) {
-      this.paymentMethod = method;
-    },
-    goToAddress() {
-      this.$router.push('/checkout/address');
-    },
-    nextStep() {
-      // 直接前往完成頁面，跳過review
-      this.$router.push('/checkout/complete');
-    },
-    loadAddressData() {
-      // 從本地存儲中獲取地址數據
-      const addressData = localStorage.getItem('checkoutAddress');
-      if (addressData) {
-        this.addressData = JSON.parse(addressData);
+    async completeOrder() {
+      if (this.isSubmitting) return;
+
+      try {
+        this.isSubmitting = true;
+
+        // 從 localStorage 取得配送資訊
+        const addressData = JSON.parse(localStorage.getItem('checkoutAddress') || '{}');
+
+        if (!addressData.name || !addressData.email || !addressData.phone || !addressData.address) {
+          this.addMessage({
+            title: '提醒',
+            content: '請先完成配送資訊填寫',
+            style: 'warning',
+          });
+          this.$router.push('/checkout/address');
+          return;
+        }
+
+        // 準備訂單資料
+        const orderData = {
+          user: {
+            name: addressData.name,
+            email: addressData.email,
+            tel: addressData.phone,
+            address: addressData.address,
+          },
+          message: addressData.message || '',
+        };
+
+        // 提交訂單
+        const response = await this.createOrder(orderData);
+
+        // 清除 localStorage 中的配送資訊
+        localStorage.removeItem('checkoutAddress');
+
+        // 跳轉到完成頁面，攜帶訂單 ID
+        this.$router.push(`/checkout/complete/${response.orderId}`);
+      } catch (error) {
+        // 錯誤訊息已在 store 中處理
+      } finally {
+        this.isSubmitting = false;
       }
     },
   },
   mounted() {
-    this.loadAddressData();
+    // 載入購物車資料
+    this.getCart();
   },
 };
 </script>
@@ -240,192 +246,82 @@ export default {
   margin-bottom: 1.5rem;
 }
 
-/* 購物車商品列表樣式 */
-.cart-items-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  min-height: 0;
-  max-height: none;
-  border: 1px solid #ddd;
-}
-
-.cart-items {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.cart-item {
-  display: flex;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.cart-item:last-child {
-  border-bottom: none;
-}
-
-.item-image {
-  width: 70px;
-  height: 70px;
-  margin-right: 1rem;
-  flex-shrink: 0;
-}
-
-.item-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.item-details {
-  flex-grow: 1;
-  padding-right: 1rem;
-}
-
-.item-title {
-  font-size: 1rem;
+.payment-subtitle, .cart-subtitle {
+  font-size: 1.1rem;
   font-weight: 500;
-  margin-bottom: 0.3rem;
+  color: #444;
 }
 
-.item-category {
-  font-size: 0.9rem;
-  color: #888;
-  margin-bottom: 0.5rem;
-}
-
-.item-quantity {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.item-price {
-  text-align: right;
-  min-width: 100px;
-}
-
-.price {
-  font-weight: 600;
-  color: #333;
-}
-
-.original-price {
-  font-size: 0.85rem;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.empty-cart-message {
-  padding: 2rem 0;
-  text-align: center;
-  color: #888;
-}
-
-/* 表單樣式 */
-.info-card {
+/* 表單與卡片樣式 */
+.form-card, .info-card {
   background: white;
   border-radius: 12px;
-  padding: 0.8rem;
+  padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 0.8rem;
-  min-height: 0;
-  height: auto;
-  overflow: visible;
-  border: 1px solid #ddd;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid #eee;
-}
-
-.address-summary {
-  color: #555;
-  line-height: 1.4;
-  font-size: 0.95rem;
 }
 
 /* 付款選項樣式 */
 .payment-options {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .payment-option {
   display: flex;
   align-items: center;
-  padding: 0.6rem;
+  padding: 1rem;
   border: 1px solid #eee;
   border-radius: 8px;
   transition: all 0.2s ease;
-  cursor: pointer;
 }
 
 .payment-option:hover {
-  border-color: #ddd;
-  background-color: #f9f9f9;
-}
-
-.payment-option.active {
-  border-color: #333;
-  background-color: #f5f5f5;
+  border-color: #ccc;
 }
 
 .payment-radio {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid #999;
-  margin-right: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.payment-option.active .payment-radio {
-  border-color: #333;
-}
-
-.radio-inner {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background-color: #333;
+  margin-right: 1rem;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 .payment-label {
   display: flex;
   flex-direction: column;
+  margin: 0;
+  cursor: pointer;
   width: 100%;
 }
 
 .payment-name {
   font-weight: 500;
   color: #333;
-  margin-bottom: 0.15rem;
-  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
 }
 
 .payment-desc {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #888;
 }
 
 /* 訂單資訊卡片樣式 */
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
 .info-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.4rem;
-  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid #f5f5f5;
-  font-size: 0.95rem;
 }
 
 .info-item:last-child {
@@ -435,50 +331,116 @@ export default {
 }
 
 .info-item.total {
-  border-top: 1px solid #eee;
-  margin-top: 0.4rem;
-  padding-top: 0.6rem;
-  font-weight: 600;
-  font-size: 1rem;
+  border-top: none;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.info-item.discount {
+  color: #dc3545;
+}
+
+.info-item:nth-last-child(2) {
+  border-bottom: 2px solid #eee;
 }
 
 .info-label {
+  font-weight: 500;
   color: #666;
 }
 
 .info-value {
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
 }
 
-/* 安全說明 */
-.security-notice {
-  font-size: 0.85rem;
-  color: #666;
-  padding: 0.25rem 0;
-  text-align: center;
+/* 優惠券輸入樣式 */
+.coupon-section {
+  margin-bottom: 1rem;
 }
 
-/* 編輯按鈕 */
-.btn-edit {
-  background: transparent;
-  color: #555;
+.input-group {
+  display: flex;
+}
+
+.form-control {
+  flex: 1;
   border: 1px solid #ddd;
-  padding: 0.3rem 0.8rem;
-  border-radius: 4px;
+  border-radius: 8px 0 0 8px;
+  padding: 0.5rem 1rem;
   font-size: 0.9rem;
+}
+
+.btn-apply {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn-edit:hover {
-  background: #f5f5f5;
-  color: #333;
+.btn-apply:hover {
+  background: #eee;
 }
 
-/* 左右欄位高度控制 */
-.col-lg-7, .col-lg-5 {
-  display: flex;
-  flex-direction: column;
+/* 條款確認樣式 */
+.terms-section {
+  font-size: 0.85rem;
+}
+
+.terms-link {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+/* 安全說明樣式 */
+.security-info {
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
+/* 按鈕樣式 */
+.btn-primary {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #f8f8f8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 </style>

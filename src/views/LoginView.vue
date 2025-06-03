@@ -3,20 +3,29 @@
   <div class="container vh-100">
     <div class="row justify-content-center align-items-center h-100">
       <div class="col-8">
-        <h1 class="h3 mb-3 font-weight-normal text-center">
-          請先登入
-        </h1>
+        <h1 class="h3 mb-3 font-weight-normal text-center">請先登入</h1>
         <form id="form" class="form-signin" @submit.prevent="login">
           <div class="form-floating mb-3">
-            <input type="email" class="form-control"
-             id="username" placeholder="name@example.com" required autofocus
-              v-model="user.username">
+            <input
+              type="email"
+              class="form-control"
+              id="username"
+              placeholder="name@example.com"
+              required
+              autofocus
+              v-model="user.username"
+            />
             <label for="username">Email address</label>
           </div>
           <div class="form-floating">
-            <input type="password" class="form-control"
-             id="password" placeholder="Password" required
-              v-model="user.password">
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              placeholder="Password"
+              required
+              v-model="user.password"
+            />
             <label for="password">Password</label>
           </div>
           <button class="btn btn-lg btn-primary w-100 mt-3" type="submit">
@@ -54,6 +63,7 @@ export default {
         const { token, expired } = res.data;
         document.cookie = `hexToken=${token}; expires=${new Date(expired)};`;
         this.$router.push('/admin/products');
+        console.log(res.data);
       }).catch((err) => {
         this.addMessage(
           {

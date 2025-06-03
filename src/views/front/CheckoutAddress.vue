@@ -62,6 +62,20 @@
               />
               <div class="invalid-feedback">{{ errors.address }}</div>
             </div>
+
+            <div class="form-group mb-3">
+              <label for="message" class="form-label">訂單備註</label>
+              <textarea
+                id="message"
+                v-model="form.message"
+                class="form-control"
+                rows="3"
+                placeholder="請輸入訂單備註（選填）"
+              ></textarea>
+              <small class="form-text text-muted">
+                如有特殊需求或配送說明，請在此填寫
+              </small>
+            </div>
           </div>
         </div>
 
@@ -97,6 +111,7 @@ export default {
         email: '',
         phone: '',
         address: '',
+        message: '',
       },
       errors: {},
       shippingFee: 'NT$ 0',
