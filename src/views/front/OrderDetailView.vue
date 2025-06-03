@@ -8,7 +8,7 @@
     </div>
 
     <!-- 訂單狀態卡片 -->
-    <div class="card mb-4" v-if="order && order.id">
+    <div class="card mb-4" v-if="hasOrderData">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="card-title mb-0">訂單 #{{ order.id || '123456' }}</h4>
@@ -49,8 +49,8 @@
       </div>
     </div>
 
-    <!-- 配送追蹤區塊 (移到了商品上方) -->
-    <div class="card mb-4" v-if="order && order.id">
+    <!-- 配送追蹤區塊 -->
+    <div class="card mb-4" v-if="hasOrderData">
       <div class="card-header bg-white border-bottom-0 py-3">
         <h5 class="mb-0">配送追蹤</h5>
       </div>
@@ -107,7 +107,7 @@
     </div>
 
     <!-- 訂單內容與收件人資訊 -->
-    <div class="row" v-if="order && order.id">
+    <div class="row" v-if="hasOrderData">
       <!-- 訂單商品 -->
       <div class="col-lg-8 mb-4">
         <div class="card h-100">
@@ -211,7 +211,7 @@
             <hr />
             <div class="d-flex justify-content-between">
               <span class="fw-bold">總計</span>
-              <span class="fw-bold">NT$ {{ formatPrice(safeFinalTotal) }}</span>
+              <span class="fw-bold">NT$ {{ formatPrice(finalTotal) }}</span>
             </div>
           </div>
         </div>
@@ -246,9 +246,21 @@ export default {
     return {
       order: {},
       isLoading: false,
+      // 付款方式對照表
+      paymentMethods: {
+        credit_card: '信用卡',
+        credit: '信用卡',
+        atm: 'ATM 轉帳',
+        transfer: '銀行轉帳',
+        bank_transfer: '銀行轉帳',
+      },
     };
   },
   computed: {
+    // 檢查是否有有效的訂單數據
+    hasOrderData() {
+      return this.order && this.order.id;
+    },
     orderProducts() {
       if (!this.order.products) return [];
       return Object.values(this.order.products);
@@ -256,34 +268,28 @@ export default {
     // 計算商品原始總額（基於商品原價）
     subtotal() {
       if (!this.orderProducts.length) return 0;
-      const total = this.orderProducts.reduce((sum, item) => {
+      return this.orderProducts.reduce((sum, item) => {
         const originalPrice = Number(item.product?.price) || 0;
         const qty = Number(item.qty) || 0;
         return sum + (originalPrice * qty);
       }, 0);
-      return total;
+    },
+    // 最終金額（計算所有商品的 final_total 總和）
+    finalTotal() {
+      if (!this.orderProducts.length) return 0;
+      return this.orderProducts.reduce((sum, item) => {
+        const itemFinalTotal = Number(item.final_total) || 0;
+        return sum + itemFinalTotal;
+      }, 0);
     },
     // 計算優惠折扣金額
     discountAmount() {
-      if (!this.subtotal || !this.safeFinalTotal) return 0;
-      const discount = this.subtotal - this.safeFinalTotal;
+      const discount = this.subtotal - this.finalTotal;
       return discount > 0 ? discount : 0;
     },
     // 是否有優惠折扣
     hasDiscount() {
       return this.discountAmount > 0;
-    },
-    // 安全的最終金額（計算所有商品的 final_total 總和）
-    safeFinalTotal() {
-      if (!this.orderProducts.length) return 0;
-
-      // 計算所有商品的 final_total 總和
-      const total = this.orderProducts.reduce((sum, item) => {
-        const itemFinalTotal = Number(item.final_total) || 0;
-        return sum + itemFinalTotal;
-      }, 0);
-
-      return total;
     },
   },
   methods: {
@@ -300,7 +306,6 @@ export default {
         const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/order/${orderId}`;
         const response = await axios.get(url);
         this.order = response.data.order;
-        console.log('訂單資料:', this.order);
       } catch (error) {
         console.error('獲取訂單失敗', error);
         // 如果是 404，顯示找不到訂單
@@ -323,13 +328,8 @@ export default {
       });
     },
     formatPrice(price) {
-      // 處理 null, undefined 或非數值的情況
-      if (price === null || price === undefined || Number.isNaN(Number(price))) {
-        return '0';
-      }
-      // 確保 price 是數值類型
       const numericPrice = Number(price);
-      if (Number.isNaN(numericPrice)) {
+      if (!numericPrice || Number.isNaN(numericPrice)) {
         return '0';
       }
       return Math.round(numericPrice).toLocaleString();
@@ -339,15 +339,8 @@ export default {
       return '備貨中';
     },
     getPaymentMethod(order) {
-      if (!order || !order.payment_method) return '未設定';
-      const methods = {
-        credit_card: '信用卡',
-        credit: '信用卡',
-        atm: 'ATM 轉帳',
-        transfer: '銀行轉帳',
-        bank_transfer: '銀行轉帳',
-      };
-      return methods[order.payment_method] || '其他方式';
+      if (!order?.payment_method) return '未設定';
+      return this.paymentMethods[order.payment_method] || '其他方式';
     },
   },
   created() {
@@ -363,78 +356,6 @@ export default {
 .order-status {
   font-size: 0.875rem;
   font-weight: 500;
-}
-
-/* 垂直時間軸樣式 (保留但不再使用) */
-.tracking-timeline {
-  position: relative;
-  padding-left: 30px;
-}
-
-.tracking-item {
-  position: relative;
-  padding-bottom: 25px;
-  opacity: 0.5;
-}
-
-.tracking-item.active {
-  opacity: 1;
-}
-
-.tracking-item:last-child {
-  padding-bottom: 0;
-}
-
-.tracking-item::before {
-  content: '';
-  position: absolute;
-  left: -22px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background-color: #e0e0e0;
-  z-index: 1;
-}
-
-.tracking-item.active::before {
-  background-color: #3490dc;
-}
-
-.tracking-icon {
-  position: absolute;
-  left: -30px;
-  top: 0;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-  z-index: 2;
-}
-
-.tracking-icon i {
-  color: #e0e0e0;
-  font-size: 1rem;
-}
-
-.tracking-item.active .tracking-icon i {
-  color: #3490dc;
-}
-
-.tracking-content {
-  margin-left: 10px;
-}
-
-.tracking-title {
-  margin-bottom: 0;
-  font-weight: 500;
-}
-
-.tracking-date {
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-bottom: 0;
 }
 
 /* 水平時間軸樣式 */
