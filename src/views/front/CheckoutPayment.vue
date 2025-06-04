@@ -15,8 +15,8 @@
                 id="credit"
                 name="payment"
                 value="credit"
+                v-model="selectedPayment"
                 class="payment-radio"
-                checked
               />
               <label for="credit" class="payment-label">
                 <span class="payment-name">信用卡付款</span>
@@ -67,6 +67,25 @@
       <div class="col-md-4">
         <div class="info-card">
           <h3 class="card-title">訂單資訊</h3>
+
+          <!-- 商品列表 -->
+          <div class="order-items mb-3">
+            <h4 class="items-subtitle mb-2">訂購商品</h4>
+            <div class="order-item" v-for="item in displayCarts" :key="item.id">
+              <div class="item-info">
+                <div class="item-name">{{ item.product.title }}</div>
+                <div class="item-details">
+                  <span class="item-qty">數量: {{ item.qty }}</span>
+                  <span class="item-price"
+                    >NT$ {{ item.product.price.toLocaleString() }}</span
+                  >
+                </div>
+              </div>
+              <div class="item-total">
+                NT$ {{ (item.product.price * item.qty).toLocaleString() }}
+              </div>
+            </div>
+          </div>
 
           <!-- 優惠券輸入 -->
           <div class="coupon-section mb-3">
@@ -158,25 +177,41 @@ export default {
       couponCode: '',
       isSubmitting: false,
       termsAccepted: true,
+      orderId: null,
+      orderCartData: {
+        carts: [],
+        total: 0,
+        final_total: 0,
+      },
     };
   },
   computed: {
     ...mapState(useCartStore, ['carts', 'total', 'final_total']),
+    // 使用保存的購物車資料
+    displayCarts() {
+      return this.orderCartData.carts.length > 0 ? this.orderCartData.carts : this.carts;
+    },
+    displayTotal() {
+      return this.orderCartData.total > 0 ? this.orderCartData.total : this.total;
+    },
+    displayFinalTotal() {
+      return this.orderCartData.final_total > 0 ? this.orderCartData.final_total : this.final_total;
+    },
     formattedTotal() {
-      return Math.round(this.total).toLocaleString();
+      return Math.round(this.displayTotal).toLocaleString();
     },
     formattedFinalTotal() {
-      return Math.round(this.final_total).toLocaleString();
+      return Math.round(this.displayFinalTotal).toLocaleString();
     },
     discountAmount() {
-      return Math.round(this.total - this.final_total);
+      return Math.round(this.displayTotal - this.displayFinalTotal);
     },
     hasDiscount() {
       return this.discountAmount > 0;
     },
   },
   methods: {
-    ...mapActions(useCartStore, ['getCart', 'applyCoupon', 'createOrder']),
+    ...mapActions(useCartStore, ['getCart', 'applyCoupon', 'createOrder', 'payOrder']),
     async applyCouponCode() {
       if (!this.couponCode.trim()) return;
 
@@ -193,40 +228,22 @@ export default {
       try {
         this.isSubmitting = true;
 
-        // 從 localStorage 取得配送資訊
-        const addressData = JSON.parse(localStorage.getItem('checkoutAddress') || '{}');
-
-        if (!addressData.name || !addressData.email || !addressData.phone || !addressData.address) {
-          this.addMessage({
-            title: '提醒',
-            content: '請先完成配送資訊填寫',
-            style: 'warning',
-          });
+        // 檢查是否有訂單 ID
+        if (!this.orderId) {
           this.$router.push('/checkout/address');
           return;
         }
 
-        // 準備訂單資料
-        const orderData = {
-          user: {
-            name: addressData.name,
-            email: addressData.email,
-            tel: addressData.phone,
-            address: addressData.address,
-          },
-          message: addressData.message || '',
-        };
+        // 立即處理付款
+        await this.payOrder(this.orderId);
 
-        // 提交訂單
-        const response = await this.createOrder(orderData);
+        // 清除保存的購物車資料
+        localStorage.removeItem('orderCartData');
 
-        // 清除 localStorage 中的配送資訊
-        localStorage.removeItem('checkoutAddress');
-
-        // 跳轉到完成頁面，攜帶訂單 ID
-        this.$router.push(`/checkout/complete/${response.orderId}`);
+        // 跳轉到完成頁面
+        this.$router.push(`/checkout/complete/${this.orderId}`);
       } catch (error) {
-        // 錯誤訊息已在 store 中處理
+        // 錯誤處理已在 store 中完成
       } finally {
         this.isSubmitting = false;
       }
@@ -235,6 +252,20 @@ export default {
   mounted() {
     // 載入購物車資料
     this.getCart();
+
+    // 從 URL 查詢參數中獲取訂單 ID
+    this.orderId = this.$route.query.orderId;
+
+    // 載入保存的購物車資料
+    const savedCartData = localStorage.getItem('orderCartData');
+    if (savedCartData) {
+      this.orderCartData = JSON.parse(savedCartData);
+    }
+
+    // 如果沒有訂單 ID，跳轉回地址頁面
+    if (!this.orderId) {
+      this.$router.push('/checkout/address');
+    }
   },
 };
 </script>
@@ -314,6 +345,60 @@ export default {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #eee;
+}
+
+/* 商品列表樣式 */
+.order-items {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.items-subtitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.item-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.item-qty, .item-price {
+  font-size: 0.85rem;
+}
+
+.item-total {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
 }
 
 .info-item {

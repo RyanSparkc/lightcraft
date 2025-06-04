@@ -17,7 +17,6 @@ export default defineStore('cart', {
       axios
         .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart`)
         .then((res) => {
-          console.log('購物車 API 回應:', res.data);
           const { carts, total, final_total: apiFinalTotal } = res.data.data;
           this.carts = carts;
           this.total = total;
@@ -191,6 +190,30 @@ export default defineStore('cart', {
         toastStore.addMessage({
           title: '錯誤',
           content: err.response?.data?.message || '訂單送出失敗，請稍後再試',
+          style: 'danger',
+        });
+        throw err;
+      }
+    },
+    // 新增：處理付款
+    async payOrder(orderId) {
+      const toastStore = useToastMessageStore();
+      try {
+        const res = await axios.post(
+          `${VITE_APP_URL}/api/${VITE_APP_PATH}/pay/${orderId}`
+        );
+
+        toastStore.addMessage({
+          title: '付款成功',
+          content: res.data.message || '付款已完成',
+          style: 'success',
+        });
+
+        return res.data;
+      } catch (err) {
+        toastStore.addMessage({
+          title: '付款失敗',
+          content: err.response?.data?.message || '付款處理失敗，請稍後再試',
           style: 'danger',
         });
         throw err;

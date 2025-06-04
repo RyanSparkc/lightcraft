@@ -262,7 +262,7 @@ export default {
       try {
         await this.updateCartItem(item);
       } catch (err) {
-        console.error('更新購物車項目失敗:', err);
+        // 錯誤已在 store 中處理
       } finally {
         this.loadingItem = '';
       }
@@ -280,7 +280,7 @@ export default {
       try {
         await this.removeCartItem(id);
       } catch (err) {
-        console.error('移除購物車項目失敗:', err);
+        // 錯誤已在 store 中處理
       } finally {
         this.loadingItem = '';
       }
@@ -291,7 +291,7 @@ export default {
       try {
         await this.clearCart();
       } catch (err) {
-        console.error('清空購物車失敗:', err);
+        // 錯誤已在 store 中處理
       } finally {
         this.isClearing = false;
       }

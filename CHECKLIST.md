@@ -4,6 +4,126 @@
 
 ### ✅ 已完成功能
 
+#### 🛒 結帳流程 API 整合與商品列表顯示修正
+**完成日期:** 2024-12-19
+
+**功能細節:**
+- **功能目的:** 修正結帳流程中的 API 調用問題，確保地址頁面正確建立訂單，付款頁面顯示完整的商品列表與金額資訊
+- **實作組件與模組:**
+  - `CheckoutAddress.vue` - 地址頁面，按照 API 文件正確調用建立訂單 API
+  - `CheckoutPayment.vue` - 付款頁面，新增商品列表顯示和保存購物車資料功能
+  - `cartStore.js` - 修正 payOrder 方法，符合 API 規格要求
+  - localStorage 機制，保存訂單建立前的購物車資料
+
+- **API 規格與整合方式:**
+  - 建立訂單 API: `POST /v2/api/{api_path}/order`
+    - 請求格式: `{ data: { user: { name, email, tel, address }, message } }`
+    - 回應: `{ success: true, orderId: "xxx", message: "已建立訂單" }`
+  - 付款 API: `POST /v2/api/{api_path}/pay/{order_id}`
+    - 無需額外 body 參數，直接 POST 到指定 orderId 即可完成付款
+
+- **資料流程描述:**
+  1. 用戶在 `CheckoutAddress.vue` 填寫資訊，點擊「建立訂單並前往付款」
+  2. 建立訂單前先保存購物車資料到 localStorage
+  3. 調用 createOrder API 建立訂單，獲得 orderId
+  4. 跳轉到 `CheckoutPayment.vue?orderId=xxx`
+  5. 付款頁面從 localStorage 載入保存的購物車資料顯示商品列表
+  6. 用戶確認付款，調用 payOrder API
+  7. 付款成功後清除暫存資料，跳轉到完成頁面
+
+**開發歷程與錯誤記錄:**
+
+**遇到的挑戰:**
+- 結帳流程中 API 調用時機混亂：原本在付款頁面重複建立訂單
+- 付款頁面商品資訊缺失：訂單建立後購物車被清空，無法顯示商品列表
+- API 參數格式問題：付款 API 不需要額外參數但程式碼傳送了不必要的資料
+
+**錯誤現象與解決方案:**
+
+1. **問題:** 地址頁面沒有調用建立訂單 API
+   ```javascript
+   // ❌ 原本只保存地址資料
+   localStorage.setItem('checkoutAddress', JSON.stringify(this.form));
+   this.$router.push('/checkout/payment');
+   
+   // ✅ 修正：建立訂單並傳遞 orderId
+   const response = await this.createOrder(orderData);
+   this.$router.push(`/checkout/payment?orderId=${response.orderId}`);
+   ```
+
+2. **問題:** 付款頁面商品列表為空，金額顯示 0
+   ```javascript
+   // ❌ 問題原因：訂單建立後購物車被清空
+   async createOrder(orderData) {
+     const res = await axios.post('/order', { data: orderData });
+     this.getCart(); // 這裡會重新獲取購物車，通常為空
+   }
+   
+   // ✅ 解決方案：建立訂單前保存購物車資料
+   // CheckoutAddress.vue
+   const cartData = { carts: this.carts, total: this.total, final_total: this.final_total };
+   localStorage.setItem('orderCartData', JSON.stringify(cartData));
+   
+   // CheckoutPayment.vue
+   mounted() {
+     const savedCartData = localStorage.getItem('orderCartData');
+     if (savedCartData) {
+       this.orderCartData = JSON.parse(savedCartData);
+     }
+   }
+   ```
+
+3. **問題:** 付款 API 調用格式錯誤
+   ```javascript
+   // ❌ 錯誤：傳送不必要的參數
+   async payOrder(orderId, paymentMethod) {
+     await axios.post(`/pay/${orderId}`, { 
+       data: { payment_method: paymentMethod } 
+     });
+   }
+   
+   // ✅ 正確：根據 API 文件，不需額外參數
+   async payOrder(orderId) {
+     await axios.post(`/pay/${orderId}`);
+   }
+   ```
+
+4. **問題:** 付款頁面 UI 缺少商品列表
+   ```html
+   <!-- ❌ 原本只有總額資訊 -->
+   <div class="info-item">
+     <div class="info-label">商品總額</div>
+     <div class="info-value">NT$ {{ formattedTotal }}</div>
+   </div>
+   
+   <!-- ✅ 新增商品列表顯示 -->
+   <div class="order-items mb-3">
+     <h4 class="items-subtitle mb-2">訂購商品</h4>
+     <div class="order-item" v-for="item in displayCarts" :key="item.id">
+       <div class="item-info">
+         <div class="item-name">{{ item.product.title }}</div>
+         <div class="item-details">
+           <span class="item-qty">數量: {{ item.qty }}</span>
+           <span class="item-price">NT$ {{ item.product.price.toLocaleString() }}</span>
+         </div>
+       </div>
+       <div class="item-total">
+         NT$ {{ (item.product.price * item.qty).toLocaleString() }}
+       </div>
+     </div>
+   </div>
+   ```
+
+**經驗總結與學習心得:**
+- 📋 **API 時序:** 建立訂單應在地址確認階段，付款階段只處理付款邏輯
+- 💾 **資料保存:** 當 API 操作會改變狀態時，需要提前保存必要的顯示資料
+- 📝 **API 文件:** 嚴格按照 API 文件的參數格式，避免傳送不必要的資料
+- 🎯 **用戶體驗:** 付款前用戶需要能清楚看到購買的商品列表和金額明細
+- 🔧 **資料流設計:** localStorage 適合暫存跨頁面的業務資料，但要記得清理
+- 🛠️ **除錯技巧:** 先確認 API 調用是否成功，再處理前端顯示邏輯
+
+---
+
 #### 🛒 結帳流程與訂單管理功能
 **完成日期:** 2024-12-19
 
