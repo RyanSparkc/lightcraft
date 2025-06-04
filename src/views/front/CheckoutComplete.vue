@@ -18,7 +18,12 @@
       <button class="btn-primary me-3" @click="$router.push('/')">
         回首頁
       </button>
-      <button class="btn-secondary" @click="viewOrder">查看訂單詳情</button>
+      <button class="btn-secondary me-3" @click="viewOrder">
+        查看訂單詳情
+      </button>
+      <button class="btn-outline-primary" @click="$router.push('/orders')">
+        查看所有訂單
+      </button>
     </div>
   </div>
 </template>
@@ -68,4 +73,61 @@ export default {
 }
 
 /* .success-icon 樣式已移除，因為被 Lottie 動畫取代 */
+
+/* 按鈕樣式 */
+.btn-primary {
+  background-color: #333;
+  border-color: #333;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #222;
+  border-color: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.btn-outline-primary {
+  background-color: transparent;
+  border: 2px solid #333;
+  color: #333;
+  padding: 10px 22px; /* 調整 padding 以配合邊框 */
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: #333;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
 </style>

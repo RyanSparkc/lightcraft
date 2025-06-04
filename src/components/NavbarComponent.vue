@@ -22,12 +22,12 @@
             <RouterLink class="nav-link" to="/products">產品列表</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/cart">購物車</RouterLink>
+            <RouterLink class="nav-link" to="/orders">我的訂單</RouterLink>
           </li>
         </ul>
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <RouterLink class="btn btn-secondary position-relative" to="/"
+          <li class="nav-item me-3">
+            <RouterLink class="btn btn-secondary position-relative" to="/cart"
               ><i class="bi bi-cart"></i>
               <span
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -54,14 +54,14 @@
 <script>
 import { mapActions, mapState } from 'pinia';
 
-import cartStore from '@/stores/cartStore';
+import useCartStore from '@/stores/cartStore';
 
 export default {
   computed: {
-    ...mapState(cartStore, ['carts']),
+    ...mapState(useCartStore, ['carts']),
   },
   methods: {
-    ...mapActions(cartStore, ['getCart']),
+    ...mapActions(useCartStore, ['getCart']),
   },
   mounted() {
     this.getCart();

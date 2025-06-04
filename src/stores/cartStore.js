@@ -25,20 +25,17 @@ export default defineStore('cart', {
           const hasCoupon = carts.length > 0 && carts[0].coupon;
 
           if (hasCoupon) {
-            // 有優惠券，使用 API 回傳的 final_total (假設是折扣額)
-            // 先計算折扣後的金額，再四捨五入
+            // 有優惠券，使用 API 回傳的 final_total
             this.final_total = Math.round(apiFinalTotal);
           } else {
             // 沒有優惠券，總計金額等於小計金額
-            // 對 this.total 進行四捨五入
             this.final_total = Math.round(this.total);
           }
-          // console.log('pinia cart', this.carts);
         })
         .catch((err) => {
           toastStore.addMessage({
             title: '錯誤',
-            content: err.response.data.message,
+            content: err.response?.data?.message || '載入購物車失敗',
             style: 'danger',
           });
         });
@@ -52,7 +49,6 @@ export default defineStore('cart', {
       axios
         .post(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart`, { data: cart })
         .then((res) => {
-          // console.log(res);
           toastStore.addMessage({
             title: '成功',
             content: res.data.message,
@@ -63,7 +59,7 @@ export default defineStore('cart', {
         .catch((err) => {
           toastStore.addMessage({
             title: '錯誤',
-            content: err.response.data.message,
+            content: err.response?.data?.message || '加入購物車失敗',
             style: 'danger',
           });
         });
@@ -117,7 +113,7 @@ export default defineStore('cart', {
       } catch (err) {
         toastStore.addMessage({
           title: '錯誤',
-          content: err.response.data.message,
+          content: err.response?.data?.message || '更新購物車項目失敗',
           style: 'danger',
         });
         throw err; // 拋出錯誤以便組件處理
@@ -141,7 +137,7 @@ export default defineStore('cart', {
       } catch (err) {
         toastStore.addMessage({
           title: '錯誤',
-          content: err.response.data.message,
+          content: err.response?.data?.message || '移除購物車項目失敗',
           style: 'danger',
         });
         throw err;
@@ -165,7 +161,7 @@ export default defineStore('cart', {
       } catch (err) {
         toastStore.addMessage({
           title: '錯誤',
-          content: err.response.data.message,
+          content: err.response?.data?.message || '清空購物車失敗',
           style: 'danger',
         });
         throw err;

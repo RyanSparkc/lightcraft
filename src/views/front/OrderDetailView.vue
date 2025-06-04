@@ -46,6 +46,16 @@
             <p class="mb-3">{{ getPaymentMethod(order) }}</p>
           </div>
         </div>
+
+        <!-- 未付款時顯示付款按鈕 -->
+        <div v-if="!order.is_paid" class="mt-3 pt-3 border-top">
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-primary btn-lg px-4" @click="goToPayment">
+              <i class="bi bi-credit-card me-2"></i>
+              前往付款
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -342,6 +352,26 @@ export default {
       if (!order?.payment_method) return '未設定';
       return this.paymentMethods[order.payment_method] || '其他方式';
     },
+    goToPayment() {
+      // 保存當前訂單的商品資料到 localStorage，以便付款頁面使用
+      const orderCartData = {
+        carts: this.orderProducts.map((item) => ({
+          id: item.id,
+          product: item.product,
+          qty: item.qty,
+        })),
+        total: this.subtotal,
+        final_total: this.finalTotal,
+      };
+
+      localStorage.setItem('orderCartData', JSON.stringify(orderCartData));
+
+      // 跳轉到付款頁面，並帶上訂單 ID
+      this.$router.push({
+        path: '/checkout/payment',
+        query: { orderId: this.order.id },
+      });
+    },
   },
   created() {
     const orderId = this.$route.params.id;
@@ -448,5 +478,24 @@ export default {
 .card .card-header:first-child {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+}
+
+/* 付款按鈕樣式 */
+.btn-primary {
+  background-color: #3F51B5;
+  border-color: #3F51B5;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #354298;
+  border-color: #354298;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
+}
+
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
 }
 </style>

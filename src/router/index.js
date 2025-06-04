@@ -49,6 +49,10 @@ const routes = [
         component: () => import('@/views/front/OrderDetailView.vue'),
       },
       {
+        path: 'orders',
+        component: () => import('@/views/front/OrdersListView.vue'),
+      },
+      {
         path: 'articles',
         component: () => import('@/views/front/ArticlesView.vue'),
       },
@@ -81,10 +85,6 @@ const routes = [
       {
         path: 'coupon',
         component: () => import('@/views/dashboard/CouponView.vue'),
-      },
-      {
-        path: 'cart-list',
-        component: () => import('@/views/dashboard/CartListView.vue'),
       },
     ],
   },

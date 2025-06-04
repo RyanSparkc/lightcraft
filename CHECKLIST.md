@@ -1,5 +1,8 @@
 # Vue.js 電商專案開發檢查清單
 
+## 🎯 專案概述
+Vue.js 電商購物網站開發，包含產品展示、購物車管理、結帳流程等核心功能。
+
 ## 📋 專案功能清單
 
 ### ✅ 已完成功能
@@ -216,6 +219,65 @@
 - 🎯 **用戶體驗:** 訂單流程要確保每個步驟都有明確的視覺反饋
 - 🔧 **開發調試:** 使用 console.log 追蹤資料流向，確保每個步驟的資料正確性
 - 🔍 **程式碼品質:** 遵循 ESLint 規範，避免使用 alert() 和不必要的 console 語句，保持程式碼整潔
+
+---
+
+### ✅ 購物車程式碼優化重構 
+
+- **完成時間**：2024-12-XX
+- **功能細節**：
+  - 整合重複的購物車 API 呼叫邏輯
+  - 統一錯誤處理機制
+  - 移除不必要的程式碼
+  - 修正 ESLint 警告和錯誤
+  - 改善程式碼可維護性
+
+- **優化內容**：
+  - **ProductsView.vue**：
+    - 移除重複的 `addToCart` 和 `changeCart` 方法實作
+    - 統一使用 cartStore 的 `addToCart` action
+    - 將 `alert()` 錯誤處理改為 toast 訊息系統
+    - 修正圖片判斷邏輯 (`!product.imageUrl == ''` → `product.imageUrl !== ''`)
+    - 移除未使用的 `cart` 變數
+  
+  - **ProductView.vue**：
+    - 移除註解掉的重複購物車邏輯
+    - 清理未使用的 axios import
+    - 改用 fetch API 載入產品資料
+    - 統一使用 useCartStore
+  
+  - **NavbarComponent.vue**：
+    - 修正購物車圖示連結（從 "/" 改為 "/cart"）
+    - 更新 store 引用為 useCartStore
+  
+  - **cartStore.js**：
+    - 統一錯誤處理，使用可選鏈運算子 (`?.`)
+    - 為所有 API 錯誤提供預設錯誤訊息
+    - 移除註解的 console.log
+    - 簡化註解內容
+  
+  - **檔案清理**：
+    - 刪除空的 `src/views/dashboard/CartListView.vue`
+
+- **修正的問題**：
+  - **重複邏輯**：多個檔案都有自己的 `addToCart` 實作
+  - **錯誤處理不一致**：混用 `alert()` 和 toast 訊息
+  - **未使用的程式碼**：註解掉的方法和未使用的變數
+  - **連結錯誤**：購物車圖示指向錯誤的路由
+  - **程式碼品質**：ESLint 警告和格式問題
+
+- **技術改進**：
+  - 統一使用 Pinia store 管理狀態
+  - 改善錯誤處理的使用者體驗
+  - 提升程式碼的可讀性和可維護性
+  - 減少程式碼重複，符合 DRY 原則
+
+- **受影響檔案**：
+  - `src/views/front/ProductsView.vue`
+  - `src/views/front/ProductView.vue`
+  - `src/components/NavbarComponent.vue`
+  - `src/stores/cartStore.js`
+  - `src/views/dashboard/CartListView.vue` (已刪除)
 
 ---
 
