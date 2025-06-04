@@ -1,170 +1,241 @@
+<!-- eslint-disable comma-dangle -->
 <template>
-  <div class="container">
-    <LoadingOverlay :active="isLoading" />
-    <div class="row mt-3">
-      <UserModal
-        ref="userModal"
-        :product="product"
-        @add-to-cart="addToCartFromModal"
-      ></UserModal>
-      <table class="table align-middle">
-        <thead>
-          <tr>
-            <th>圖片</th>
-            <th>商品名稱</th>
-            <th>價格</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="product in products" :key="product.id">
-            <td style="width: 200px">
+  <div class="container mt-md-5 mt-3 mb-7">
+    <div class="row">
+      <div class="col-md-4">
+        <div
+          class="accordion border border-bottom border-top-0 border-start-0 border-end-0 mb-3"
+          id="accordionExample"
+        >
+          <div class="card border-0">
+            <div
+              class="card-header px-0 py-4 bg-white border border-bottom-0 border-top border-start-0 border-end-0 rounded-0"
+              id="headingOne"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseOne"
+            >
               <div
-                v-if="product.imageUrl !== ''"
-                style="height: 100px; background-size: cover; background-position: center"
-                :style="{ backgroundImage: `url(${product.imageUrl})` }"
-              ></div>
-            </td>
-            <td>
-              {{ product.title }}
-            </td>
-            <td>
-              <div class="h5" v-if="product.origin_price === product.price">
-                {{ product.origin_price }} 元
+                class="d-flex justify-content-between align-items-center pe-1"
+              >
+                <h4 class="mb-0">Lorem ipsum</h4>
+                <i class="fas fa-chevron-down"></i>
               </div>
-              <div v-else>
-                <del class="h6" v-if="product.price"
-                  >原價 {{ product.origin_price }} 元</del
-                >
-                <div class="h5" v-if="product.price">
-                  現在只要 {{ product.price }} 元
-                </div>
+            </div>
+            <div
+              id="collapseOne"
+              class="collapse show"
+              aria-labelledby="headingOne"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="card-body py-0">
+                <ul class="list-unstyled">
+                  <li>
+                    <RouterLink class="py-2 d-block text-muted" to="/products"
+                      >全部</RouterLink
+                    >
+                  </li>
+                  <li v-for="item in categories" :key="item">
+                    <RouterLink
+                      class="py-2 d-block text-muted"
+                      :to="`/products?category=${item}`"
+                      >{{ item }}</RouterLink
+                    >
+                  </li>
+                </ul>
               </div>
-            </td>
-            <td>
-              <div class="btn-group btn-group-sm">
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  @click="getProduct(product.id)"
-                  :disabled="product.id === loadingStatus.loadingItem || !product.is_enabled"
-                >
-                  <i
-                    class="fas fa-spinner fa-pulse"
-                    v-if="loadingStatus.loadingItem === product.id"
-                  ></i>
-                  查看更多
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-danger"
-                  @click="addToCartHandler(product.id)"
-                  :disabled="product.id === loadingStatus.loadingItem || !product.is_enabled"
-                >
-                  <i
-                    class="fas fa-spinner fa-pulse"
-                    v-if="loadingStatus.loadingItem === product.id"
-                  ></i>
-                  加到購物車
-                </button>
+            </div>
+          </div>
+          <div class="card border-0">
+            <div
+              class="card-header px-0 py-4 bg-white border border-bottom-0 border-top border-start-0 border-end-0 rounded-0"
+              id="headingTwo"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseTwo"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center pe-1"
+              >
+                <h4 class="mb-0">Lorem ipsum</h4>
+                <i class="fas fa-chevron-down"></i>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+            <div
+              id="collapseTwo"
+              class="collapse"
+              aria-labelledby="headingTwo"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="card-body py-0">
+                <ul class="list-unstyled">
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="card border-0">
+            <div
+              class="card-header px-0 py-4 bg-white border border-bottom-0 border-top border-start-0 border-end-0 rounded-0"
+              id="headingThree"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseThree"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center pe-1"
+              >
+                <h4 class="mb-0">Lorem ipsum</h4>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
+            <div
+              id="collapseThree"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="card-body py-0">
+                <ul class="list-unstyled">
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-6" v-for="product in products" :key="product.id">
+            <div class="card border-0 mb-4 position-relative position-relative">
+              <img
+                :src="product.imageUrl"
+                class="card-img-top rounded-0 object-fit-cover"
+                height="225"
+                alt="..."
+              />
+              <a href="#" class="text-dark">
+                <i
+                  class="far fa-heart position-absolute"
+                  style="right: 16px; top: 16px"
+                ></i>
+              </a>
+              <div class="card-body p-0">
+                <h4 class="mb-0 mt-3">
+                  <RouterLink :to="`/product/${product.id}`">{{
+                    product.title
+                  }}</RouterLink>
+                </h4>
+                <p class="card-text mb-0">
+                  NT${{ product.price }}
+                  <span class="text-muted">
+                    <del>NT${{ product.origin_price }}</del></span
+                  >
+                </p>
+                <p class="text-muted mt-3"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <nav class="d-flex justify-content-center">
+          <ul class="pagination">
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item active">
+              <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </div>
   </div>
 </template>
-
 <script>
-import { mapActions } from 'pinia';
 import axios from 'axios';
-import UserModal from '@/components/UserModal.vue';
-import useCartStore from '@/stores/cartStore';
 import useToastMessageStore from '@/stores/toastMessage';
+import { mapActions } from 'pinia';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
-
 export default {
-  components: {
-    UserModal,
-  },
+  components: {},
   data() {
     return {
-      loadingStatus: {
-        loadingItem: '',
-      },
+      // 產品資料格式
       products: [],
-      product: {},
+      categories: [
+        '衣服2',
+        '衣服',
+        '嬰兒連身衣',
+        'c',
+        'C',
+        '測試分類',
+        '測試分類2',
+        '測試分類10',
+      ],
       isLoading: true,
     };
   },
+  watch: {
+    // eslint-disable-next-line func-names
+    '$route.query': function () {
+      this.getProducts();
+    },
+  },
   methods: {
-    ...mapActions(useCartStore, ['addToCart']),
     ...mapActions(useToastMessageStore, ['addMessage']),
-
     getProducts() {
+      const { category = '' } = this.$route.query;
       axios
-        .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products`)
+        .get(
+          // eslint-disable-next-line comma-dangle
+          `${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${category}`
+        )
         .then((res) => {
           this.products = res.data.products;
           this.isLoading = false;
         })
         .catch((err) => {
           this.addMessage({
-            title: '錯誤',
-            content: err.response?.data?.message || '載入產品失敗',
             style: 'danger',
-          });
-          this.isLoading = false;
-        });
-    },
-
-    // 取得單一產品
-    getProduct(id) {
-      this.loadingStatus.loadingItem = id;
-      axios
-        .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`)
-        .then((res) => {
-          this.loadingStatus.loadingItem = '';
-          this.product = res.data.product;
-          this.$refs.userModal.openModal();
-        })
-        .catch((err) => {
-          this.loadingStatus.loadingItem = '';
-          this.addMessage({
             title: '錯誤',
-            content: err.response?.data?.message || '載入產品詳情失敗',
-            style: 'danger',
+            content: err.response.data.message,
           });
         });
-    },
-
-    // 加入購物車處理函數
-    async addToCartHandler(productId) {
-      this.loadingStatus.loadingItem = productId;
-      try {
-        await this.addToCart(productId);
-      } catch (err) {
-        // 錯誤已在 store 中處理
-      } finally {
-        this.loadingStatus.loadingItem = '';
-      }
-    },
-
-    // 從 Modal 加入購物車
-    async addToCartFromModal(productId) {
-      this.loadingStatus.loadingItem = productId;
-      this.$refs.userModal.hideModal();
-      try {
-        // 如果需要自訂數量，直接呼叫 store 的 addToCart 但需要修改 store
-        // 目前先用預設的 qty=1
-        await this.addToCart(productId);
-      } catch (err) {
-        // 錯誤已在 store 中處理
-      } finally {
-        this.loadingStatus.loadingItem = '';
-      }
     },
   },
   mounted() {
@@ -172,7 +243,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 img {
   object-fit: contain;
