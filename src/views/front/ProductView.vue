@@ -85,63 +85,61 @@
       </div>
     </div>
     <!-- Product Details Section -->
-    <div class="row my-5">
+    <div class="row mt-5 mb-4">
       <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 py-4">
-            <h3 class="fw-bold mb-0">
-              <i class="bi bi-info-circle me-2 text-primary"></i>產品詳細資訊
+        <div class="product-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="bi bi-info-circle me-2"></i>產品描述
             </h3>
           </div>
-          <div class="card-body">
+          <div class="section-content">
             <div class="row">
               <div class="col-md-6">
-                <h5 class="fw-bold mb-3">產品特色</h5>
-                <ul class="list-unstyled">
-                  <li class="mb-2">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <h5 class="content-subtitle">產品特色</h5>
+                <ul class="feature-list">
+                  <li>
+                    <i class="bi bi-check-circle-fill me-2"></i>
                     高品質材料製作，經久耐用
                   </li>
-                  <li class="mb-2">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <li>
+                    <i class="bi bi-check-circle-fill me-2"></i>
                     符合人體工學設計，舒適好用
                   </li>
-                  <li class="mb-2">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <li>
+                    <i class="bi bi-check-circle-fill me-2"></i>
                     獲得多項國際認證標準
                   </li>
-                  <li class="mb-2">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <li>
+                    <i class="bi bi-check-circle-fill me-2"></i>
                     提供一年品質保固服務
                   </li>
                 </ul>
               </div>
               <div class="col-md-6">
-                <h5 class="fw-bold mb-3">產品規格</h5>
-                <table class="table table-borderless">
-                  <tbody>
-                    <tr>
-                      <td class="text-muted">尺寸：</td>
-                      <td>30 x 20 x 15 cm</td>
-                    </tr>
-                    <tr>
-                      <td class="text-muted">重量：</td>
-                      <td>2.5 kg</td>
-                    </tr>
-                    <tr>
-                      <td class="text-muted">材質：</td>
-                      <td>環保 ABS 塑料</td>
-                    </tr>
-                    <tr>
-                      <td class="text-muted">顏色：</td>
-                      <td>黑色、白色、銀色</td>
-                    </tr>
-                    <tr>
-                      <td class="text-muted">產地：</td>
-                      <td>台灣製造</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <h5 class="content-subtitle">產品規格</h5>
+                <div class="spec-table">
+                  <div class="spec-row">
+                    <span class="spec-label">尺寸：</span>
+                    <span class="spec-value">30 x 20 x 15 cm</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">重量：</span>
+                    <span class="spec-value">2.5 kg</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">材質：</span>
+                    <span class="spec-value">環保 ABS 塑料</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">顏色：</span>
+                    <span class="spec-value">黑色、白色、銀色</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">產地：</span>
+                    <span class="spec-value">台灣製造</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -150,25 +148,25 @@
     </div>
 
     <!-- Product Description -->
-    <div class="row mb-5">
+    <div class="row mb-4">
       <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 py-4">
-            <h3 class="fw-bold mb-0">
-              <i class="bi bi-file-text me-2 text-primary"></i>產品說明
+        <div class="product-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="bi bi-file-text me-2"></i>產品說明
             </h3>
           </div>
-          <div class="card-body">
-            <p class="lead mb-4">
+          <div class="section-content">
+            <p class="lead-text">
               這款產品採用最新科技與傳統工藝完美結合，為您帶來前所未有的使用體驗。
               無論是日常使用還是專業需求，都能滿足您的期待。
             </p>
-            <p class="mb-3">
+            <p class="content-text">
               產品經過嚴格的品質檢測，每一個細節都精益求精。我們堅持使用環保材料，
               不僅對環境友善，也確保使用者的健康安全。獨特的設計風格，讓這款產品
               不僅功能強大，更是您生活品味的完美體現。
             </p>
-            <p class="mb-0">
+            <p class="content-text">
               購買即享有完整的售後服務，包括使用指導、維修保養以及技術支援。
               我們承諾提供最優質的客戶服務，讓您的購物體驗更加安心愉快。
             </p>
@@ -178,32 +176,32 @@
     </div>
 
     <!-- Care Instructions -->
-    <div class="row mb-5">
+    <div class="row mb-4">
       <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 py-4">
-            <h3 class="fw-bold mb-0">
-              <i class="bi bi-heart me-2 text-primary"></i>使用與保養
+        <div class="product-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="bi bi-heart me-2"></i>使用與保養
             </h3>
           </div>
-          <div class="card-body">
+          <div class="section-content">
             <div class="row">
               <div class="col-md-6">
-                <h6 class="fw-bold text-success mb-3">✓ 建議事項</h6>
-                <ul class="list-unstyled">
-                  <li class="mb-2">• 請在乾燥通風處存放</li>
-                  <li class="mb-2">• 定期清潔保養以延長使用壽命</li>
-                  <li class="mb-2">• 避免長時間曝曬於陽光下</li>
-                  <li class="mb-2">• 使用前請先閱讀使用說明書</li>
+                <h6 class="care-title care-do">✓ 建議事項</h6>
+                <ul class="care-list">
+                  <li>請在乾燥通風處存放</li>
+                  <li>定期清潔保養以延長使用壽命</li>
+                  <li>避免長時間曝曬於陽光下</li>
+                  <li>使用前請先閱讀使用說明書</li>
                 </ul>
               </div>
               <div class="col-md-6">
-                <h6 class="fw-bold text-danger mb-3">✗ 注意事項</h6>
-                <ul class="list-unstyled">
-                  <li class="mb-2">• 請勿用尖銳物品刮擦表面</li>
-                  <li class="mb-2">• 避免接觸化學溶劑</li>
-                  <li class="mb-2">• 請勿超過承重限制使用</li>
-                  <li class="mb-2">• 兒童使用時需大人陪同</li>
+                <h6 class="care-title care-dont">✗ 注意事項</h6>
+                <ul class="care-list">
+                  <li>請勿用尖銳物品刮擦表面</li>
+                  <li>避免接觸化學溶劑</li>
+                  <li>請勿超過承重限制使用</li>
+                  <li>兒童使用時需大人陪同</li>
                 </ul>
               </div>
             </div>
@@ -215,36 +213,30 @@
     <!-- Related Products Section -->
     <div class="row mb-5">
       <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 py-4">
-            <h3 class="fw-bold mb-0">
-              <i class="bi bi-grid me-2 text-primary"></i>推薦商品
+        <div class="product-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="bi bi-grid me-2"></i>推薦商品
             </h3>
           </div>
-          <div class="card-body">
+          <div class="section-content">
             <div class="row">
               <div class="col-md-3 mb-4" v-for="i in 4" :key="i">
-                <div class="card border-0 h-100 shadow-sm">
-                  <img
-                    :src="`https://picsum.photos/300/200?random=${i}`"
-                    class="card-img-top"
-                    :alt="`推薦商品 ${i}`"
-                    style="height: 200px; object-fit: cover;"
-                  />
-                  <div class="card-body">
-                    <h6 class="card-title">相關商品 {{ i }}</h6>
-                    <p class="card-text text-muted small">
+                <div class="related-product-card">
+                  <div class="product-image">
+                    <img
+                      :src="`https://picsum.photos/300/200?random=${i}`"
+                      :alt="`推薦商品 ${i}`"
+                    />
+                  </div>
+                  <div class="product-info">
+                    <h6 class="product-name">相關商品 {{ i }}</h6>
+                    <p class="product-desc">
                       高品質相關產品，與您選購的商品完美搭配
                     </p>
-                    <div
-                      class="d-flex justify-content-between align-items-center"
-                    >
-                      <span class="h6 mb-0 text-primary"
-                        >NT${{ 800 + i * 100 }}</span
-                      >
-                      <button class="btn btn-outline-primary btn-sm">
-                        查看
-                      </button>
+                    <div class="product-footer">
+                      <span class="product-price">NT${{ 800 + i * 100 }}</span>
+                      <button class="btn-view">查看</button>
                     </div>
                   </div>
                 </div>
@@ -331,17 +323,20 @@ export default {
 </script>
 
 <style scoped>
-/* Product container with proper spacing */
+/* ==== 整體佈局與間距 ==== */
 .product-detail-container {
-  padding-top: 60px; /* 增加與導航欄的間距 */
-  min-height: calc(100vh - 200px); /* 確保內容有足夠高度，讓 footer 可以置底 */
+  padding-top: 40px;
+  min-height: calc(100vh - 200px);
 }
 
-/* Swiper styling */
+/* ==== Swiper 樣式 ==== */
 .product-swiper {
   width: 100%;
   height: 400px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
 }
 
 .product-swiper .swiper-slide {
@@ -355,105 +350,324 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
 }
 
-/* Swiper navigation buttons styling */
+/* Swiper 控制按鈕 */
 :deep(.swiper-button-next),
 :deep(.swiper-button-prev) {
   color: #333;
-  background: rgba(255, 255, 255, 0.9);
-  width: 45px;
-  height: 45px;
+  background: rgba(255, 255, 255, 0.95);
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
 
 :deep(.swiper-button-next):hover,
 :deep(.swiper-button-prev):hover {
   background: rgba(255, 255, 255, 1);
-  transform: scale(1.1);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 :deep(.swiper-button-next):after,
 :deep(.swiper-button-prev):after {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-/* Swiper pagination styling */
+/* Swiper 分頁指示器 */
 :deep(.swiper-pagination-bullet) {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.6);
   opacity: 1;
+  width: 10px;
+  height: 10px;
   transition: all 0.3s ease;
 }
 
 :deep(.swiper-pagination-bullet-active) {
-  background: #007bff;
-  transform: scale(1.2);
+  background: #ffffff;
+  transform: scale(1.3);
 }
 
-/* Card styling improvements */
-.card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* ==== 產品區塊統一樣式 ==== */
+.product-section {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
 }
 
-.card:hover {
+.section-header {
+  padding: 24px 28px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 1px solid #e9ecef;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.section-title i {
+  color: #6c757d;
+  font-size: 1.2rem;
+}
+
+.section-content {
+  padding: 28px;
+}
+
+/* ==== 內容樣式 ==== */
+.content-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.lead-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #495057;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.content-text {
+  line-height: 1.7;
+  color: #6c757d;
+  margin-bottom: 16px;
+}
+
+/* ==== 產品特色列表 ==== */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-list li {
+  padding: 8px 0;
+  color: #495057;
+  display: flex;
+  align-items: center;
+}
+
+.feature-list i {
+  color: #28a745;
+  font-size: 1rem;
+}
+
+/* ==== 產品規格表 ==== */
+.spec-table {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.spec-row:last-child {
+  border-bottom: none;
+}
+
+.spec-label {
+  font-weight: 500;
+  color: #6c757d;
+  min-width: 80px;
+}
+
+.spec-value {
+  color: #495057;
+  font-weight: 500;
+}
+
+/* ==== 保養說明樣式 ==== */
+.care-title {
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.care-do {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border-left: 3px solid #28a745;
+}
+
+.care-dont {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border-left: 3px solid #dc3545;
+}
+
+.care-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.care-list li {
+  padding: 6px 0;
+  color: #6c757d;
+  position: relative;
+  padding-left: 16px;
+}
+
+.care-list li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #adb5bd;
+}
+
+/* ==== 推薦商品卡片 ==== */
+.related-product-card {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.related-product-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Product info section spacing */
-.card-header {
-  border-bottom: 2px solid #f8f9fa !important;
+.product-image {
+  height: 180px;
+  overflow: hidden;
 }
 
-.card-header h3 {
-  color: #333;
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-/* Responsive adjustments */
+.related-product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: 16px;
+}
+
+.product-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.product-desc {
+  font-size: 0.85rem;
+  color: #6c757d;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.product-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.btn-view {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-view:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+/* ==== 響應式設計 ==== */
 @media (max-width: 768px) {
   .product-detail-container {
-    padding-top: 30px;
+    padding-top: 20px;
   }
 
   .product-swiper {
-    height: 300px;
+    height: 280px;
+    margin-bottom: 20px;
+    border-radius: 8px;
   }
 
   :deep(.swiper-button-next),
   :deep(.swiper-button-prev) {
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
   }
 
   :deep(.swiper-button-next):after,
   :deep(.swiper-button-prev):after {
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .section-header {
+    padding: 20px 20px 16px;
+  }
+
+  .section-content {
+    padding: 20px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .product-section {
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+
+  .spec-table {
+    padding: 16px;
   }
 }
 
-/* Icon styling */
-.bi {
-  font-size: 1.1em;
-}
+@media (max-width: 576px) {
+  .related-product-card {
+    margin-bottom: 16px;
+  }
 
-/* Table styling in product specs */
-.table td {
-  padding: 0.5rem 0;
-  border: none;
-}
-
-/* List styling improvements */
-.list-unstyled li {
-  padding: 0.25rem 0;
-}
-
-/* Button hover effects */
-.btn-outline-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  .product-image {
+    height: 160px;
+  }
 }
 </style>
