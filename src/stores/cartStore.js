@@ -40,11 +40,11 @@ export default defineStore('cart', {
           });
         });
     },
-    addToCart(id) {
+    addToCart(id, qty = 1) {
       const toastStore = useToastMessageStore();
       const cart = {
         product_id: id,
-        qty: 1,
+        qty,
       };
       axios
         .post(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart`, { data: cart })

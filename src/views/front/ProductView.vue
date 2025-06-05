@@ -49,24 +49,31 @@
                   class="btn btn-outline-dark border-0 py-2"
                   type="button"
                   id="button-addon1"
+                  @click="decreaseQuantity"
+                  :disabled="quantity <= 1"
                 >
                   <i class="fas fa-minus"></i>
                 </button>
               </div>
               <input
-                type="text"
+                type="number"
                 class="form-control border-0 text-center
              my-auto shadow-none bg-light"
                 placeholder=""
                 aria-label="Example text with button addon"
                 aria-describedby="button-addon1"
-                value="1"
+                v-model.number="quantity"
+                min="1"
+                max="20"
+                @change="validateQuantity"
               />
               <div class="input-group-append">
                 <button
                   class="btn btn-outline-dark border-0 py-2"
                   type="button"
                   id="button-addon2"
+                  @click="increaseQuantity"
+                  :disabled="quantity >= 20"
                 >
                   <i class="fas fa-plus"></i>
                 </button>
@@ -74,12 +81,13 @@
             </div>
           </div>
           <div class="col-6">
-            <a
-              href="./checkout.html"
+            <button
               class="text-nowrap btn btn-dark w-100 py-2"
-              @click.prevent="addToCart(product.id)"
-              >加入購物車</a
+              @click="addToCartHandler"
+              :disabled="!product.id"
             >
+              加入購物車
+            </button>
           </div>
         </div>
       </div>
@@ -275,6 +283,7 @@ export default {
   data() {
     return {
       product: {},
+      quantity: 1,
       modules: [Navigation, Pagination, Autoplay],
       productImages: [
         {
@@ -315,9 +324,37 @@ export default {
           console.error('載入產品失敗:', err);
         });
     },
+    increaseQuantity() {
+      if (this.quantity < 20) {
+        this.quantity += 1;
+      }
+    },
+    decreaseQuantity() {
+      if (this.quantity > 1) {
+        this.quantity -= 1;
+      }
+    },
+    validateQuantity() {
+      if (this.quantity < 1) {
+        this.quantity = 1;
+      } else if (this.quantity > 20) {
+        this.quantity = 20;
+      }
+    },
+    addToCartHandler() {
+      if (this.product.id && this.quantity >= 1) {
+        this.addToCart(this.product.id, this.quantity);
+      }
+    },
   },
   mounted() {
     this.getProduct();
+  },
+  watch: {
+    '$route.params.id': function () {
+      this.quantity = 1;
+      this.getProduct();
+    },
   },
 };
 </script>
