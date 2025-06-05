@@ -16,7 +16,7 @@
           <div class="story-content">
             <div class="story-text">
               <p>
-                2015年，在一個偶然的機會下，我們的創辦人李明哲先生發現市面上的LED燈泡雖然節能，
+                2024年，在一個偶然的機會下，我們的創辦人燈泡先生發現市面上的LED燈泡雖然節能，
                 但在色溫和顯色性方面總是無法達到完美的平衡。作為一名照明工程師，
                 他決心要創造出既節能又能完美還原自然光的LED燈泡。
               </p>
@@ -325,6 +325,8 @@ export default {
 
 .story-image img {
   width: 100%;
+  max-height: 630px;
+  object-fit: cover;
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
@@ -482,6 +484,13 @@ export default {
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.testimonial-content {
+  flex-grow: 1;
 }
 
 .testimonial-content p {
