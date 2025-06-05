@@ -237,14 +237,8 @@ export default {
     return {
       // 產品資料格式
       products: [],
-      // 燈泡商店按用途分類
-      categories: [
-        { name: '室內照明', icon: '🏠', description: '客廳、臥室、書房等室內空間' },
-        { name: '戶外照明', icon: '🌙', description: '庭院、陽台、車庫等戶外使用' },
-        { name: '裝飾燈具', icon: '✨', description: '氣氛燈、節慶燈飾等' },
-        { name: '智能燈泡', icon: '🤖', description: '可調色溫、遙控、APP控制' },
-        { name: '特殊用途', icon: '🔬', description: '植物生長燈、紫外線燈等' },
-      ],
+      // 動態獲取的分類資料
+      categories: [],
       isLoading: true,
       pagination: {
         total_pages: 1,
@@ -280,6 +274,28 @@ export default {
   },
   methods: {
     ...mapActions(useToastMessageStore, ['addMessage']),
+    // 獲取所有分類
+    getCategories() {
+      axios
+        .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products/all`)
+        .then((res) => {
+          // 從所有產品中提取唯一的分類
+          const uniqueCategories = [...new Set(res.data.products.map((product) => product.category))];
+          this.categories = uniqueCategories
+            .filter((category) => category) // 過濾掉空值
+            .map((categoryName) => ({
+              name: categoryName,
+              icon: this.getCategoryIcon(categoryName),
+            }));
+        })
+        .catch((err) => {
+          this.addMessage({
+            style: 'danger',
+            title: '錯誤',
+            content: err.response?.data?.message || '載入分類失敗',
+          });
+        });
+    },
     getProducts(page = 1) {
       const { category = '' } = this.$route.query;
       this.isLoading = true;
@@ -311,11 +327,29 @@ export default {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     getCategoryIcon(categoryName) {
-      const category = this.categories.find((cat) => cat.name === categoryName);
-      return category ? category.icon : '💡';
+      // 分類圖標映射
+      const iconMap = {
+        室內照明: '🏠',
+        戶外照明: '🌙',
+        裝飾燈具: '✨',
+        智能燈泡: '🤖',
+        特殊用途: '🔬',
+        衣服: '👕',
+        蛋糕: '🍰',
+        食物: '🍕',
+        飲品: '🥤',
+        電子產品: '💻',
+        家電: '🏠',
+        書籍: '📚',
+        玩具: '🧸',
+        運動用品: '⚽',
+        美妝: '💄',
+      };
+      return iconMap[categoryName] || '💡';
     },
   },
   mounted() {
+    this.getCategories(); // 先載入分類
     this.getProducts();
   },
   // 新增過濾器用於格式化價格
