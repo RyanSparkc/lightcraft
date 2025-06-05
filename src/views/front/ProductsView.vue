@@ -162,20 +162,44 @@
             </div>
           </div>
         </div>
-        <nav class="d-flex justify-content-center">
+        <nav
+          class="d-flex justify-content-center"
+          v-if="pagination.total_pages > 1"
+        >
           <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Previous">
+            <li
+              class="page-item"
+              :class="{ disabled: pagination.current_page === 1 }"
+            >
+              <a
+                class="page-link"
+                href="#"
+                aria-label="Previous"
+                @click.prevent="changePage(pagination.current_page - 1)"
+              >
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
-            <li class="page-item active">
-              <a class="page-link" href="#">1</a>
+            <li
+              v-for="page in visiblePages"
+              :key="page"
+              class="page-item"
+              :class="{ active: page === pagination.current_page }"
+            >
+              <a class="page-link" href="#" @click.prevent="changePage(page)">
+                {{ page }}
+              </a>
             </li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Next">
+            <li
+              class="page-item"
+              :class="{ disabled: pagination.current_page === pagination.total_pages }"
+            >
+              <a
+                class="page-link"
+                href="#"
+                aria-label="Next"
+                @click.prevent="changePage(pagination.current_page + 1)"
+              >
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
@@ -208,25 +232,50 @@ export default {
         '測試分類10',
       ],
       isLoading: true,
+      pagination: {
+        total_pages: 1,
+        current_page: 1,
+        has_pre: false,
+        has_next: false,
+      },
     };
+  },
+  computed: {
+    visiblePages() {
+      const pages = [];
+      const totalPages = this.pagination.total_pages;
+      const currentPage = this.pagination.current_page;
+
+      // 簡單的分頁邏輯：顯示當前頁面前後各2頁
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, currentPage + 2);
+
+      for (let i = startPage; i <= endPage; i += 1) {
+        pages.push(i);
+      }
+
+      return pages;
+    },
   },
   watch: {
     // eslint-disable-next-line func-names
     '$route.query': function () {
-      this.getProducts();
+      this.getProducts(1); // 當分類改變時，重置到第一頁
     },
   },
   methods: {
     ...mapActions(useToastMessageStore, ['addMessage']),
-    getProducts() {
+    getProducts(page = 1) {
       const { category = '' } = this.$route.query;
+      this.isLoading = true;
       axios
         .get(
           // eslint-disable-next-line comma-dangle
-          `${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${category}`
+          `${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${category}&page=${page}`
         )
         .then((res) => {
           this.products = res.data.products;
+          this.pagination = res.data.pagination;
           this.isLoading = false;
         })
         .catch((err) => {
@@ -235,7 +284,16 @@ export default {
             title: '錯誤',
             content: err.response.data.message,
           });
+          this.isLoading = false;
         });
+    },
+    changePage(page) {
+      if (page < 1 || page > this.pagination.total_pages) {
+        return;
+      }
+      this.getProducts(page);
+      // 滾動到頂部
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
   },
   mounted() {
