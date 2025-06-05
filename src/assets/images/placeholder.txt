@@ -1,0 +1,63 @@
+# 圖片資源說明
+
+此目錄包含專案所需的圖片資源。以下是建議的圖片來源：
+
+## 燈泡相關圖片
+1. founder-story.jpg - 創辦人研發過程
+   - 建議來源: https://images.unsplash.com/photo-1571846216028-962bc9269df8?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+   - 或搜尋: "LED bulb development research"
+
+2. smart-bulb-hero.jpg - 智能燈泡主圖
+   - 建議來源: https://images.unsplash.com/photo-1583341655470-c039d25ce01e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+   - 或搜尋: "smart LED bulb"
+
+## 認證標章圖片
+3. cert-ce.png - CE認證標章
+   - 建議來源: https://uxwing.com/ce-certification-icon/
+   - 格式: PNG, 透明背景
+
+4. cert-rohs.png - RoHS認證標章
+   - 建議來源: https://www.vecteezy.com/free-vector/rohs-directive
+   - 格式: PNG, 透明背景
+
+5. cert-energy.png - 節能標章
+   - 建議來源: 搜尋 "energy star logo PNG"
+   - 格式: PNG, 透明背景
+
+6. cert-iso.png - ISO認證標章
+   - 建議來源: https://www.qccertification.com/Download.aspx
+   - 格式: PNG, 透明背景
+
+## 團隊成員照片
+7. founder.jpg - 創辦人照片
+   - 建議來源: https://unsplash.com/photos/a-man-with-glasses-smiling-for-the-camera-IF9TK5Uy-KI
+   - 亞洲男性專業照片
+
+8. cto.jpg - 技術總監照片
+   - 建議來源: https://unsplash.com/photos/woman-wearing-blue-dress-shirt-mHxVZ0dv6LI
+   - 亞洲女性專業照片
+
+9. marketing.jpg - 行銷總監照片
+   - 建議來源: https://unsplash.com/photos/man-in-white-button-up-shirt-iFgRcqHznqg
+   - 亞洲男性專業照片
+
+## 客戶照片
+10. customer1.jpg - 客戶1
+    - 建議來源: https://unsplash.com/photos/woman-in-black-blazer-smiling-IF9TK5Uy-KI
+    - 亞洲女性生活照
+
+11. customer2.jpg - 客戶2
+    - 建議來源: https://unsplash.com/photos/man-wearing-eyeglasses-and-blue-shirt-inside-coffee-shop-Y8lCoTRgHPE
+    - 亞洲男性生活照
+
+## 下載說明
+所有 Unsplash 圖片都可以免費商業使用，但建議：
+1. 點擊連結前往 Unsplash
+2. 選擇適當的解析度下載
+3. 重新命名為上述檔名
+4. 放置於此目錄中
+
+## 注意事項
+- 建議圖片尺寸: 800x600 像素以上
+- 格式建議: JPG (照片), PNG (圖標)
+- 檔案大小建議: 每張不超過 500KB 
