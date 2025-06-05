@@ -23,5 +23,8 @@ module.exports = {
   rules: {
     'max-len': ['error', { code: 150, ignoreUrls: true }],
     'implicit-arrow-linebreak': 'off',
+    'no-console': 'warn',
+    'import/no-extraneous-dependencies': 'off',
+    'vue/multi-word-component-names': 'off',
   },
 };

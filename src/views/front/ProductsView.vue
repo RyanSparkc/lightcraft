@@ -2,166 +2,180 @@
 <template>
   <div class="container mt-md-5 mt-3 mb-7">
     <div class="row">
-      <div class="col-md-4">
-        <div
-          class="accordion border border-bottom border-top-0 border-start-0 border-end-0 mb-3"
-          id="accordionExample"
-        >
-          <div class="card border-0">
-            <div
-              class="card-header px-0 py-4 bg-white border border-bottom-0 border-top border-start-0 border-end-0 rounded-0"
-              id="headingOne"
-              data-bs-toggle="collapse"
-              data-bs-target="#collapseOne"
-            >
-              <div
-                class="d-flex justify-content-between align-items-center pe-1"
+      <!-- 簡化的分類選單 -->
+      <div class="col-lg-3 col-md-4">
+        <div class="category-menu bg-light rounded p-4 mb-4">
+          <h5 class="mb-3 fw-bold">💡 產品分類</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2">
+              <RouterLink
+                class="category-link d-block py-2 px-3 rounded text-decoration-none"
+                to="/products"
+                :class="{ 'active bg-primary text-white': !$route.query.category, 'text-dark': $route.query.category }"
               >
-                <h4 class="mb-0">Lorem ipsum</h4>
-                <i class="fas fa-chevron-down"></i>
-              </div>
-            </div>
-            <div
-              id="collapseOne"
-              class="collapse show"
-              aria-labelledby="headingOne"
-              data-bs-parent="#accordionExample"
+                🔍 全部商品
+              </RouterLink>
+            </li>
+            <li
+              class="mb-2"
+              v-for="category in categories"
+              :key="category.name"
             >
-              <div class="card-body py-0">
-                <ul class="list-unstyled">
-                  <li>
-                    <RouterLink class="py-2 d-block text-muted" to="/products"
-                      >全部</RouterLink
-                    >
-                  </li>
-                  <li v-for="item in categories" :key="item">
-                    <RouterLink
-                      class="py-2 d-block text-muted"
-                      :to="`/products?category=${item}`"
-                      >{{ item }}</RouterLink
-                    >
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card border-0">
-            <div
-              class="card-header px-0 py-4 bg-white border border-bottom-0 border-top border-start-0 border-end-0 rounded-0"
-              id="headingTwo"
-              data-bs-toggle="collapse"
-              data-bs-target="#collapseTwo"
-            >
-              <div
-                class="d-flex justify-content-between align-items-center pe-1"
+              <RouterLink
+                class="category-link d-block py-2 px-3 rounded text-decoration-none"
+                :to="`/products?category=${category.name}`"
+                :class="{
+                  'active bg-primary text-white': $route.query.category === category.name,
+                  'text-dark': $route.query.category !== category.name
+                }"
               >
-                <h4 class="mb-0">Lorem ipsum</h4>
-                <i class="fas fa-chevron-down"></i>
-              </div>
-            </div>
-            <div
-              id="collapseTwo"
-              class="collapse"
-              aria-labelledby="headingTwo"
-              data-bs-parent="#accordionExample"
-            >
-              <div class="card-body py-0">
-                <ul class="list-unstyled">
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card border-0">
-            <div
-              class="card-header px-0 py-4 bg-white border border-bottom-0 border-top border-start-0 border-end-0 rounded-0"
-              id="headingThree"
-              data-bs-toggle="collapse"
-              data-bs-target="#collapseThree"
-            >
-              <div
-                class="d-flex justify-content-between align-items-center pe-1"
-              >
-                <h4 class="mb-0">Lorem ipsum</h4>
-                <i class="fas fa-chevron-down"></i>
-              </div>
-            </div>
-            <div
-              id="collapseThree"
-              class="collapse"
-              aria-labelledby="headingThree"
-              data-bs-parent="#accordionExample"
-            >
-              <div class="card-body py-0">
-                <ul class="list-unstyled">
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                  <li>
-                    <a href="#" class="py-2 d-block text-muted">Lorem ipsum</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+                {{ category.icon }} {{ category.name }}
+              </RouterLink>
+            </li>
+          </ul>
         </div>
       </div>
-      <div class="col-md-8">
+
+      <!-- 產品展示區 -->
+      <div class="col-lg-9 col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0">
+            {{ $route.query.category ? `${$route.query.category} 系列` : '全部商品' }}
+          </h4>
+          <span class="text-muted">共 {{ products.length }} 件商品</span>
+        </div>
+
         <div class="row">
-          <div class="col-md-6" v-for="product in products" :key="product.id">
-            <div class="card border-0 mb-4 position-relative position-relative">
-              <img
-                :src="product.imageUrl"
-                class="card-img-top rounded-0 object-fit-cover"
-                height="225"
-                alt="..."
-              />
-              <a href="#" class="text-dark">
-                <i
-                  class="far fa-heart position-absolute"
-                  style="right: 16px; top: 16px"
-                ></i>
-              </a>
-              <div class="card-body p-0">
-                <h4 class="mb-0 mt-3">
-                  <RouterLink :to="`/product/${product.id}`">{{
-                    product.title
-                  }}</RouterLink>
-                </h4>
-                <p class="card-text mb-0">
-                  NT${{ product.price }}
-                  <span class="text-muted">
-                    <del>NT${{ product.origin_price }}</del></span
+          <div
+            class="col-xl-4 col-lg-6 col-md-6 mb-4"
+            v-for="product in products"
+            :key="product.id"
+          >
+            <div class="card border-0 shadow-sm h-100 product-card">
+              <div class="position-relative overflow-hidden">
+                <RouterLink :to="`/product/${product.id}`">
+                  <img
+                    :src="product.imageUrl"
+                    class="card-img-top product-image"
+                    height="225"
+                    style="object-fit: cover; transition: transform 0.3s ease;"
+                    alt="product.title"
+                  />
+                </RouterLink>
+
+                <!-- 折扣標籤 -->
+                <span
+                  v-if="product.origin_price > product.price"
+                  class="discount-badge position-absolute bg-danger text-white px-2 py-1 rounded"
+                  style="left: 12px; top: 12px; font-size: 0.75rem; font-weight: bold;"
+                >
+                  {{ Math.round(
+                    (1 - product.price/product.origin_price) * 100)
+
+                  }}% OFF
+                </span>
+              </div>
+
+              <div class="card-body p-3 d-flex flex-column">
+                <!-- 產品標題 -->
+                <h6 class="card-title mb-2 fw-bold">
+                  <RouterLink
+                    :to="`/product/${product.id}`"
+                    class="text-decoration-none text-dark"
                   >
+                    {{ product.title }}
+                  </RouterLink>
+                </h6>
+
+                <!-- 產品規格簡要 -->
+                <div class="product-specs mb-2 flex-grow-1">
+                  <span
+                    class="badge bg-light text-dark me-1 mb-1"
+                    v-if="product.category"
+                  >
+                    {{ getCategoryIcon(product.category) }}
+                    {{ product.category }}
+                  </span>
+                  <span
+                    class="badge bg-secondary text-white me-1 mb-1"
+                    v-if="product.unit"
+                  >
+                    {{ product.unit }}
+                  </span>
+                </div>
+
+                <!-- 簡短描述 -->
+                <p
+                  class="card-text text-muted small mb-2"
+                  v-if="product.description"
+                >
+                  {{ product.description.substring(0, 50)}}
+                  {{ product.description.length > 50 ? '...' : '' }}
                 </p>
-                <p class="text-muted mt-3"></p>
+
+                <!-- 價格區域 -->
+                <div class="price-section mb-3">
+                  <div class="d-flex align-items-center">
+                    <span
+                      class="current-price h6 text-primary me-2 mb-0 fw-bold"
+                    >
+                      NT${{ $filters.currency(product.price) }}
+                    </span>
+                    <span
+                      v-if="product.origin_price > product.price"
+                      class="original-price text-muted text-decoration-line-through small"
+                    >
+                      NT${{ $filters.currency(product.origin_price) }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 評分 (使用後端真實資料) -->
+                <div
+                  class="rating mb-3"
+                  v-if="product.star && product.star > 0"
+                >
+                  <div class="d-flex align-items-center">
+                    <div class="stars me-2">
+                      <i
+                        v-for="star in 5"
+                        :key="star"
+                        :class="star <= product.star ? 'fas fa-star text-warning' : 'far fa-star text-muted'"
+                        style="font-size: 0.8rem;"
+                      ></i>
+                    </div>
+                    <span class="text-muted small"
+                      >{{ product.star }}.0 顆星</span
+                    >
+                  </div>
+                </div>
+
+                <!-- 當沒有評分資料時顯示 -->
+                <div class="rating mb-3" v-else>
+                  <div class="d-flex align-items-center">
+                    <div class="stars me-2">
+                      <i
+                        v-for="star in 5"
+                        :key="star"
+                        class="far fa-star text-muted"
+                        style="font-size: 0.8rem;"
+                      ></i>
+                    </div>
+                    <span class="text-muted small">尚無評價</span>
+                  </div>
+                </div>
+
+                <!-- 快速購買按鈕 -->
+                <button class="btn btn-outline-primary btn-sm w-100 mt-auto">
+                  <i class="fas fa-shopping-cart me-1"></i>
+                  加入購物車
+                </button>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- 分頁 -->
         <nav
           class="d-flex justify-content-center"
           v-if="pagination.total_pages > 1"
@@ -209,27 +223,27 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 import { mapActions } from 'pinia';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
+
 export default {
   components: {},
   data() {
     return {
       // 產品資料格式
       products: [],
+      // 燈泡商店按用途分類
       categories: [
-        '衣服2',
-        '衣服',
-        '嬰兒連身衣',
-        'c',
-        'C',
-        '測試分類',
-        '測試分類2',
-        '測試分類10',
+        { name: '室內照明', icon: '🏠', description: '客廳、臥室、書房等室內空間' },
+        { name: '戶外照明', icon: '🌙', description: '庭院、陽台、車庫等戶外使用' },
+        { name: '裝飾燈具', icon: '✨', description: '氣氛燈、節慶燈飾等' },
+        { name: '智能燈泡', icon: '🤖', description: '可調色溫、遙控、APP控制' },
+        { name: '特殊用途', icon: '🔬', description: '植物生長燈、紫外線燈等' },
       ],
       isLoading: true,
       pagination: {
@@ -258,9 +272,10 @@ export default {
     },
   },
   watch: {
-    // eslint-disable-next-line func-names
-    '$route.query': function () {
-      this.getProducts(1); // 當分類改變時，重置到第一頁
+    '$route.query': {
+      handler() {
+        this.getProducts(1); // 當分類改變時，重置到第一頁
+      },
     },
   },
   methods: {
@@ -295,23 +310,85 @@ export default {
       // 滾動到頂部
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
+    getCategoryIcon(categoryName) {
+      const category = this.categories.find((cat) => cat.name === categoryName);
+      return category ? category.icon : '💡';
+    },
   },
   mounted() {
     this.getProducts();
   },
+  // 新增過濾器用於格式化價格
+  beforeCreate() {
+    if (!this.$options.filters) {
+      this.$options.filters = {};
+    }
+    this.$options.filters.currency = function currencyFilter(value) {
+      if (!value) return '';
+      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+  },
 };
 </script>
+
 <style scoped>
-img {
-  object-fit: contain;
-  max-width: 100%;
+.product-card {
+  transition: box-shadow 0.2s ease;
 }
 
-.primary-image {
-  height: 300px;
+.product-card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
 }
 
-.images {
-  height: 150px;
+.product-image {
+  cursor: pointer;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.category-link {
+  transition: all 0.2s ease;
+}
+
+.category-link:hover {
+  background-color: #e9ecef !important;
+  transform: translateX(5px);
+}
+
+.btn-favorite {
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.btn-favorite:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.stars i {
+  margin-right: 1px;
+}
+
+.discount-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .category-menu {
+    margin-bottom: 1rem;
+  }
+
+  .product-card {
+    margin-bottom: 1rem;
+  }
 }
 </style>

@@ -10,22 +10,13 @@
     <table class="table mt-4">
       <thead>
         <tr>
-          <th width="120">
-            分類
-          </th>
+          <th width="120">分類</th>
           <th>產品名稱</th>
-          <th width="120">
-            原價
-          </th>
-          <th width="120">
-            售價
-          </th>
-          <th width="100">
-            是否啟用
-          </th>
-          <th width="120">
-            編輯
-          </th>
+          <th width="120">原價</th>
+          <th width="120">售價</th>
+          <th width="100">評分</th>
+          <th width="100">是否啟用</th>
+          <th width="120">編輯</th>
         </tr>
       </thead>
       <tbody>
@@ -34,18 +25,42 @@
           <td>{{ item.title }}</td>
           <td class="text-end">{{ item.origin_price }}</td>
           <td class="text-end">{{ item.price }}</td>
+          <td class="text-center">
+            <div
+              v-if="item.star && item.star > 0"
+              class="d-flex align-items-center justify-content-center"
+            >
+              <div class="stars me-1">
+                <i
+                  v-for="star in 5"
+                  :key="star"
+                  :class="star <= item.star ? 'fas fa-star text-warning' : 'far fa-star text-muted'"
+                  style="font-size: 0.7rem;"
+                ></i>
+              </div>
+              <small class="text-muted">{{ item.star }}</small>
+            </div>
+            <small v-else class="text-muted">未評分</small>
+          </td>
           <td>
             <span v-if="item.is_enabled" class="text-success">啟用</span>
             <span v-else>未啟用</span>
           </td>
           <td>
             <div class="btn-group">
-              <button type="button" class="btn btn-outline-primary
-              btn-sm" @click="openModal('edit', item)">
+              <button
+                type="button"
+                class="btn btn-outline-primary
+              btn-sm"
+                @click="openModal('edit', item)"
+              >
                 編輯
               </button>
-              <button type="button" class="btn btn-outline-danger btn-sm"
-                @click="openModal('delete', item)">
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                @click="openModal('delete', item)"
+              >
                 刪除
               </button>
             </div>
@@ -53,14 +68,24 @@
         </tr>
       </tbody>
     </table>
-    <PaginationComponent :pages="pagination" @emit-change-pages="getProducts"></PaginationComponent>
+    <PaginationComponent
+      :pages="pagination"
+      @emit-change-pages="getProducts"
+    ></PaginationComponent>
   </div>
 
-  <ProductModal ref="productModal" :temp-product="tempProduct" :is-new="isNew"
-    @update-product="updateProduct"></ProductModal>
+  <ProductModal
+    ref="productModal"
+    :temp-product="tempProduct"
+    :is-new="isNew"
+    @update-product="updateProduct"
+  ></ProductModal>
 
-  <DeleteModal ref="deleteModal" :temp-product="tempProduct" @update="getProducts"></DeleteModal>
-
+  <DeleteModal
+    ref="deleteModal"
+    :temp-product="tempProduct"
+    @update="getProducts"
+  ></DeleteModal>
 </template>
 
 <script>
