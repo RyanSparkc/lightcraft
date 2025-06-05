@@ -16,7 +16,7 @@
           @slideChange="onSlideChange"
           class="product-swiper"
         >
-          <swiper-slide v-for="(image, index) in productImages" :key="index">
+          <swiper-slide v-for="(image, index) in displayImages" :key="index">
             <img
               :src="image.url"
               :alt="image.alt"
@@ -39,7 +39,9 @@
           </ol>
         </nav>
         <h2 class="fw-bold h1 mb-1">{{ product.title }}</h2>
-        <p class="mb-0 text-muted text-end"><del>NT$1,200</del></p>
+        <p class="mb-0 text-muted text-end">
+          <del>NT${{ product.origin_price }}</del>
+        </p>
         <p class="h4 fw-bold text-end">NT${{ product.price }}</p>
         <div class="row align-items-center">
           <div class="col-6">
@@ -57,8 +59,7 @@
               </div>
               <input
                 type="number"
-                class="form-control border-0 text-center
-             my-auto shadow-none bg-light"
+                class="form-control border-0 text-center my-auto shadow-none bg-light"
                 placeholder=""
                 aria-label="Example text with button addon"
                 aria-describedby="button-addon1"
@@ -165,19 +166,24 @@
             </h3>
           </div>
           <div class="section-content">
-            <p class="lead-text">
-              這款產品採用最新科技與傳統工藝完美結合，為您帶來前所未有的使用體驗。
-              無論是日常使用還是專業需求，都能滿足您的期待。
-            </p>
-            <p class="content-text">
-              產品經過嚴格的品質檢測，每一個細節都精益求精。我們堅持使用環保材料，
-              不僅對環境友善，也確保使用者的健康安全。獨特的設計風格，讓這款產品
-              不僅功能強大，更是您生活品味的完美體現。
-            </p>
-            <p class="content-text">
-              購買即享有完整的售後服務，包括使用指導、維修保養以及技術支援。
-              我們承諾提供最優質的客戶服務，讓您的購物體驗更加安心愉快。
-            </p>
+            <div v-if="product.description">
+              <p class="lead-text">{{ product.description }}</p>
+            </div>
+            <div v-else>
+              <p class="lead-text">
+                這款產品採用最新科技與傳統工藝完美結合，為您帶來前所未有的使用體驗。
+                無論是日常使用還是專業需求，都能滿足您的期待。
+              </p>
+              <p class="content-text">
+                產品經過嚴格的品質檢測，每一個細節都精益求精。我們堅持使用環保材料，
+                不僅對環境友善，也確保使用者的健康安全。獨特的設計風格，讓這款產品
+                不僅功能強大，更是您生活品味的完美體現。
+              </p>
+              <p class="content-text">
+                購買即享有完整的售後服務，包括使用指導、維修保養以及技術支援。
+                我們承諾提供最優質的客戶服務，讓您的購物體驗更加安心愉快。
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -219,7 +225,7 @@
     </div>
 
     <!-- Related Products Section -->
-    <div class="row mb-5">
+    <div class="row mb-5" v-if="relatedProducts.length > 0">
       <div class="col-12">
         <div class="product-section">
           <div class="section-header">
@@ -229,22 +235,32 @@
           </div>
           <div class="section-content">
             <div class="row">
-              <div class="col-md-3 mb-4" v-for="i in 4" :key="i">
+              <div
+                class="col-md-3 mb-4"
+                v-for="relatedProduct in relatedProducts"
+                :key="relatedProduct.id"
+              >
                 <div class="related-product-card">
                   <div class="product-image">
                     <img
-                      :src="`https://picsum.photos/300/200?random=${i}`"
-                      :alt="`推薦商品 ${i}`"
+                      :src="relatedProduct.imageUrl || 'https://picsum.photos/300/200'"
+                      :alt="relatedProduct.title"
                     />
                   </div>
                   <div class="product-info">
-                    <h6 class="product-name">相關商品 {{ i }}</h6>
+                    <h6 class="product-name">{{ relatedProduct.title }}</h6>
                     <p class="product-desc">
-                      高品質相關產品，與您選購的商品完美搭配
+                      {{ relatedProduct.description || '高品質相關產品，與您選購的商品完美搭配' }}
                     </p>
                     <div class="product-footer">
-                      <span class="product-price">NT${{ 800 + i * 100 }}</span>
-                      <button class="btn-view">查看</button>
+                      <span class="product-price"
+                        >NT${{ relatedProduct.price }}</span
+                      >
+                      <router-link
+                        :to="`/product/${relatedProduct.id}`"
+                        class="btn-view"
+                        >查看</router-link
+                      >
                     </div>
                   </div>
                 </div>
@@ -285,25 +301,43 @@ export default {
       product: {},
       quantity: 1,
       modules: [Navigation, Pagination, Autoplay],
-      productImages: [
-        {
-          url: 'https://images.unsplash.com/photo-1502743780242-f10d2ce370f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1916&q=80',
-          alt: '產品圖片 1',
-        },
-        {
-          url: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1916&q=80',
-          alt: '產品圖片 2',
-        },
-        {
-          url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1916&q=80',
-          alt: '產品圖片 3',
-        },
-        {
-          url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1916&q=80',
-          alt: '產品圖片 4',
-        },
-      ],
+      relatedProducts: [],
     };
+  },
+  computed: {
+    displayImages() {
+      const images = [];
+
+      // 如果有主要圖片，加入主要圖片
+      if (this.product.imageUrl) {
+        images.push({
+          url: this.product.imageUrl,
+          alt: `${this.product.title || '產品'} - 主圖`,
+        });
+      }
+
+      // 如果有多張圖片，加入多張圖片
+      if (this.product.imagesUrl && Array.isArray(this.product.imagesUrl)) {
+        this.product.imagesUrl.forEach((imageUrl, index) => {
+          if (imageUrl && imageUrl.trim() !== '') {
+            images.push({
+              url: imageUrl,
+              alt: `${this.product.title || '產品'} - 圖片 ${index + 2}`,
+            });
+          }
+        });
+      }
+
+      // 如果沒有任何圖片，使用預設圖片
+      if (images.length === 0) {
+        images.push({
+          url: 'https://images.unsplash.com/photo-1502743780242-f10d2ce370f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1916&q=80',
+          alt: '預設產品圖片',
+        });
+      }
+
+      return images;
+    },
   },
   methods: {
     ...mapActions(useCartStore, ['addToCart']),
@@ -319,9 +353,27 @@ export default {
         .then((res) => res.json())
         .then((data) => {
           this.product = data.product;
+          // 當產品載入完成後，載入推薦商品
+          this.getRelatedProducts();
         })
         .catch((err) => {
           console.error('載入產品失敗:', err);
+        });
+    },
+    getRelatedProducts() {
+      if (!this.product.category) return;
+
+      fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${this.product.category}`)
+        .then((res) => res.json())
+        .then((data) => {
+          // 過濾掉當前產品，只顯示其他同分類產品，最多顯示4個
+          this.relatedProducts = data.products
+            .filter((product) => product.id !== this.product.id)
+            .slice(0, 4);
+        })
+        .catch((err) => {
+          console.error('載入推薦商品失敗:', err);
+          this.relatedProducts = [];
         });
     },
     increaseQuantity() {
@@ -353,6 +405,7 @@ export default {
   watch: {
     '$route.params.id': function () {
       this.quantity = 1;
+      this.relatedProducts = [];
       this.getProduct();
     },
   },
@@ -646,11 +699,13 @@ export default {
   font-weight: 500;
   transition: all 0.3s ease;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .btn-view:hover {
   background: #0056b3;
   transform: translateY(-1px);
+  color: white;
 }
 
 /* ==== 響應式設計 ==== */
