@@ -29,6 +29,7 @@ deploy.sh
 
 .cursor/*
 /doc/api/*
+/doc/prd/*
 docs
 
 
