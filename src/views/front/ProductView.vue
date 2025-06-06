@@ -1,6 +1,6 @@
 <!-- eslint-disable import/no-extraneous-dependencies -->
 <template>
-  <div class="product-detail-container">
+  <div class="product-detail-container container">
     <div class="row align-items-center">
       <div class="col-md-7">
         <!-- Swiper -->

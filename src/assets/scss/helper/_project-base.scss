@@ -197,17 +197,17 @@ button {
   font-weight: 600;
   letter-spacing: -0.02em;
 
-  &::after {
-    content: '';
-    width: 100px;
-    height: 4px;
-    background: $brand-gradient;
-    position: absolute;
-    bottom: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: var(--bs-border-radius-sm);
-  }
+  // &::after {
+  //   content: '';
+  //   width: 100px;
+  //   height: 4px;
+  //   background: $brand-gradient;
+  //   position: absolute;
+  //   bottom: -15px;
+  //   left: 50%;
+  //   transform: translateX(-50%);
+  //   border-radius: var(--bs-border-radius-sm);
+  // }
 }
 
 // 頭像佔位符

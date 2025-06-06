@@ -71,7 +71,6 @@
                 >
                   {{ Math.round(
                     (1 - product.price/product.origin_price) * 100)
-
                   }}% OFF
                 </span>
               </div>
@@ -166,9 +165,17 @@
                 </div>
 
                 <!-- 快速購買按鈕 -->
-                <button class="btn btn-outline-primary btn-sm w-100 mt-auto">
-                  <i class="fas fa-shopping-cart me-1"></i>
-                  加入購物車
+                <button
+                  class="btn btn-outline-primary btn-sm w-100 mt-auto"
+                  @click="addToCart(product.id)"
+                  :disabled="isLoadingCart === product.id"
+                >
+                  <i
+                    v-if="isLoadingCart === product.id"
+                    class="fas fa-spinner fa-spin me-1"
+                  ></i>
+                  <i v-else class="fas fa-shopping-cart me-1"></i>
+                  {{ isLoadingCart === product.id ? '加入中...' : '加入購物車' }}
                 </button>
               </div>
             </div>
@@ -227,6 +234,7 @@
 <script>
 import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
+import useCartStore from '@/stores/cartStore';
 import { mapActions } from 'pinia';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
@@ -240,6 +248,7 @@ export default {
       // 動態獲取的分類資料
       categories: [],
       isLoading: true,
+      isLoadingCart: null, // 用於追蹤哪個產品正在加入購物車
       pagination: {
         total_pages: 1,
         current_page: 1,
@@ -346,6 +355,16 @@ export default {
         美妝: '💄',
       };
       return iconMap[categoryName] || '💡';
+    },
+    // 自定義加入購物車方法，支援加載狀態
+    async addToCart(productId, qty = 1) {
+      this.isLoadingCart = productId;
+      const cartStore = useCartStore();
+      try {
+        await cartStore.addToCart(productId, qty);
+      } finally {
+        this.isLoadingCart = null;
+      }
     },
   },
   mounted() {
