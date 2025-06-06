@@ -26,7 +26,7 @@
               </p>
             </div>
             <div class="story-image">
-              <div class="image-placeholder" v-if="!imagesLoaded.founderStory">
+              <div class="image-placeholder" v-if="imageLoadError">
                 <i class="icon-lightbulb"></i>
                 <span>研發過程圖片</span>
               </div>
@@ -34,8 +34,8 @@
                 v-else
                 src="https://images.unsplash.com/photo-1583341655470-c039d25ce01e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="創辦人研發過程"
-                @error="handleImageError('founderStory')"
-                @load="handleImageLoad('founderStory')"
+                @error="handleImageError"
+                @load="handleImageLoad"
               />
             </div>
           </div>
@@ -204,25 +204,15 @@ export default {
   name: 'AboutView',
   data() {
     return {
-      imagesLoaded: {
-        founderStory: true,
-      },
+      imageLoadError: false,
     };
   },
-  mounted() {
-    // 頁面載入時的動畫效果可以在這裡添加
-    this.initAnimations();
-  },
   methods: {
-    initAnimations() {
-      // 可以添加滾動動畫或其他互動效果
-      console.log('About page animations initialized');
+    handleImageError() {
+      this.imageLoadError = true;
     },
-    handleImageError(imageKey) {
-      this.imagesLoaded[imageKey] = false;
-    },
-    handleImageLoad(imageKey) {
-      this.imagesLoaded[imageKey] = true;
+    handleImageLoad() {
+      this.imageLoadError = false;
     },
   },
 };
