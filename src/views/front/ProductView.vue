@@ -30,12 +30,31 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-white px-0 mb-0 py-3">
             <li class="breadcrumb-item">
-              <a class="text-muted" href="./index.html">Home</a>
+              <router-link class="text-muted text-decoration-none" to="/">
+                <i class="bi bi-house-door me-1"></i>首頁
+              </router-link>
             </li>
             <li class="breadcrumb-item">
-              <a class="text-muted" href="./product.html">Product</a>
+              <router-link
+                class="text-muted text-decoration-none"
+                to="/products"
+              >
+                <i class="bi bi-grid me-1"></i>產品列表
+              </router-link>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">Detail</li>
+            <!-- 如果有產品分類，顯示分類層級 -->
+            <li class="breadcrumb-item" v-if="product.category">
+              <router-link
+                class="text-muted text-decoration-none"
+                :to="`/products?category=${product.category}`"
+              >
+                <i class="bi bi-tag me-1"></i>{{ product.category }}
+              </router-link>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+              <i class="bi bi-eye me-1"></i>
+              {{ product.title || '產品詳情' }}
+            </li>
           </ol>
         </nav>
         <h2 class="fw-bold h1 mb-1">{{ product.title }}</h2>
@@ -417,6 +436,34 @@ export default {
 .product-detail-container {
   padding-top: 40px;
   min-height: calc(100vh - 200px);
+}
+
+/* ==== 麵包屑樣式 ==== */
+.breadcrumb {
+  background: transparent;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.breadcrumb-item a {
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-item a:hover {
+  color: #007bff;
+}
+
+.breadcrumb-item.active {
+  color: #495057;
+  font-weight: 500;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: "›";
+  color: #adb5bd;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 /* ==== Swiper 樣式 ==== */
