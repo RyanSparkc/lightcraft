@@ -286,7 +286,7 @@
           <div class="product-card card border-0 h-100 shadow-sm hover-lift">
             <div class="position-relative">
               <img
-                src="https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                src="@/assets/images/0001.jpg"
                 class="card-img-top"
                 style="height: 250px; object-fit: cover;"
                 alt="智能調光燈泡"
@@ -313,9 +313,6 @@
                   <small class="text-muted">(4.9)</small>
                 </div>
               </div>
-              <button class="btn btn-warning w-100 mt-3">
-                <i class="fas fa-cart-plus me-2"></i>加入購物車
-              </button>
             </div>
           </div>
         </div>
@@ -324,7 +321,7 @@
           <div class="product-card card border-0 h-100 shadow-sm hover-lift">
             <div class="position-relative">
               <img
-                src="https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                src="@/assets/images/0002.jpg"
                 class="card-img-top"
                 style="height: 250px; object-fit: cover;"
                 alt="復古愛迪生燈泡"
@@ -352,12 +349,6 @@
                   <small class="text-muted">(4.3)</small>
                 </div>
               </div>
-              <button
-                class="btn mt-3"
-                style="background-color: #2C3E50; color: white; width: 100%;"
-              >
-                <i class="fas fa-cart-plus me-2"></i>加入購物車
-              </button>
             </div>
           </div>
         </div>
@@ -366,7 +357,7 @@
           <div class="product-card card border-0 h-100 shadow-sm hover-lift">
             <div class="position-relative">
               <img
-                src="https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                src="@/assets/images/0003.jpg"
                 class="card-img-top"
                 style="height: 250px; object-fit: cover;"
                 alt="圓形吸頂燈"
@@ -393,9 +384,6 @@
                   <small class="text-muted">(5.0)</small>
                 </div>
               </div>
-              <button class="btn btn-warning w-100 mt-3">
-                <i class="fas fa-cart-plus me-2"></i>加入購物車
-              </button>
             </div>
           </div>
         </div>
