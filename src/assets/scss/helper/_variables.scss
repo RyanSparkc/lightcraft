@@ -1,7 +1,7 @@
 // ===== 專案自定義變數 =====
 // 品牌顏色
-$brand-primary: #667eea;
-$brand-secondary: #764ba2;
+$brand-primary: #ffc107;
+$brand-secondary: #2c3e50;
 $brand-gradient: linear-gradient(
   135deg,
   $brand-primary 0%,
@@ -338,8 +338,8 @@ $cyans: (
 // fusv-enable
 
 // scss-docs-start theme-color-variables
-$primary: $blue !default;
-$secondary: $gray-600 !default;
+$primary: $brand-primary !default;
+$secondary: $brand-secondary !default;
 $success: $green !default;
 $info: $cyan !default;
 $warning: $yellow !default;
@@ -351,7 +351,7 @@ $dark: $gray-900 !default;
 // scss-docs-start theme-colors-map
 $theme-colors: (
   'primary': $brand-primary,
-  'secondary': $secondary,
+  'secondary': $brand-secondary,
   'success': $success,
   'info': $info,
   'warning': $warning,
