@@ -49,11 +49,6 @@
           <li class="nav-item">
             <RouterLink class="nav-link" to="/login">登入</RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/admin/products"
-              >後台 - 購物車列表</RouterLink
-            >
-          </li>
         </ul>
       </div>
     </div>

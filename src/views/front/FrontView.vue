@@ -94,6 +94,13 @@
                     >購物車</RouterLink
                   >
                 </li>
+                <li class="mb-2">
+                  <RouterLink
+                    class="text-white text-decoration-none"
+                    to="/admin/products"
+                    >管理後台</RouterLink
+                  >
+                </li>
               </ul>
             </div>
 
