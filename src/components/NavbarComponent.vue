@@ -1,7 +1,13 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <RouterLink class="navbar-brand" to="/">Logo</RouterLink>
+      <RouterLink class="navbar-brand" to="/">
+        <img
+          src="@/assets/images/logo.png"
+          alt="Logo"
+          style="height: 40px; width: auto;"
+        />
+      </RouterLink>
       <button
         class="navbar-toggler"
         type="button"
