@@ -157,7 +157,7 @@
               style="height: 250px;"
             >
               <img
-                src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                src="@/assets/images/lightball01.jpg"
                 class="card-img-top w-100 h-100"
                 style="object-fit: cover; transition: transform 0.3s ease;"
                 alt="裝飾燈具"
@@ -438,13 +438,13 @@
                   </p>
                   <div class="d-flex justify-content-center align-items-center">
                     <img
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+                      :src="person1"
                       class="rounded-circle me-3"
                       style="width: 60px; height: 60px; object-fit: cover;"
                       alt="客戶照片"
                     />
                     <div class="text-start">
-                      <h6 class="mb-0 fw-bold">王小明</h6>
+                      <h6 class="mb-0 fw-bold">James</h6>
                       <small class="text-warning">智慧家居愛好者</small>
                     </div>
                   </div>
@@ -465,13 +465,13 @@
                   </p>
                   <div class="d-flex justify-content-center align-items-center">
                     <img
-                      src="https://images.unsplash.com/photo-1494790108755-2616b612b577?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+                      :src="person2"
                       class="rounded-circle me-3"
                       style="width: 60px; height: 60px; object-fit: cover;"
                       alt="客戶照片"
                     />
                     <div class="text-start">
-                      <h6 class="mb-0 fw-bold">李美麗</h6>
+                      <h6 class="mb-0 fw-bold">Mike Lee</h6>
                       <small class="text-warning">室內設計師</small>
                     </div>
                   </div>
@@ -492,13 +492,13 @@
                   </p>
                   <div class="d-flex justify-content-center align-items-center">
                     <img
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+                      :src="person3"
                       class="rounded-circle me-3"
                       style="width: 60px; height: 60px; object-fit: cover;"
                       alt="客戶照片"
                     />
                     <div class="text-start">
-                      <h6 class="mb-0 fw-bold">張大華</h6>
+                      <h6 class="mb-0 fw-bold">Jason cho</h6>
                       <small class="text-warning">咖啡廳老闆</small>
                     </div>
                   </div>
@@ -574,6 +574,9 @@
 
 <script>
 import bannerImage from '@/assets/images/banner.jpg';
+import person1 from '@/assets/images/person1.jpg';
+import person2 from '@/assets/images/person2.jpg';
+import person3 from '@/assets/images/person3.jpg';
 
 export default {
   name: 'HomeView',
@@ -581,6 +584,9 @@ export default {
     return {
       isLoading: false,
       bannerImage,
+      person1,
+      person2,
+      person3,
     };
   },
 
