@@ -147,23 +147,23 @@
                 <div class="spec-table">
                   <div class="spec-row">
                     <span class="spec-label">尺寸：</span>
-                    <span class="spec-value">30 x 20 x 15 cm</span>
+                    <span class="spec-value">{{ productSpecs.size }}</span>
                   </div>
                   <div class="spec-row">
                     <span class="spec-label">重量：</span>
-                    <span class="spec-value">2.5 kg</span>
+                    <span class="spec-value">{{ productSpecs.weight }}</span>
                   </div>
                   <div class="spec-row">
                     <span class="spec-label">材質：</span>
-                    <span class="spec-value">環保 ABS 塑料</span>
+                    <span class="spec-value">{{ productSpecs.material }}</span>
                   </div>
                   <div class="spec-row">
                     <span class="spec-label">顏色：</span>
-                    <span class="spec-value">黑色、白色、銀色</span>
+                    <span class="spec-value">{{ productSpecs.color }}</span>
                   </div>
                   <div class="spec-row">
                     <span class="spec-label">產地：</span>
-                    <span class="spec-value">台灣製造</span>
+                    <span class="spec-value">{{ productSpecs.origin }}</span>
                   </div>
                 </div>
               </div>
@@ -355,6 +355,31 @@ export default {
       }
 
       return images;
+    },
+    // 產品規格資料處理（含預設值）
+    productSpecs() {
+      // 預設規格資料
+      const defaultSpecs = {
+        size: '30 x 20 x 15 cm',
+        weight: '2.5 kg',
+        material: '環保 ABS 塑料',
+        color: '黑色、白色、銀色',
+        origin: '台灣製造',
+      };
+
+      // 如果產品有規格資料，使用 API 資料，否則使用預設值
+      if (this.product.specifications) {
+        return {
+          size: this.product.specifications.size || defaultSpecs.size,
+          weight: this.product.specifications.weight || defaultSpecs.weight,
+          material: this.product.specifications.material || defaultSpecs.material,
+          color: this.product.specifications.color || defaultSpecs.color,
+          origin: this.product.specifications.origin || defaultSpecs.origin,
+        };
+      }
+
+      // 如果沒有規格資料，直接返回預設值
+      return defaultSpecs;
     },
   },
   methods: {
