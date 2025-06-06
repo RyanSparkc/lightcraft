@@ -198,6 +198,75 @@
                 </div>
               </div>
 
+              <!-- 新增產品規格編輯區塊 -->
+              <div class="mb-3">
+                <label class="form-label">📦 產品規格</label>
+                <div
+                  class="specifications-editor border rounded p-3"
+                  style="background-color: #f8f9fa;"
+                >
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="spec-size" class="form-label">尺寸</label>
+                      <input
+                        id="spec-size"
+                        type="text"
+                        class="form-control"
+                        placeholder="請輸入產品尺寸（長 x 寬 x 高）"
+                        v-model="editProduct.specifications.size"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="spec-weight" class="form-label">重量</label>
+                      <input
+                        id="spec-weight"
+                        type="text"
+                        class="form-control"
+                        placeholder="請輸入產品重量"
+                        v-model="editProduct.specifications.weight"
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="spec-material" class="form-label">材質</label>
+                      <input
+                        id="spec-material"
+                        type="text"
+                        class="form-control"
+                        placeholder="請輸入產品材質"
+                        v-model="editProduct.specifications.material"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="spec-color" class="form-label">顏色</label>
+                      <input
+                        id="spec-color"
+                        type="text"
+                        class="form-control"
+                        placeholder="請輸入可選顏色（多種請用逗號分隔）"
+                        v-model="editProduct.specifications.color"
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-0">
+                      <label for="spec-origin" class="form-label">產地</label>
+                      <input
+                        id="spec-origin"
+                        type="text"
+                        class="form-control"
+                        placeholder="請輸入產品產地"
+                        v-model="editProduct.specifications.origin"
+                      />
+                    </div>
+                  </div>
+                  <small class="text-muted d-block mt-2">
+                    💡 產品規格將顯示在商品詳細頁面，幫助顧客了解產品特色
+                  </small>
+                </div>
+              </div>
+
               <hr />
 
               <div class="mb-3">
@@ -273,7 +342,16 @@ export default {
     return {
       status: {},
       modal: '',
-      editProduct: {},
+      editProduct: {
+        specifications: {
+          size: '',
+          weight: '',
+          material: '',
+          color: '',
+          origin: '',
+        },
+        star: 0,
+      },
       isLoading: true,
       hoverStar: 0, // 滑鼠懸停的星星數量
     };
@@ -283,6 +361,20 @@ export default {
   mixins: [modalMixin],
   mounted() {
     this.editProduct = this.tempProduct;
+    // 確保 specifications 物件存在
+    if (!this.editProduct.specifications) {
+      this.editProduct.specifications = {
+        size: '',
+        weight: '',
+        material: '',
+        color: '',
+        origin: '',
+      };
+    }
+    // 確保 star 欄位存在
+    if (typeof this.editProduct.star === 'undefined') {
+      this.editProduct.star = 0;
+    }
   },
   watch: {
     tempProduct() {
@@ -297,6 +389,16 @@ export default {
       if (typeof this.editProduct.star === 'undefined') {
         this.editProduct.star = 0;
       }
+      // 確保 specifications 物件存在
+      if (!this.editProduct.specifications) {
+        this.editProduct.specifications = {
+          size: '',
+          weight: '',
+          material: '',
+          color: '',
+          origin: '',
+        };
+      }
     },
   },
   methods: {
@@ -310,7 +412,6 @@ export default {
       this.editProduct.star = 0;
     },
     upLoadFile() {
-      console.log(2);
       const upLoadFile = this.$refs.fileInput.files[0];
       const formData = new FormData();
       formData.append('file-to-upload', upLoadFile);
