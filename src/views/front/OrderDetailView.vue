@@ -1,5 +1,5 @@
 <template>
-  <div class="order-detail-container my-5">
+  <div class="order-detail-container container my-5">
     <!-- 返回按鈕 -->
     <div class="mb-4">
       <button class="btn btn-outline-secondary" @click="$router.go(-1)">
