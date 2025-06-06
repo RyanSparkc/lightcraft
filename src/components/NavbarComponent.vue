@@ -1,5 +1,8 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <nav
+    class="navbar navbar-expand-lg navbar-light"
+    style="background-color: #FFC107;"
+  >
     <div class="container-fluid">
       <RouterLink class="navbar-brand" to="/">
         <img

@@ -1,16 +1,27 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <nav
+    class="navbar navbar-expand-lg navbar-light"
+    style="background-color: #FFC107;"
+  >
     <div class="container-fluid">
       <a class="navbar-brand" href="#">燈泡市集</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navbarMarkup" aria-controls="navbarMarkup" aria-expanded="false"
-        aria-label="Toggle navigation">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarMarkup"
+        aria-controls="navbarMarkup"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarMarkup">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/admin/products">產品列表</RouterLink>
+            <RouterLink class="nav-link" to="/admin/products"
+              >產品列表</RouterLink
+            >
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link" to="/admin/order">訂單管理</RouterLink>
@@ -19,7 +30,9 @@
             <RouterLink class="nav-link" to="/admin/coupon">優惠券</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/admin/articles">文章列表</RouterLink>
+            <RouterLink class="nav-link" to="/admin/articles"
+              >文章列表</RouterLink
+            >
           </li>
           <li class="nav-item">
             <a href="#" @click.prevent="logout" class="nav-link">登出</a>
