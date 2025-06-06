@@ -98,7 +98,7 @@
                   <RouterLink
                     class="text-white text-decoration-none"
                     to="/admin/products"
-                    >管理後台</RouterLink
+                    >登入管理後台</RouterLink
                   >
                 </li>
               </ul>
@@ -175,7 +175,7 @@
                 <RouterLink
                   class="text-decoration-none text-muted"
                   to="/admin/products"
-                  >管理後台</RouterLink
+                  >登入管理後台</RouterLink
                 >
               </p>
             </div>
