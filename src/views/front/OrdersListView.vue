@@ -1,63 +1,234 @@
 <template>
   <div class="orders-list-view">
+    <!-- 頁面頂部主題色區域 -->
+    <div class="hero-section">
+      <div class="hero-background"></div>
+      <div class="container-fluid px-4">
+        <div class="row align-items-center py-5">
+          <div class="col-lg-8">
+            <h1 class="hero-title mb-3">我的訂單</h1>
+            <p class="hero-subtitle mb-0">管理您的所有訂單，追蹤購買記錄</p>
+          </div>
+          <div class="col-lg-4 text-lg-end">
+            <div class="hero-icon">
+              <i class="bi bi-receipt-cutoff"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container-fluid px-4">
+      <!-- 訂單統計儀表板 -->
+      <div class="statistics-dashboard mb-5">
+        <div class="row g-4">
+          <div class="col-lg-auto col-md-4 col-sm-6">
+            <div class="stat-card">
+              <div class="stat-icon total">
+                <i class="bi bi-list-check"></i>
+              </div>
+              <div class="stat-content">
+                <h3 class="stat-number">{{ statistics.totalOrders }}</h3>
+                <p class="stat-label">總訂單數</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-auto col-md-4 col-sm-6">
+            <div class="stat-card">
+              <div class="stat-icon pending">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div class="stat-content">
+                <h3 class="stat-number">{{ statistics.pendingOrders }}</h3>
+                <p class="stat-label">待付款</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-auto col-md-4 col-sm-6">
+            <div class="stat-card">
+              <div class="stat-icon completed">
+                <i class="bi bi-check-circle"></i>
+              </div>
+              <div class="stat-content">
+                <h3 class="stat-number">{{ statistics.completedOrders }}</h3>
+                <p class="stat-label">已完成</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5 col-md-12 col-sm-6">
+            <div class="stat-card">
+              <div class="stat-icon amount">
+                <i class="bi bi-currency-dollar"></i>
+              </div>
+              <div class="stat-content">
+                <h3 class="stat-number">NT$ {{ statistics.totalAmount }}</h3>
+                <p class="stat-label">累計金額</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-12">
-          <h2 class="mb-4 fw-bold text-dark">我的訂單</h2>
-
-          <!-- 載入中狀態 -->
-          <div v-if="isLoading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">載入中...</span>
+          <!-- 載入中狀態 - 改善的動畫 -->
+          <div v-if="isLoading" class="loading-container">
+            <div class="loading-animation">
+              <div class="loading-spinner">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+              </div>
+              <h4 class="loading-text">正在載入您的訂單</h4>
+              <p class="loading-subtitle">請稍候片刻...</p>
             </div>
-            <p class="mt-3 text-muted">正在載入訂單資料...</p>
           </div>
 
-          <!-- 訂單列表 -->
+          <!-- 訂單列表 - 視覺增強 -->
           <div v-else-if="orders.length > 0" class="orders-container">
             <div
               v-for="order in orders"
               :key="order.id"
               class="order-card mb-4"
             >
-              <div class="card border-2 border-dark shadow-sm">
+              <div class="card border-0 shadow-sm">
+                <!-- 訂單狀態標籤 -->
+                <div class="order-status-ribbon" :class="getStatusClass(order)">
+                  <span>{{ getStatusText(order) }}</span>
+                </div>
+
                 <div class="card-body p-4">
+                  <!-- 訂單進度條 -->
+                  <div class="order-progress mb-4">
+                    <div class="progress-step" :class="{ active: true }">
+                      <div class="step-icon">
+                        <i class="bi bi-bag-check"></i>
+                      </div>
+                      <span class="step-label">訂單確認</span>
+                    </div>
+                    <div
+                      class="progress-line"
+                      :class="{ active: order.is_paid }"
+                    ></div>
+                    <div
+                      class="progress-step"
+                      :class="{ active: order.is_paid }"
+                    >
+                      <div class="step-icon">
+                        <i class="bi bi-credit-card"></i>
+                      </div>
+                      <span class="step-label">付款完成</span>
+                    </div>
+                    <div
+                      class="progress-line"
+                      :class="{ active: order.is_paid }"
+                    ></div>
+                    <div
+                      class="progress-step"
+                      :class="{ active: order.is_paid }"
+                    >
+                      <div class="step-icon">
+                        <i class="bi bi-truck"></i>
+                      </div>
+                      <span class="step-label">配送中</span>
+                    </div>
+                    <div
+                      class="progress-line"
+                      :class="{ active: order.is_paid }"
+                    ></div>
+                    <div
+                      class="progress-step"
+                      :class="{ active: order.is_paid }"
+                    >
+                      <div class="step-icon">
+                        <i class="bi bi-house-check"></i>
+                      </div>
+                      <span class="step-label">已送達</span>
+                    </div>
+                  </div>
+
                   <div class="row align-items-center g-3">
                     <div class="col-lg-2 col-md-3 col-sm-6">
-                      <h6 class="card-title mb-1 text-muted">訂單編號</h6>
-                      <p class="card-text small fw-medium">{{ order.id }}</p>
+                      <div class="order-info-item">
+                        <div class="info-icon">
+                          <i class="bi bi-hash"></i>
+                        </div>
+                        <div class="info-content">
+                          <h6 class="info-label">訂單編號</h6>
+                          <p class="info-value">
+                            {{ order.id.substring(0, 8) }}...
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-lg-2 col-md-3 col-sm-6">
-                      <h6 class="card-title mb-1 text-muted">訂單日期</h6>
-                      <p class="card-text small">
-                        {{ formatDate(order.create_at) }}
-                      </p>
+                      <div class="order-info-item">
+                        <div class="info-icon">
+                          <i class="bi bi-calendar3"></i>
+                        </div>
+                        <div class="info-content">
+                          <h6 class="info-label">訂單日期</h6>
+                          <p class="info-value">
+                            {{ formatDate(order.create_at) }}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-lg-2 col-md-3 col-sm-6">
-                      <h6 class="card-title mb-1 text-muted">付款狀態</h6>
-                      <span
-                        :class="['badge', order.is_paid ? 'bg-success' : 'bg-warning text-dark']"
-                      >
-                        {{ order.is_paid ? '已付款' : '未付款' }}
-                      </span>
+                      <div class="order-info-item">
+                        <div class="info-icon">
+                          <i class="bi bi-credit-card"></i>
+                        </div>
+                        <div class="info-content">
+                          <h6 class="info-label">付款狀態</h6>
+                          <span
+                            class="payment-badge"
+                            :class="order.is_paid ? 'paid' : 'unpaid'"
+                          >
+                            <i
+                              :class="order.is_paid ? 'bi bi-check-circle' : 'bi bi-exclamation-circle'"
+                            ></i>
+                            {{ order.is_paid ? '已付款' : '待付款' }}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-lg-2 col-md-3 col-sm-6">
-                      <h6 class="card-title mb-1 text-muted">商品數量</h6>
-                      <p class="card-text">{{ getProductCount(order) }} 項</p>
+                      <div class="order-info-item">
+                        <div class="info-icon">
+                          <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div class="info-content">
+                          <h6 class="info-label">商品數量</h6>
+                          <p class="info-value">
+                            {{ getProductCount(order) }} 項
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-lg-2 col-md-6 col-sm-6">
-                      <h6 class="card-title mb-1 text-muted">訂單總額</h6>
-                      <p class="card-text fw-bold text-dark fs-5">
-                        NT$ {{ calculateOrderTotal(order) }}
-                      </p>
+                      <div class="order-info-item">
+                        <div class="info-icon total-icon">
+                          <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <div class="info-content">
+                          <h6 class="info-label">訂單總額</h6>
+                          <p class="info-value total-amount">
+                            NT$ {{ calculateOrderTotal(order) }}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div class="col-lg-2 col-md-6 col-sm-6 text-end">
-                      <RouterLink
-                        :to="`/order/${order.id}`"
-                        class="btn btn-outline-dark btn-sm px-3"
-                      >
-                        查看詳情
-                      </RouterLink>
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                      <div class="order-actions">
+                        <RouterLink
+                          :to="`/order/${order.id}`"
+                          class="btn btn-primary btn-sm"
+                        >
+                          <i class="bi bi-eye me-1"></i>
+                          查看詳情
+                        </RouterLink>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -80,6 +251,7 @@
                     @click="changePage(pagination.current_page - 1)"
                     :disabled="!pagination.has_pre"
                   >
+                    <i class="bi bi-chevron-left"></i>
                     上一頁
                   </button>
                 </li>
@@ -107,29 +279,50 @@
                     :disabled="!pagination.has_next"
                   >
                     下一頁
+                    <i class="bi bi-chevron-right"></i>
                   </button>
                 </li>
               </ul>
             </nav>
           </div>
 
-          <!-- 空狀態 -->
-          <div v-else class="text-center py-5">
-            <div class="mb-4">
-              <i class="bi bi-bag-x display-1 text-muted"></i>
+          <!-- 空狀態 - 改善的視覺引導 -->
+          <div v-else class="empty-state">
+            <div class="empty-illustration">
+              <div class="empty-icon">
+                <i class="bi bi-bag-x"></i>
+              </div>
+              <div class="empty-content">
+                <h3 class="empty-title">還沒有任何訂單</h3>
+                <p class="empty-subtitle">
+                  快去探索我們精選的商品，開始您的購物之旅吧！
+                </p>
+                <div class="empty-actions">
+                  <RouterLink to="/products" class="btn btn-primary btn-lg">
+                    <i class="bi bi-bag-plus me-2"></i>
+                    開始購物
+                  </RouterLink>
+                  <RouterLink
+                    to="/"
+                    class="btn btn-outline-primary btn-lg ms-3"
+                  >
+                    <i class="bi bi-house me-2"></i>
+                    回到首頁
+                  </RouterLink>
+                </div>
+              </div>
             </div>
-            <h4 class="text-muted mb-3">尚無訂單記錄</h4>
-            <p class="text-muted mb-4">您還沒有任何訂單，快去選購商品吧！</p>
-            <RouterLink to="/products" class="btn btn-dark px-4 py-2">
-              立即購物
-            </RouterLink>
           </div>
 
-          <!-- 錯誤狀態 -->
-          <div v-if="error" class="alert alert-danger mt-4" role="alert">
-            <h4 class="alert-heading">載入失敗</h4>
-            <p class="mb-3">{{ error }}</p>
-            <button class="btn btn-outline-danger" @click="fetchOrders">
+          <!-- 錯誤狀態 - 改善的錯誤處理 -->
+          <div v-if="error" class="error-state">
+            <div class="error-icon">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <h4 class="error-title">載入失敗</h4>
+            <p class="error-message">{{ error }}</p>
+            <button class="btn btn-primary" @click="fetchOrders">
+              <i class="bi bi-arrow-clockwise me-2"></i>
               重新載入
             </button>
           </div>
@@ -163,7 +356,6 @@ export default {
       const totalPages = this.pagination.total_pages;
       const currentPage = this.pagination.current_page;
 
-      // 簡單的分頁顯示邏輯
       for (let i = 1; i <= totalPages; i += 1) {
         if (
           i === 1
@@ -174,6 +366,22 @@ export default {
         }
       }
       return pages;
+    },
+    statistics() {
+      const totalOrders = this.orders.length;
+      const pendingOrders = this.orders.filter((order) => !order.is_paid).length;
+      const completedOrders = this.orders.filter((order) => order.is_paid).length;
+      const totalAmount = this.orders.reduce((sum, order) => {
+        const orderTotal = this.getOrderTotalNumber(order);
+        return sum + orderTotal;
+      }, 0);
+
+      return {
+        totalOrders,
+        pendingOrders,
+        completedOrders,
+        totalAmount: Math.round(totalAmount).toLocaleString(),
+      };
     },
   },
   methods: {
@@ -204,7 +412,6 @@ export default {
     changePage(page) {
       if (page >= 1 && page <= this.pagination.total_pages) {
         this.fetchOrders(page);
-        // 滾動到頁面頂部
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     },
@@ -222,12 +429,10 @@ export default {
     getProductCount(order) {
       if (!order.products) return 0;
 
-      // 如果 products 是陣列，直接返回長度
       if (Array.isArray(order.products)) {
         return order.products.length;
       }
 
-      // 如果 products 是物件，返回 key 的數量
       if (typeof order.products === 'object') {
         return Object.keys(order.products).length;
       }
@@ -235,30 +440,28 @@ export default {
       return 0;
     },
     calculateOrderTotal(order) {
-      // 如果 API 直接提供 total 欄位，優先使用
+      const total = this.getOrderTotalNumber(order);
+      return Math.round(total).toLocaleString();
+    },
+    getOrderTotalNumber(order) {
       if (order.total !== undefined && order.total !== null) {
-        return Math.round(order.total).toLocaleString();
+        return Number(order.total);
       }
 
-      // 如果沒有 total 欄位，但有 products 資料，嘗試計算
-      if (!order.products) return '0';
+      if (!order.products) return 0;
 
       let total = 0;
 
-      // 處理陣列格式的 products
       if (Array.isArray(order.products)) {
         total = order.products.reduce((sum, item) => {
-          // 如果有 final_total 欄位（包含優惠後價格），使用它
           if (item.final_total !== undefined) {
             return sum + Number(item.final_total);
           }
-          // 否則用 product 的 price * qty
           const price = Number(item.product?.price) || 0;
           const qty = Number(item.qty) || 0;
           return sum + (price * qty);
         }, 0);
       } else if (typeof order.products === 'object') {
-        // 處理物件格式的 products
         const productArray = Object.values(order.products);
         total = productArray.reduce((sum, item) => {
           if (item.final_total !== undefined) {
@@ -270,7 +473,13 @@ export default {
         }, 0);
       }
 
-      return Math.round(total).toLocaleString();
+      return total;
+    },
+    getStatusClass(order) {
+      return order.is_paid ? 'completed' : 'pending';
+    },
+    getStatusText(order) {
+      return order.is_paid ? '已完成' : '處理中';
     },
   },
   mounted() {
@@ -280,9 +489,167 @@ export default {
 </script>
 
 <style scoped>
+/* 頁面頂部主題色區域 */
+.hero-section {
+  position: relative;
+  background: #ffc107;
+  color: #333;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  background-size: 100px 100px;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.hero-icon {
+  font-size: 4rem;
+  opacity: 0.3;
+  text-align: center;
+}
+
+/* 統計儀表板 */
+.statistics-dashboard {
+  margin-top: -1rem;
+  position: relative;
+  z-index: 10;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.stat-icon.total {
+  background: #ffc107;
+  color: #333;
+}
+
+.stat-icon.pending {
+  background: #ff9800;
+  color: #333;
+}
+
+.stat-icon.completed {
+  background: #4caf50;
+  color: white;
+}
+
+.stat-icon.amount {
+  background: #2196f3;
+  color: white;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+}
+
+.stat-label {
+  color: #6c757d;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* 載入動畫改善 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading-animation {
+  text-align: center;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.loading-spinner > div {
+  width: 18px;
+  height: 18px;
+  background-color: #ffc107;
+  border-radius: 100%;
+  display: inline-block;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.loading-spinner .bounce1 {
+  animation-delay: -0.32s;
+}
+
+.loading-spinner .bounce2 {
+  animation-delay: -0.16s;
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% {
+    transform: scale(0);
+  } 40% {
+    transform: scale(1.0);
+  }
+}
+
+.loading-text {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.loading-subtitle {
+  color: #6c757d;
+}
+
+/* 訂單卡片視覺增強 */
 .orders-list-view {
   min-height: 500px;
-  padding: 2rem 0;
+  background: #f8f9fa;
+  padding-bottom: 3rem;
 }
 
 .container-fluid {
@@ -291,42 +658,250 @@ export default {
 
 .order-card {
   transition: all 0.3s ease;
-  border-radius: 0.5rem;
 }
 
 .order-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
 .card {
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   overflow: hidden;
+  position: relative;
 }
 
-.card-title {
-  font-size: 0.75rem;
+.order-status-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  color: white;
+  z-index: 5;
+  border-bottom-left-radius: 0.5rem;
+}
+
+.order-status-ribbon.pending {
+  background: #ff9800;
+}
+
+.order-status-ribbon.completed {
+  background: #4caf50;
+}
+
+/* 訂單進度條 */
+.order-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-icon {
+  background: #ffc107;
+  color: #333;
+}
+
+.step-label {
+  font-size: 0.75rem;
   color: #6c757d;
+  text-align: center;
+}
+
+.progress-step.active .step-label {
+  color: #333;
+  font-weight: 600;
+}
+
+.progress-line {
+  flex: 1;
+  height: 2px;
+  background: #e9ecef;
+  margin: 0 1rem;
+  position: relative;
+  top: -20px;
+}
+
+.progress-line.active {
+  background: #ffc107;
+}
+
+/* 訂單資訊項目 */
+.order-info-item {
+  display: flex;
+  align-items: center;
+}
+
+.info-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  color: #ffc107;
+  font-size: 1.1rem;
+}
+
+.total-icon {
+  background: #ffc107;
+  color: #333;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.card-text {
+.info-value {
   font-size: 0.9rem;
-  margin-bottom: 0;
-  color: #495057;
+  margin: 0;
+  color: #333;
+  font-weight: 500;
 }
 
-.badge {
-  font-size: 0.75rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 0.375rem;
+.total-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffc107;
 }
 
-/* 自訂分頁樣式 */
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.payment-badge.paid {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.payment-badge.unpaid {
+  background: #fff8e1;
+  color: #f57c00;
+}
+
+.payment-badge i {
+  margin-right: 0.25rem;
+}
+
+.order-actions {
+  text-align: center;
+}
+
+.btn-primary {
+  background: #ffc107;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+  background: #ffb300;
+}
+
+/* 空狀態改善 */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem 6rem 2rem;
+}
+
+.empty-illustration {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.empty-icon {
+  font-size: 6rem;
+  color: #e9ecef;
+  margin-bottom: 2rem;
+}
+
+.empty-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.empty-subtitle {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.empty-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* 錯誤狀態 */
+.error-state {
+  text-align: center;
+  padding: 4rem 2rem 6rem 2rem;
+}
+
+.error-icon {
+  font-size: 4rem;
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+/* 分頁樣式改善 */
 .pagination {
   margin-top: 3rem;
+  margin-bottom: 4rem;
   gap: 0.25rem;
 }
 
@@ -334,33 +909,30 @@ export default {
   border: 2px solid #e9ecef;
   color: #6c757d;
   background-color: #fff;
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
   margin: 0 0.125rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
+  border-radius: 0.5rem;
+  font-weight: 600;
   transition: all 0.2s ease;
   text-decoration: none;
-  min-width: 44px;
+  min-width: 50px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .custom-page-link:hover:not(:disabled) {
-  border-color: #333;
-  color: #333;
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-.custom-page-link:focus {
-  box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
-  border-color: #333;
-  color: #333;
+  border-color: #ffc107;
+  color: #ffc107;
+  background-color: rgba(255, 193, 7, 0.1);
 }
 
 .custom-page-link.active-page,
 .page-item.active .custom-page-link {
-  background-color: #333;
-  border-color: #333;
-  color: #fff;
+  background: #ffc107;
+  border-color: transparent;
+  color: #333;
 }
 
 .custom-page-link:disabled {
@@ -370,99 +942,112 @@ export default {
   cursor: not-allowed;
 }
 
-.page-item.disabled .custom-page-link:hover {
-  border-color: #e9ecef;
-  color: #adb5bd;
-  background-color: #f8f9fa;
-}
-
-/* Bootstrap 覆寫 */
-.page-item.active .page-link {
-  z-index: 3;
-  background-color: #333;
-  border-color: #333;
-}
-
-.btn-dark {
-  background-color: #333;
-  border-color: #333;
-}
-
-.btn-dark:hover {
-  background-color: #222;
-  border-color: #222;
-}
-
-.btn-outline-dark {
-  color: #333;
-  border-color: #333;
-}
-
-.btn-outline-dark:hover {
-  background-color: #333;
-  border-color: #333;
-  color: #fff;
-}
-
-.text-dark {
-  color: #333 !important;
-}
-
-.display-1 {
-  font-size: 4rem;
-}
-
 /* 響應式設計 */
 @media (max-width: 992px) {
-  .order-card .row > div {
-    margin-bottom: 1rem;
+  .hero-title {
+    font-size: 2.5rem;
   }
 
-  .order-card .col-lg-2:last-child {
-    text-align: center !important;
+  .hero-icon {
+    font-size: 3rem;
+    margin-top: 1rem;
+  }
+
+  .order-progress {
+    padding: 0.75rem;
+  }
+
+  .step-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .step-label {
+    font-size: 0.7rem;
   }
 }
 
 @media (max-width: 768px) {
-  .orders-list-view {
-    padding: 1rem 0;
+  .hero-title {
+    font-size: 2rem;
   }
 
-  .container-fluid {
-    padding-left: 1rem;
-    padding-right: 1rem;
+  .hero-subtitle {
+    font-size: 1rem;
   }
 
-  .card-body {
-    padding: 1.5rem !important;
+  .stat-card {
+    padding: 1.5rem;
   }
 
-  .order-card .row > div {
-    margin-bottom: 0.75rem;
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .order-progress {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .progress-line {
+    display: none;
+  }
+
+  .order-info-item {
+    margin-bottom: 1rem;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+  }
+
+  .empty-title {
+    font-size: 1.5rem;
+  }
+
+  .empty-actions {
+    flex-direction: column;
+    align-items: center;
   }
 
   .pagination {
-    margin-top: 2rem;
+    margin-bottom: 3rem;
   }
 
-  .custom-page-link {
-    padding: 0.375rem 0.625rem;
-    font-size: 0.875rem;
-    min-width: 38px;
+  .orders-list-view {
+    padding-bottom: 2rem;
   }
 }
 
 @media (max-width: 576px) {
-  h2 {
-    font-size: 1.75rem;
+  .hero-section {
+    margin-bottom: 1rem;
   }
 
-  .display-1 {
-    font-size: 3rem;
+  .statistics-dashboard {
+    margin-top: 0;
   }
 
-  .card-text.fw-bold {
-    font-size: 1.1rem !important;
+  .stat-card {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stat-icon {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .info-icon {
+    width: 35px;
+    height: 35px;
+    margin-right: 0.75rem;
+  }
+
+  .order-status-ribbon {
+    font-size: 0.7rem;
+    padding: 0.375rem 0.75rem;
   }
 }
 </style>
