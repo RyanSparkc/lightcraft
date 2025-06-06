@@ -415,7 +415,7 @@
       <div class="row justify-content-center mb-5">
         <div class="col-lg-8 text-center">
           <h2 class="display-5 fw-bold mb-3">客戶見證</h2>
-          <p class="lead">聽聽我們滿意客戶的真實回饋</p>
+          <p class="lead mb-0">聽聽我們滿意客戶的真實回饋</p>
         </div>
       </div>
 
@@ -531,7 +531,7 @@
   </section>
 
   <!-- CTA Section -->
-  <section class="py-5 bg-warning">
+  <section class="cta-section bg-warning">
     <div class="container">
       <div class="row justify-content-center text-center">
         <div class="col-lg-8">
@@ -737,6 +737,17 @@ export default {
 section {
   position: relative;
   overflow: hidden;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 120px 0;
+}
+
+@media (max-width: 768px) {
+  .cta-section {
+    padding: 80px 0;
+  }
 }
 
 /* Testimonial styling */

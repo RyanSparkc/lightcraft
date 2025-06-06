@@ -152,7 +152,6 @@
           </div>
 
           <!-- 版權資訊 -->
-          <hr class="border-secondary my-4" />
           <div class="row align-items-center">
             <div class="col-md-6">
               <p class="mb-0 text-muted">
