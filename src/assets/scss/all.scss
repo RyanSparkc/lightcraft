@@ -1,6 +1,7 @@
 @import 'bootstrap/scss/functions';
 
 @import './helper/variables'; // 自訂義變數
+@import './helper/project-base'; // 專案基礎樣式
 @import './helper/common'; // 共用元件樣式
 
 @import 'bootstrap/scss/bootstrap';

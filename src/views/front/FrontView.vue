@@ -4,7 +4,7 @@
     <!-- <h2>這是前台</h2> -->
     <div class="position-relative flex-grow-1">
       <ToastMessages />
-      <div class="container">
+      <div>
         <RouterView />
       </div>
       <div class="py-4 d-none">

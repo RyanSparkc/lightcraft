@@ -1,0 +1,449 @@
+// ===== 專案基礎樣式 =====
+// 使用 Bootstrap 變數系統的全域樣式
+
+// ===== 基礎設定 =====
+html {
+  font-family: var(--bs-font-sans-serif);
+  font-size: var(--bs-font-size-base);
+  line-height: var(--bs-line-height-base);
+}
+
+body {
+  margin: 0;
+  font-family: var(--bs-font-sans-serif);
+  font-size: var(--bs-font-size-base);
+  font-weight: var(--bs-font-weight-base);
+  line-height: var(--bs-line-height-base);
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+// ===== 連結樣式 =====
+a {
+  color: var(--bs-link-color);
+  text-decoration: var(--bs-link-decoration);
+  font-weight: 500;
+  transition: $transition-smooth;
+
+  &:hover {
+    color: var(--bs-link-hover-color);
+    text-decoration: var(--bs-link-hover-decoration);
+  }
+}
+
+// ===== 按鈕基礎樣式 =====
+button {
+  border-radius: var(--bs-border-radius);
+  border: var(--bs-border-width) solid transparent;
+  padding: $btn-padding-y $btn-padding-x;
+  font-size: var(--bs-font-size-base);
+  font-weight: $btn-font-weight;
+  font-family: inherit;
+  cursor: pointer;
+  transition: $btn-transition;
+
+  &:focus,
+  &:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+}
+
+// ===== 專案特定樣式類別 =====
+// 全寬度區塊（突破容器限制）
+.full-width-section {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+// 區塊內間距
+.section-padding {
+  padding: $section-padding;
+
+  @media (max-width: 768px) {
+    padding: $section-padding-mobile;
+  }
+}
+
+// 容器最大寬度
+.container-large {
+  max-width: $container-max-width-large;
+  margin: 0 auto;
+  padding: 0 $spacer;
+}
+
+// 漸層背景
+.gradient-bg {
+  background: $brand-gradient;
+}
+
+// 陰影工具類別
+.shadow-light {
+  box-shadow: $shadow-light !important;
+}
+
+.shadow-medium {
+  box-shadow: $shadow-medium !important;
+}
+
+.shadow-large {
+  box-shadow: $shadow-large !important;
+}
+
+// 文字顏色
+.text-brand-primary {
+  color: $brand-primary !important;
+}
+
+.text-brand-secondary {
+  color: $brand-secondary !important;
+}
+
+.text-primary-custom {
+  color: $text-primary !important;
+}
+
+.text-secondary-custom {
+  color: $text-secondary !important;
+}
+
+.text-muted-custom {
+  color: $text-muted !important;
+}
+
+// 背景顏色
+.bg-section {
+  background-color: $bg-section !important;
+}
+
+// 字體大小
+.fs-hero {
+  font-size: $font-size-hero !important;
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem !important;
+  }
+}
+
+.fs-section-title {
+  font-size: $font-size-section-title !important;
+
+  @media (max-width: 768px) {
+    font-size: 2.2rem !important;
+  }
+}
+
+.fs-large {
+  font-size: $font-size-large !important;
+}
+
+// 圓角
+.rounded-large {
+  border-radius: $border-radius-large !important;
+}
+
+.rounded-xl-custom {
+  border-radius: $border-radius-xl !important;
+}
+
+// 轉場動畫
+.transition-smooth {
+  transition: $transition-smooth !important;
+}
+
+// 卡片樣式
+.card-custom {
+  background: var(--bs-body-bg);
+  border-radius: $border-radius-large;
+  box-shadow: $shadow-light;
+  border: none;
+  transition: $transition-smooth;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: $shadow-large;
+  }
+}
+
+// 特色圖示
+.feature-icon {
+  width: 80px;
+  height: 80px;
+  background: $brand-gradient;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  color: white;
+  font-size: 2rem;
+}
+
+// 區塊標題樣式
+.section-title {
+  font-size: $font-size-section-title;
+  text-align: center;
+  margin-bottom: $spacer * 3.75; // 60px
+  color: $text-primary;
+  position: relative;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+
+  &::after {
+    content: '';
+    width: 100px;
+    height: 4px;
+    background: $brand-gradient;
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: var(--bs-border-radius-sm);
+  }
+}
+
+// 頭像佔位符
+.avatar-placeholder {
+  width: 50px;
+  height: 50px;
+  background: $brand-gradient;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+// 圖片佔位符
+.image-placeholder {
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(
+    135deg,
+    var(--bs-gray-100) 0%,
+    var(--bs-gray-200) 100%
+  );
+  border-radius: var(--bs-border-radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-gray-600);
+  font-size: 1rem;
+  text-align: center;
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    opacity: 0.6;
+  }
+}
+
+// 聯絡圖標
+.contact-icon {
+  font-size: 2.5rem;
+  margin-bottom: $spacer;
+  display: flex;
+  justify-content: center;
+}
+
+// 響應式工具
+@media (max-width: 768px) {
+  .mobile-text-center {
+    text-align: center !important;
+  }
+
+  .mobile-mb-4 {
+    margin-bottom: $spacer * 2.5 !important;
+  }
+}
+
+// ===== 額外工具類別 =====
+// 透明度
+.opacity-90 {
+  opacity: 0.9 !important;
+}
+
+.opacity-80 {
+  opacity: 0.8 !important;
+}
+
+.opacity-70 {
+  opacity: 0.7 !important;
+}
+
+// 字重
+.fw-light {
+  font-weight: 300 !important;
+}
+
+.fw-medium {
+  font-weight: 500 !important;
+}
+
+.fw-semibold {
+  font-weight: 600 !important;
+}
+
+// 字間距
+.letter-spacing-tight {
+  letter-spacing: -0.02em !important;
+}
+
+.letter-spacing-wide {
+  letter-spacing: 0.02em !important;
+}
+
+// Z-index
+.z-1 {
+  z-index: 1 !important;
+}
+
+.z-2 {
+  z-index: 2 !important;
+}
+
+.z-3 {
+  z-index: 3 !important;
+}
+
+// 物件適應
+.object-fit-cover {
+  object-fit: cover !important;
+}
+
+.object-fit-contain {
+  object-fit: contain !important;
+}
+
+// Flexbox gap (for older browsers)
+.gap-1 {
+  gap: $spacer * 0.25 !important;
+}
+
+.gap-2 {
+  gap: $spacer * 0.5 !important;
+}
+
+.gap-3 {
+  gap: $spacer !important;
+}
+
+.gap-4 {
+  gap: $spacer * 1.5 !important;
+}
+
+.gap-5 {
+  gap: $spacer * 3 !important;
+}
+
+// 滑鼠懸停效果
+.hover-lift:hover {
+  transform: translateY(-4px) !important;
+  transition: $transition-smooth !important;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05) !important;
+  transition: $transition-smooth !important;
+}
+
+// 邊框
+.border-brand {
+  border-color: $brand-primary !important;
+}
+
+.border-2 {
+  border-width: 2px !important;
+}
+
+.border-3 {
+  border-width: 3px !important;
+}
+
+// 背景樣式
+.bg-gradient-brand {
+  background: $brand-gradient !important;
+}
+
+.bg-white {
+  background-color: $white !important;
+}
+
+// 高度工具
+.h-auto {
+  height: auto !important;
+}
+
+.min-h-100vh {
+  min-height: 100vh !important;
+}
+
+// 位置
+.position-relative {
+  position: relative !important;
+}
+
+.position-absolute {
+  position: absolute !important;
+}
+
+// 顯示/隱藏
+.d-none {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-inline-block {
+  display: inline-block !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+.d-grid {
+  display: grid !important;
+}
+
+// 響應式顯示（如果 Bootstrap 沒有提供）
+@media (max-width: 575.98px) {
+  .d-sm-none {
+    display: none !important;
+  }
+
+  .d-sm-block {
+    display: block !important;
+  }
+
+  .d-sm-flex {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .d-md-none {
+    display: none !important;
+  }
+
+  .d-md-block {
+    display: block !important;
+  }
+
+  .d-md-flex {
+    display: flex !important;
+  }
+}
