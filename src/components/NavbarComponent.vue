@@ -6,7 +6,7 @@
     <div class="container-fluid">
       <RouterLink class="navbar-brand" to="/">
         <img
-          src="@/assets/images/logo.png"
+          src="@/assets/images/nav-logo.png"
           alt="Logo"
           style="height: 40px; width: auto;"
         />
