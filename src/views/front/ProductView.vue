@@ -12,8 +12,6 @@
           :pagination="{ clickable: true }"
           :autoplay="{ delay: 3000 }"
           :loop="true"
-          @swiper="onSwiper"
-          @slideChange="onSlideChange"
           class="product-swiper"
         >
           <swiper-slide v-for="(image, index) in displayImages" :key="index">
@@ -307,6 +305,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 import useCartStore from '@/stores/cartStore';
+import useToastMessageStore from '@/stores/toastMessage';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
@@ -360,12 +359,8 @@ export default {
   },
   methods: {
     ...mapActions(useCartStore, ['addToCart']),
-    onSwiper(swiper) {
-      console.log('Swiper instance:', swiper);
-    },
-    onSlideChange() {
-      console.log('Slide changed');
-    },
+    ...mapActions(useToastMessageStore, ['addMessage']),
+
     getProduct() {
       const { id } = this.$route.params;
       fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`)
@@ -376,7 +371,11 @@ export default {
           this.getRelatedProducts();
         })
         .catch((err) => {
-          console.error('載入產品失敗:', err);
+          this.addMessage({
+            title: '載入失敗',
+            content: `載入產品失敗：${err.message || '未知錯誤'}`,
+            style: 'danger',
+          });
         });
     },
     getRelatedProducts() {
@@ -391,7 +390,11 @@ export default {
             .slice(0, 4);
         })
         .catch((err) => {
-          console.error('載入推薦商品失敗:', err);
+          this.addMessage({
+            title: '載入推薦商品失敗',
+            content: `無法載入推薦商品：${err.message || '未知錯誤'}`,
+            style: 'warning',
+          });
           this.relatedProducts = [];
         });
     },
