@@ -741,13 +741,13 @@ export default {
 .product-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #495057;
+  color: #FFC107;
   margin-bottom: 8px;
 }
 
 .product-desc {
   font-size: 0.85rem;
-  color: #6c757d;
+  color: #666;
   line-height: 1.4;
   margin-bottom: 12px;
 }
@@ -761,12 +761,12 @@ export default {
 .product-price {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #007bff;
+  color: #FFC107;
 }
 
 .btn-view {
-  background: #007bff;
-  color: white;
+  background: #FFC107;
+  color: #333;
   border: none;
   padding: 6px 16px;
   border-radius: 6px;
@@ -778,9 +778,9 @@ export default {
 }
 
 .btn-view:hover {
-  background: #0056b3;
+  background: #e6ac00;
   transform: translateY(-1px);
-  color: white;
+  color: #333;
 }
 
 /* ==== 響應式設計 ==== */
