@@ -4,12 +4,12 @@
     <div class="hero-section">
       <div class="hero-background"></div>
       <div class="container-fluid px-4">
-        <div class="row align-items-center py-5">
+        <div class="row align-items-center py-5 justify-content-between">
           <div class="col-lg-8">
             <h1 class="hero-title mb-3">我的訂單</h1>
             <p class="hero-subtitle mb-0">管理您的所有訂單，追蹤購買記錄</p>
           </div>
-          <div class="col-lg-4 text-lg-end">
+          <div class="col-lg-2">
             <div class="hero-icon">
               <i class="bi bi-receipt-cutoff"></i>
             </div>

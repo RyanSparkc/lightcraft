@@ -5,14 +5,14 @@
     <div class="hero-section">
       <div class="hero-background"></div>
       <div class="container">
-        <div class="row align-items-center py-5">
+        <div class="row align-items-center py-5 justify-content-between">
           <div class="col-lg-8">
             <h1 class="hero-title mb-3">
               {{ $route.query.category ? `${$route.query.category} 系列` : '全部商品' }}
             </h1>
             <p class="hero-subtitle mb-0">探索精選商品，發現生活中的美好</p>
           </div>
-          <div class="col-lg-4 text-lg-end">
+          <div class="col-lg-2">
             <div class="hero-icon">
               <i class="bi bi-basket3"></i>
             </div>

@@ -18,7 +18,7 @@
               </div>
               <div class="mb-3">
                 <label for="image" class="form-label">輸入圖片網址</label>
-                <input type="text" class="form-control" id="image" v-model="tempArticle.imageUrl"
+                <input type="text" class="form-control" id="image" v-model="tempArticle.image"
                   placeholder="請輸入圖片連結">
               </div>
               <div class="mb-3">
@@ -26,7 +26,7 @@
                 </label>
                 <input type="file" id="customFile" class="form-control mb-1" ref="fileInput"
                   @change="upLoadFile" />
-                <img class="img-fluid" :src="tempArticle.imageUrl" alt="">
+                <img class="img-fluid" :src="tempArticle.image || tempArticle.imageUrl" alt="">
               </div>
               <div class="mb-3">
                 <label for="author" class="form-label">作者</label>
@@ -124,7 +124,7 @@ export default {
       const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/upload`;
       this.axios.post(url, formData)
         .then((res) => {
-          this.tempArticle.imageUrl = res.data.imageUrl;
+          this.tempArticle.image = res.data.imageUrl;
           this.$refs.fileInput.value = '';
           this.addMessage({
             title: '圖片上傳結果',

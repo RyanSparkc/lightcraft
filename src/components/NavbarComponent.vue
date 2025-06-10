@@ -31,6 +31,9 @@
             <RouterLink class="nav-link" to="/products">產品列表</RouterLink>
           </li>
           <li class="nav-item">
+            <RouterLink class="nav-link" to="/articles">文章專區</RouterLink>
+          </li>
+          <li class="nav-item">
             <RouterLink class="nav-link" to="/orders">我的訂單</RouterLink>
           </li>
         </ul>
