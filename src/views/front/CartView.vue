@@ -42,32 +42,33 @@
               </td>
               <td>
                 <div
-                  class="input-group quantity-selector mx-auto"
-                  style="max-width: 140px"
+                  class="quantity-selector-wrapper d-flex justify-content-center"
                 >
-                  <button
-                    class="qty-btn qty-btn-minus"
-                    @click="updateQuantity(item, item.qty - 1)"
-                    :disabled="loadingItem === item.id || item.qty <= 1"
-                  >
-                    <i class="bi bi-dash"></i>
-                  </button>
-                  <input
-                    type="number"
-                    class="form-control text-center qty-input"
-                    v-model.number="item.qty"
-                    min="1"
-                    max="20"
-                    @change="updateCartItemLocal(item)"
-                    :disabled="loadingItem === item.id"
-                  />
-                  <button
-                    class="qty-btn qty-btn-plus"
-                    @click="updateQuantity(item, item.qty + 1)"
-                    :disabled="loadingItem === item.id || item.qty >= 20"
-                  >
-                    <i class="bi bi-plus"></i>
-                  </button>
+                  <div class="quantity-selector d-flex">
+                    <button
+                      class="qty-btn qty-btn-minus"
+                      @click="updateQuantity(item, item.qty - 1)"
+                      :disabled="loadingItem === item.id || item.qty <= 1"
+                    >
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input
+                      type="number"
+                      class="qty-input text-center"
+                      v-model.number="item.qty"
+                      min="1"
+                      max="20"
+                      @change="updateCartItemLocal(item)"
+                      :disabled="loadingItem === item.id"
+                    />
+                    <button
+                      class="qty-btn qty-btn-plus"
+                      @click="updateQuantity(item, item.qty + 1)"
+                      :disabled="loadingItem === item.id || item.qty >= 20"
+                    >
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
                 </div>
               </td>
               <td class="text-end">
@@ -173,14 +174,15 @@
         </div>
       </div>
 
-      <div class="d-flex justify-content-between mt-4">
-        <RouterLink to="/products" class="btn-secondary">
-          <i class="bi bi-arrow-left me-2"></i>繼續購物
-        </RouterLink>
-        <div>
+      <div class="cart-actions mt-4">
+        <!-- 桌面版 -->
+        <div class="d-md-flex justify-content-between align-items-center">
+          <RouterLink to="/products" class="btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>繼續購物
+          </RouterLink>
           <button
             type="button"
-            class="btn-danger-outline me-2"
+            class="btn-danger-outline"
             @click="clearCartLocal"
             :disabled="cartStore.carts.length === 0 || isClearing"
           >
@@ -196,6 +198,41 @@
             前往結帳
             <i class="bi bi-arrow-right ms-2"></i>
           </RouterLink>
+        </div>
+
+        <!-- 手機版 -->
+        <div class="d-md-none">
+          <div class="row g-2 mb-2">
+            <div class="col-6">
+              <RouterLink to="/products" class="btn-secondary w-100">
+                <i class="bi bi-arrow-left me-2"></i>繼續購物
+              </RouterLink>
+            </div>
+            <div class="col-6">
+              <RouterLink
+                to="/checkout/address"
+                class="btn-primary w-100"
+                :class="{ disabled: cartStore.carts.length === 0 }"
+              >
+                前往結帳
+                <i class="bi bi-arrow-right ms-2"></i>
+              </RouterLink>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <button
+                type="button"
+                class="btn-danger-outline w-100"
+                @click="clearCartLocal"
+                :disabled="cartStore.carts.length === 0 || isClearing"
+              >
+                <i class="bi bi-arrow-clockwise spinner-icon" v-if="isClearing"></i>
+                <i class="bi bi-trash me-1" v-else></i>
+                清空購物車
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -353,21 +390,34 @@ export default {
   }
 }
 
+/* 數量選擇器容器 */
+.quantity-selector-wrapper {
+  min-width: 120px;
+}
+
+.quantity-selector {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
 /* 數量調整按鈕 */
 .qty-btn {
   background: white;
-  border: 1px solid #ddd;
-  width: 40px;
-  height: 40px;
+  border: none;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 14px;
 }
 
-.qty-btn:hover {
-  background: #f5f5f5;
+.qty-btn:hover:not(:disabled) {
+  background: #f8f9fa;
 }
 
 .qty-btn:disabled {
@@ -376,18 +426,45 @@ export default {
 }
 
 .qty-btn-minus {
-  border-radius: 8px 0 0 8px;
+  border-right: 1px solid #dee2e6;
 }
 
 .qty-btn-plus {
-  border-radius: 0 8px 8px 0;
+  border-left: 1px solid #dee2e6;
 }
 
 .qty-input {
-  border-left: 0;
-  border-right: 0;
-  height: 40px;
-  border-color: #ddd;
+  border: none;
+  width: 48px;
+  height: 36px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  background: white;
+}
+
+.qty-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* 手機版優化 */
+@media (max-width: 576px) {
+  .quantity-selector {
+    border-radius: 6px;
+  }
+
+  .qty-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .qty-input {
+    width: 40px;
+    height: 32px;
+    font-size: 13px;
+  }
 }
 
 /* 刪除按鈕 */
@@ -447,26 +524,58 @@ export default {
   cursor: not-allowed;
 }
 
+/* 購物車操作區域 */
+.cart-actions {
+  margin-top: 2rem;
+}
+
+/* 桌面版按鈕樣式 */
+@media (min-width: 768px) {
+  .cart-actions .btn-secondary,
+  .cart-actions .btn-primary,
+  .cart-actions .btn-danger-outline {
+    padding: 12px 24px;
+    font-weight: 500;
+    min-width: 140px;
+  }
+}
+
+/* 手機版按鈕樣式 */
+@media (max-width: 767px) {
+  .cart-actions .btn-secondary,
+  .cart-actions .btn-primary,
+  .cart-actions .btn-danger-outline {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
 /* 清空購物車按鈕 */
 .btn-danger-outline {
   background: white;
   color: #dc3545;
   border: 1px solid #dc3545;
-  padding: 12px 24px;
   border-radius: 8px;
-  font-weight: 500;
   transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-danger-outline:hover {
   background: #f8d7da;
+  color: #dc3545;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(220, 53, 69, 0.1);
+  text-decoration: none;
 }
 
 .btn-danger-outline:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* 按鈕樣式已移到全域 _common.scss 中 */
