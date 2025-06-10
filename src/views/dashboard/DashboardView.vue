@@ -35,12 +35,12 @@
             >
           </li>
           <li class="nav-item">
-            <a href="#" @click.prevent="logout" class="nav-link">登出</a>
+            <RouterLink class="nav-link" to="/articles">Blog</RouterLink>
           </li>
         </ul>
         <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/articles">Blog</RouterLink>
+            <a href="#" @click.prevent="logout" class="nav-link">登出</a>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link" to="/">回到前台</RouterLink>
