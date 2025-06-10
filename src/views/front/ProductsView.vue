@@ -1,231 +1,215 @@
 <!-- eslint-disable comma-dangle -->
 <template>
-  <div class="container mt-md-5 mt-3 mb-7">
-    <div class="row">
-      <!-- 簡化的分類選單 -->
-      <div class="col-lg-3 col-md-4">
-        <div class="category-menu bg-light rounded p-4 mb-4">
-          <h5 class="mb-3 fw-bold">💡 產品分類</h5>
-          <ul class="list-unstyled">
-            <li class="mb-2">
-              <RouterLink
-                class="category-link d-block py-2 px-3 rounded text-decoration-none"
-                to="/products"
-                :class="{ 'active bg-primary text-white': !$route.query.category, 'text-dark': $route.query.category }"
-              >
-                🔍 全部商品
-              </RouterLink>
-            </li>
-            <li
-              class="mb-2"
-              v-for="category in categories"
-              :key="category.name"
-            >
-              <RouterLink
-                class="category-link d-block py-2 px-3 rounded text-decoration-none"
-                :to="`/products?category=${category.name}`"
-                :class="{
-                  'active bg-primary text-white': $route.query.category === category.name,
-                  'text-dark': $route.query.category !== category.name
-                }"
-              >
-                {{ category.icon }} {{ category.name }}
-              </RouterLink>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 產品展示區 -->
-      <div class="col-lg-9 col-md-8">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="mb-0">
-            {{ $route.query.category ? `${$route.query.category} 系列` : '全部商品' }}
-          </h4>
-          <span class="text-muted">共 {{ products.length }} 件商品</span>
-        </div>
-
-        <div class="row">
-          <div
-            class="col-xl-4 col-lg-6 col-md-6 mb-4"
-            v-for="product in products"
-            :key="product.id"
-          >
-            <div class="card border-0 shadow-sm h-100 product-card">
-              <div class="position-relative overflow-hidden">
-                <RouterLink :to="`/product/${product.id}`">
-                  <img
-                    :src="product.imageUrl"
-                    class="card-img-top product-image"
-                    height="225"
-                    style="object-fit: cover; transition: transform 0.3s ease;"
-                    alt="product.title"
-                  />
-                </RouterLink>
-
-                <!-- 折扣標籤 -->
-                <span
-                  v-if="product.origin_price > product.price"
-                  class="discount-badge position-absolute bg-danger text-white px-2 py-1 rounded"
-                  style="left: 12px; top: 12px; font-size: 0.75rem; font-weight: bold;"
-                >
-                  {{ Math.round(
-                    (1 - product.price/product.origin_price) * 100)
-                  }}% OFF
-                </span>
-              </div>
-
-              <div class="card-body p-3 d-flex flex-column">
-                <!-- 產品標題 -->
-                <h6 class="card-title mb-2 fw-bold">
-                  <RouterLink
-                    :to="`/product/${product.id}`"
-                    class="text-decoration-none text-dark"
-                  >
-                    {{ product.title }}
-                  </RouterLink>
-                </h6>
-
-                <!-- 產品規格簡要 -->
-                <div class="product-specs mb-2 flex-grow-1">
-                  <span
-                    class="badge bg-light text-dark me-1 mb-1"
-                    v-if="product.category"
-                  >
-                    {{ getCategoryIcon(product.category) }}
-                    {{ product.category }}
-                  </span>
-                  <span
-                    class="badge bg-secondary text-white me-1 mb-1"
-                    v-if="product.unit"
-                  >
-                    {{ product.unit }}
-                  </span>
-                </div>
-
-                <!-- 簡短描述 -->
-                <p
-                  class="card-text text-muted small mb-2"
-                  v-if="product.description"
-                >
-                  {{ product.description.substring(0, 50)}}
-                  {{ product.description.length > 50 ? '...' : '' }}
-                </p>
-
-                <!-- 價格區域 -->
-                <div class="price-section mb-3">
-                  <div class="d-flex align-items-center">
-                    <span
-                      class="current-price h6 text-primary me-2 mb-0 fw-bold"
-                    >
-                      NT${{ $filters.currency(product.price) }}
-                    </span>
-                    <span
-                      v-if="product.origin_price > product.price"
-                      class="original-price text-muted text-decoration-line-through small"
-                    >
-                      NT${{ $filters.currency(product.origin_price) }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- 評分 (使用後端真實資料) -->
-                <div
-                  class="rating mb-3"
-                  v-if="product.star && product.star > 0"
-                >
-                  <div class="d-flex align-items-center">
-                    <div class="stars me-2">
-                      <i
-                        v-for="star in 5"
-                        :key="star"
-                        :class="star <= product.star ? 'fas fa-star text-warning' : 'far fa-star text-muted'"
-                        style="font-size: 0.8rem;"
-                      ></i>
-                    </div>
-                    <span class="text-muted small"
-                      >{{ product.star }}.0 顆星</span
-                    >
-                  </div>
-                </div>
-
-                <!-- 當沒有評分資料時顯示 -->
-                <div class="rating mb-3" v-else>
-                  <div class="d-flex align-items-center">
-                    <div class="stars me-2">
-                      <i
-                        v-for="star in 5"
-                        :key="star"
-                        class="far fa-star text-muted"
-                        style="font-size: 0.8rem;"
-                      ></i>
-                    </div>
-                    <span class="text-muted small">尚無評價</span>
-                  </div>
-                </div>
-
-                <!-- 快速購買按鈕 -->
-                <button
-                  class="btn btn-outline-primary btn-sm w-100 mt-auto"
-                  @click="addToCart(product.id)"
-                  :disabled="isLoadingCart === product.id"
-                >
-                  <i
-                    v-if="isLoadingCart === product.id"
-                    class="fas fa-spinner fa-spin me-1"
-                  ></i>
-                  <i v-else class="fas fa-shopping-cart me-1"></i>
-                  {{ isLoadingCart === product.id ? '加入中...' : '加入購物車' }}
-                </button>
-              </div>
+  <div class="products-view">
+    <!-- 頁面頂部主題色區域 -->
+    <div class="hero-section">
+      <div class="hero-background"></div>
+      <div class="container">
+        <div class="row align-items-center py-5">
+          <div class="col-lg-8">
+            <h1 class="hero-title mb-3">
+              {{ $route.query.category ? `${$route.query.category} 系列` : '全部商品' }}
+            </h1>
+            <p class="hero-subtitle mb-0">探索精選商品，發現生活中的美好</p>
+          </div>
+          <div class="col-lg-4 text-lg-end">
+            <div class="hero-icon">
+              <i class="bi bi-basket3"></i>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- 分頁 -->
-        <nav
-          class="d-flex justify-content-center"
-          v-if="pagination.total_pages > 1"
-        >
-          <ul class="pagination">
-            <li
-              class="page-item"
-              :class="{ disabled: pagination.current_page === 1 }"
-            >
-              <a
-                class="page-link"
-                href="#"
-                aria-label="Previous"
-                @click.prevent="changePage(pagination.current_page - 1)"
+    <div class="container mt-md-5 mt-3 mb-7">
+      <div class="row">
+        <!-- 簡化的分類選單 -->
+        <div class="col-lg-3 col-md-4">
+          <div class="category-menu bg-light rounded p-4 mb-4">
+            <h5 class="mb-3 fw-bold">💡 產品分類</h5>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <RouterLink
+                  class="category-link d-block py-2 px-3 rounded text-decoration-none"
+                  to="/products"
+                  :class="{ 'active bg-primary text-white': !$route.query.category, 'text-dark': $route.query.category }"
+                >
+                  🔍 全部商品
+                </RouterLink>
+              </li>
+              <li
+                class="mb-2"
+                v-for="category in categories"
+                :key="category.name"
               >
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-            <li
-              v-for="page in visiblePages"
-              :key="page"
-              class="page-item"
-              :class="{ active: page === pagination.current_page }"
+                <RouterLink
+                  class="category-link d-block py-2 px-3 rounded text-decoration-none"
+                  :to="`/products?category=${category.name}`"
+                  :class="{
+                    'active bg-primary text-white': $route.query.category === category.name,
+                    'text-dark': $route.query.category !== category.name
+                  }"
+                >
+                  {{ category.icon }} {{ category.name }}
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 產品展示區 -->
+        <div class="col-lg-9 col-md-8">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
+              {{ $route.query.category ? `${$route.query.category} 系列` : '全部商品' }}
+            </h4>
+            <span class="text-muted">共 {{ products.length }} 件商品</span>
+          </div>
+
+          <div class="row">
+            <div
+              class="col-xl-4 col-lg-6 col-md-6 mb-4"
+              v-for="product in products"
+              :key="product.id"
             >
-              <a class="page-link" href="#" @click.prevent="changePage(page)">
-                {{ page }}
-              </a>
-            </li>
-            <li
-              class="page-item"
-              :class="{ disabled: pagination.current_page === pagination.total_pages }"
-            >
-              <a
-                class="page-link"
-                href="#"
-                aria-label="Next"
-                @click.prevent="changePage(pagination.current_page + 1)"
-              >
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
+              <div class="card border-0 shadow-sm h-100 product-card">
+                <div class="position-relative overflow-hidden">
+                  <RouterLink :to="`/product/${product.id}`">
+                    <img
+                      :src="product.imageUrl"
+                      class="card-img-top product-image"
+                      height="225"
+                      style="object-fit: cover; transition: transform 0.3s ease;"
+                      alt="product.title"
+                    />
+                  </RouterLink>
+
+                  <!-- 折扣標籤 -->
+                  <span
+                    v-if="product.origin_price > product.price"
+                    class="discount-badge position-absolute bg-danger text-white px-2 py-1 rounded"
+                    style="left: 12px; top: 12px; font-size: 0.75rem; font-weight: bold;"
+                  >
+                    {{Math.round(
+                      (1 - product.price/product.origin_price) * 100)
+                    }}% OFF
+                  </span>
+                </div>
+
+                <div class="card-body p-3 d-flex flex-column">
+                  <!-- 產品標題 -->
+                  <h6 class="card-title mb-2 fw-bold">
+                    <RouterLink
+                      :to="`/product/${product.id}`"
+                      class="text-decoration-none text-dark"
+                    >
+                      {{ product.title }}
+                    </RouterLink>
+                  </h6>
+
+                  <!-- 產品規格簡要 -->
+                  <div class="product-specs mb-2 flex-grow-1">
+                    <span
+                      class="badge bg-light text-dark me-1 mb-1"
+                      v-if="product.category"
+                    >
+                      {{ getCategoryIcon(product.category) }}
+                      {{ product.category }}
+                    </span>
+                    <span
+                      class="badge bg-secondary text-white me-1 mb-1"
+                      v-if="product.unit"
+                    >
+                      {{ product.unit }}
+                    </span>
+                  </div>
+
+                  <!-- 簡短描述 -->
+                  <p
+                    class="card-text text-muted small mb-2"
+                    v-if="product.description"
+                  >
+                    {{ product.description.substring(0, 50)}}
+                    {{ product.description.length > 50 ? '...' : '' }}
+                  </p>
+
+                  <!-- 價格區域 -->
+                  <div class="price-section mb-3">
+                    <div class="d-flex align-items-center">
+                      <span
+                        class="current-price h6 text-primary me-2 mb-0 fw-bold"
+                      >
+                        NT${{ $filters.currency(product.price) }}
+                      </span>
+                      <span
+                        v-if="product.origin_price > product.price"
+                        class="original-price text-muted text-decoration-line-through small"
+                      >
+                        NT${{ $filters.currency(product.origin_price) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 評分 (使用後端真實資料) -->
+                  <div
+                    class="rating mb-3"
+                    v-if="product.star && product.star > 0"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div class="stars me-2">
+                        <i
+                          v-for="star in 5"
+                          :key="star"
+                          :class="star <= product.star ? 'fas fa-star text-warning' : 'far fa-star text-muted'"
+                          style="font-size: 0.8rem;"
+                        ></i>
+                      </div>
+                      <span class="text-muted small"
+                        >{{ product.star }}.0 顆星</span
+                      >
+                    </div>
+                  </div>
+
+                  <!-- 當沒有評分資料時顯示 -->
+                  <div class="rating mb-3" v-else>
+                    <div class="d-flex align-items-center">
+                      <div class="stars me-2">
+                        <i
+                          v-for="star in 5"
+                          :key="star"
+                          class="far fa-star text-muted"
+                          style="font-size: 0.8rem;"
+                        ></i>
+                      </div>
+                      <span class="text-muted small">尚無評價</span>
+                    </div>
+                  </div>
+
+                  <!-- 快速購買按鈕 -->
+                  <button
+                    class="btn btn-outline-primary btn-sm w-100 mt-auto"
+                    @click="addToCart(product.id)"
+                    :disabled="isLoadingCart === product.id"
+                  >
+                    <i
+                      v-if="isLoadingCart === product.id"
+                      class="fas fa-spinner fa-spin me-1"
+                    ></i>
+                    <i v-else class="fas fa-shopping-cart me-1"></i>
+                    {{ isLoadingCart === product.id ? '加入中...' : '加入購物車' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 分頁 -->
+          <PaginationComponent
+            :pagination="pagination"
+            aria-label="產品分頁"
+            @change-page="changePage"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -236,11 +220,14 @@ import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 import useCartStore from '@/stores/cartStore';
 import { mapActions } from 'pinia';
+import PaginationComponent from '@/components/PaginationComponent.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
 export default {
-  components: {},
+  components: {
+    PaginationComponent,
+  },
   data() {
     return {
       // 產品資料格式
@@ -257,23 +244,7 @@ export default {
       },
     };
   },
-  computed: {
-    visiblePages() {
-      const pages = [];
-      const totalPages = this.pagination.total_pages;
-      const currentPage = this.pagination.current_page;
-
-      // 簡單的分頁邏輯：顯示當前頁面前後各2頁
-      const startPage = Math.max(1, currentPage - 2);
-      const endPage = Math.min(totalPages, currentPage + 2);
-
-      for (let i = startPage; i <= endPage; i += 1) {
-        pages.push(i);
-      }
-
-      return pages;
-    },
-  },
+  computed: {},
   watch: {
     '$route.query': {
       handler() {
@@ -385,6 +356,48 @@ export default {
 </script>
 
 <style scoped>
+/* Banner 樣式 */
+.hero-section {
+  position: relative;
+  background: #ffc107;
+  color: #333;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  background-size: 100px 100px;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  color: #333;
+}
+
+.hero-icon {
+  font-size: 4rem;
+  opacity: 0.3;
+  text-align: center;
+  color: #333;
+}
+
+/* 產品卡片樣式 */
 .product-card {
   transition: box-shadow 0.2s ease;
 }
@@ -436,6 +449,15 @@ export default {
 
 /* 響應式調整 */
 @media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  .hero-icon {
+    font-size: 3rem;
+  }
   .category-menu {
     margin-bottom: 1rem;
   }

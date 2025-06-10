@@ -69,9 +69,9 @@
       </tbody>
     </table>
     <PaginationComponent
-      :pages="pagination"
-      @emit-change-pages="getProducts"
-    ></PaginationComponent>
+      :pagination="pagination"
+      @change-page="getProducts"
+    />
   </div>
 
   <ProductModal
