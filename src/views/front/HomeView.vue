@@ -1,4 +1,5 @@
 <template>
+  <LoadingOverlay :active="isLoading" />
   <!-- Hero Section -->
   <section class="hero-section position-relative overflow-hidden">
     <div class="hero-bg position-absolute w-100 h-100"></div>
@@ -587,6 +588,8 @@ export default {
     },
   },
   mounted() {
+    // 模擬頁面載入
+    this.isLoading = true;
     // Add scroll animations
     const observerOptions = {
       threshold: 0.1,
@@ -606,6 +609,11 @@ export default {
     document.querySelectorAll('.category-card, .feature-item, .product-card').forEach((el) => {
       observer.observe(el);
     });
+
+    // 模擬載入完成
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 800);
   },
 };
 </script>

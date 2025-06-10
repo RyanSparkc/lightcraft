@@ -1,5 +1,7 @@
 <!-- eslint-disable comma-dangle -->
 <template>
+  <LoadingOverlay :active="isLoading" />
+
   <div class="products-view">
     <!-- 頁面頂部主題色區域 -->
     <HeroSection

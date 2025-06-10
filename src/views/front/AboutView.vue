@@ -1,5 +1,6 @@
 <!-- eslint-disable max-len -->
 <template>
+  <LoadingOverlay :active="isLoading" />
   <div class="about-page">
     <!-- Hero Section -->
     <section class="hero-section bg-dark text-white section-padding">
@@ -235,6 +236,7 @@ export default {
   data() {
     return {
       imageLoadError: false,
+      isLoading: false,
     };
   },
   methods: {
@@ -244,6 +246,14 @@ export default {
     handleImageLoad() {
       this.imageLoadError = false;
     },
+  },
+  mounted() {
+    // 模擬頁面載入
+    this.isLoading = true;
+    // 模擬載入完成
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 600);
   },
 };
 </script>
