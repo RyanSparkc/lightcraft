@@ -2,24 +2,11 @@
 <template>
   <div class="products-view">
     <!-- 頁面頂部主題色區域 -->
-    <div class="hero-section">
-      <div class="hero-background"></div>
-      <div class="container">
-        <div class="row align-items-center py-5 justify-content-between">
-          <div class="col-lg-8">
-            <h1 class="hero-title mb-3">
-              {{ $route.query.category ? `${$route.query.category} 系列` : '全部商品' }}
-            </h1>
-            <p class="hero-subtitle mb-0">探索精選商品，發現生活中的美好</p>
-          </div>
-          <div class="col-lg-2">
-            <div class="hero-icon">
-              <i class="bi bi-basket3"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <HeroSection
+      :title="heroTitle"
+      subtitle="探索精選商品，發現生活中的美好"
+      icon-class="bi bi-basket3"
+    />
 
     <div class="container mt-md-5 mt-3 mb-7">
       <div class="row">
@@ -221,12 +208,14 @@ import useToastMessageStore from '@/stores/toastMessage';
 import useCartStore from '@/stores/cartStore';
 import { mapActions } from 'pinia';
 import PaginationComponent from '@/components/PaginationComponent.vue';
+import HeroSection from '@/components/HeroSection.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
 export default {
   components: {
     PaginationComponent,
+    HeroSection,
   },
   data() {
     return {
@@ -244,7 +233,11 @@ export default {
       },
     };
   },
-  computed: {},
+  computed: {
+    heroTitle() {
+      return this.$route.query.category ? `${this.$route.query.category} 系列` : '全部商品';
+    },
+  },
   watch: {
     '$route.query': {
       handler() {
@@ -356,47 +349,6 @@ export default {
 </script>
 
 <style scoped>
-/* Banner 樣式 */
-.hero-section {
-  position: relative;
-  background: #ffc107;
-  color: #333;
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  background-size: 100px 100px;
-}
-
-.hero-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0;
-  color: #333;
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  color: #333;
-}
-
-.hero-icon {
-  font-size: 4rem;
-  opacity: 0.3;
-  text-align: center;
-  color: #333;
-}
-
 /* 產品卡片樣式 */
 .product-card {
   transition: box-shadow 0.2s ease;
@@ -449,15 +401,6 @@ export default {
 
 /* 響應式調整 */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-  }
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-  .hero-icon {
-    font-size: 3rem;
-  }
   .category-menu {
     margin-bottom: 1rem;
   }

@@ -1,22 +1,11 @@
 <template>
   <div class="orders-list-view">
-    <!-- 頁面頂部主題色區域 -->
-    <div class="hero-section">
-      <div class="hero-background"></div>
-      <div class="container-fluid px-4">
-        <div class="row align-items-center py-5 justify-content-between">
-          <div class="col-lg-8">
-            <h1 class="hero-title mb-3">我的訂單</h1>
-            <p class="hero-subtitle mb-0">管理您的所有訂單，追蹤購買記錄</p>
-          </div>
-          <div class="col-lg-2">
-            <div class="hero-icon">
-              <i class="bi bi-receipt-cutoff"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 使用統一的 HeroSection 組件 -->
+    <HeroSection
+      title="我的訂單"
+      subtitle="管理您的所有訂單，追蹤購買記錄"
+      icon-class="bi bi-receipt-cutoff"
+    />
 
     <div class="container-fluid px-4">
       <!-- 訂單統計儀表板 -->
@@ -292,11 +281,13 @@
 <script>
 import axios from 'axios';
 import PaginationComponent from '@/components/PaginationComponent.vue';
+import HeroSection from '@/components/HeroSection.vue';
 
 export default {
   name: 'OrdersListView',
   components: {
     PaginationComponent,
+    HeroSection,
   },
   data() {
     return {
@@ -434,44 +425,6 @@ export default {
 </script>
 
 <style scoped>
-/* 頁面頂部主題色區域 */
-.hero-section {
-  position: relative;
-  background: #ffc107;
-  color: #333;
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  background-size: 100px 100px;
-}
-
-.hero-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  opacity: 0.9;
-}
-
-.hero-icon {
-  font-size: 4rem;
-  opacity: 0.3;
-  text-align: center;
-}
-
 /* 統計儀表板 */
 .statistics-dashboard {
   margin-top: -1rem;

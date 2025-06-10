@@ -2,23 +2,11 @@
   <LoadingOverlay :active="isLoading" />
 
   <!-- Hero Section -->
-  <div class="hero-section bg-gradient-warning text-dark">
-    <div class="container">
-      <div class="row align-items-center py-5 justify-content-between">
-        <div class="col-lg-8">
-          <h1 class="hero-title mb-3">
-            文章專區
-          </h1>
-          <p class="hero-subtitle mb-0">探索照明世界的精彩知識，從選購指南到居家佈置靈感</p>
-        </div>
-        <div class="col-lg-2">
-          <div class="hero-icon">
-            <i class="fas fa-lightbulb"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <HeroSection
+    title="文章專區"
+    subtitle="探索照明世界的精彩知識，從選購指南到居家佈置靈感"
+    icon-class="fas fa-lightbulb"
+  />
 
   <div class="container my-5">
     <!-- 文章統計 -->
@@ -138,10 +126,14 @@
 <script>
 import { mapActions } from 'pinia';
 import useToastMessageStore from '@/stores/toastMessage';
+import HeroSection from '@/components/HeroSection.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
 export default {
+  components: {
+    HeroSection,
+  },
   data() {
     return {
       isLoading: false,
@@ -177,47 +169,6 @@ export default {
 </script>
 
 <style scoped>
-/* Banner 樣式 */
-.hero-section {
-  position: relative;
-  background: #ffc107;
-  color: #333;
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  background-size: 100px 100px;
-}
-
-.hero-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0;
-  color: #333;
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  color: #333;
-}
-
-.hero-icon {
-  font-size: 4rem;
-  opacity: 0.3;
-  text-align: center;
-  color: #333;
-}
-
 .article-card {
   transition: all 0.3s ease;
   border: none;
@@ -235,10 +186,6 @@ export default {
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.5;
-}
-
-.bg-gradient-warning {
-  background: linear-gradient(135deg, #FFC107 0%, #FFE082 100%);
 }
 
 .article-actions .btn {
@@ -260,18 +207,5 @@ export default {
   color: #000;
   background-color: #FFE082;
   border-color: #FFC107;
-}
-
-/* 響應式調整 */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-  }
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-  .hero-icon {
-    font-size: 3rem;
-  }
 }
 </style>
