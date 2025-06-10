@@ -22,8 +22,8 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <div class="collapse navbar-collapse" id="navbarSupportedContent" ref="navbarCollapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" @click="closeNavbar">
           <li class="nav-item">
             <RouterLink class="nav-link" to="/about">關於我們</RouterLink>
           </li>
@@ -37,7 +37,7 @@
             <RouterLink class="nav-link" to="/orders">我的訂單</RouterLink>
           </li>
         </ul>
-        <ul class="navbar-nav">
+        <ul class="navbar-nav" @click="closeNavbar">
           <li class="nav-item me-3">
             <RouterLink class="btn btn-secondary position-relative" to="/cart"
               ><i class="bi bi-cart"></i>
@@ -60,6 +60,7 @@
 
 <script>
 import { mapActions, mapState } from 'pinia';
+import * as bootstrap from 'bootstrap';
 
 import useCartStore from '@/stores/cartStore';
 
@@ -69,6 +70,15 @@ export default {
   },
   methods: {
     ...mapActions(useCartStore, ['getCart']),
+    closeNavbar() {
+      const collapseElement = this.$refs.navbarCollapse;
+      if (collapseElement.classList.contains('show')) {
+        const bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
+        if (bsCollapse) {
+          bsCollapse.hide();
+        }
+      }
+    },
   },
   mounted() {
     this.getCart();
