@@ -14,7 +14,7 @@
           <h4 class="card-title mb-0">訂單 #{{ order.id || '123456' }}</h4>
           <span
             :class="[
-              'order-status px-3 py-1 rounded-pill',
+              'order-status px-3 py-1 rounded-pill flex-shrink-0',
               { 'bg-success text-white': order.is_paid, 'bg-warning': !order.is_paid }
             ]"
           >
@@ -478,14 +478,6 @@ export default {
 .card .card-header:first-child {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-}
-
-/* 付款按鈕樣式 */
-.btn-primary {
-  background-color: #3F51B5;
-  border-color: #3F51B5;
-  font-weight: 500;
-  transition: all 0.3s ease;
 }
 
 .btn-primary:hover {

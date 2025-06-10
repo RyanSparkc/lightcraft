@@ -49,8 +49,8 @@
               </span>
             </RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/login">登入</RouterLink>
+          <li class="nav-item d-none d-lg-block">
+            <div class="user-avatar"></div>
           </li>
         </ul>
       </div>
@@ -75,3 +75,16 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2c2c2c 0%, #000000 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+</style>

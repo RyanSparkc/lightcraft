@@ -7,7 +7,7 @@
           <h1 class="hero-title mb-3">{{ title }}</h1>
           <p class="hero-subtitle mb-0">{{ subtitle }}</p>
         </div>
-        <div class="col-lg-2">
+        <div class="col-lg-2 d-none d-lg-block">
           <div class="hero-icon">
             <i :class="iconClass"></i>
           </div>
