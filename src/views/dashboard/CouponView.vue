@@ -1,41 +1,61 @@
 <template>
   <LoadingOverlay :active="isLoading" />
-    <h2>優惠券</h2>
-    <div class="text-end mt-4">
-      <button class="btn btn-primary" type="button" @click="openCouponModal(true)">建立新優惠券</button>
-    </div>
-    <table class=" table mt-4">
-      <thead>
-        <tr>
-          <th scope="col">名稱</th>
-          <th scope="col">折扣百分比</th>
-          <th scope="col">到期日</th>
-          <th scope="col">是否啟用</th>
-          <th scope="col">編輯</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, key) in coupons" :key="key">
-          <th scope="row">{{item.title}}</th>
-          <td>{{ item.percent }} %</td>
-          <td>{{ $filters.date(item.due_date) }}</td>
-          <td>
-            <span v-if="item.is_enabled" class="text-success">啟用</span>
-            <span v-else class="text-danger">未啟用</span>
-          </td>
-          <td>
-            <div class="btn-group">
-              <button type="button" class="btn btn-outline-primary btn-sm"
-                @click="openCouponModal(false, item)">編輯</button>
-              <button type="button" class="btn btn-outline-danger btn-sm"
-                @click="openDelCouponModal(item)">刪除</button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  <CouponModal :coupon="tempCoupon" :isNew="isNew"
-   ref="couponModal" @update-coupon="updateCoupon" />
+  <h2>優惠券</h2>
+  <div class="text-end mt-4">
+    <button
+      class="btn btn-primary"
+      type="button"
+      @click="openCouponModal(true)"
+    >
+      建立新優惠券
+    </button>
+  </div>
+  <table class=" table mt-4">
+    <thead>
+      <tr>
+        <th scope="col">名稱</th>
+        <th scope="col">折扣百分比</th>
+        <th scope="col">到期日</th>
+        <th scope="col">是否啟用</th>
+        <th scope="col">編輯</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(item, key) in coupons" :key="key">
+        <th scope="row">{{item.title}}</th>
+        <td>{{ item.percent }} %</td>
+        <td>{{ $filters.date(item.due_date) }}</td>
+        <td>
+          <span v-if="item.is_enabled" class="text-success">啟用</span>
+          <span v-else class="text-danger">未啟用</span>
+        </td>
+        <td>
+          <div class="btn-group">
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              @click="openCouponModal(false, item)"
+            >
+              編輯
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              @click="openDelCouponModal(item)"
+            >
+              刪除
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <CouponModal
+    :coupon="tempCoupon"
+    :isNew="isNew"
+    ref="couponModal"
+    @update-coupon="updateCoupon"
+  />
   <DelModal ref="delModal" :item="tempCoupon" @del-item="deleteCoupon" />
 </template>
 
@@ -103,14 +123,12 @@ export default {
         const dateAndTime = new Date(this.tempCoupon.due_date * 1000)
           .toISOString().split('T');
         [this.due_date] = dateAndTime;
-        // console.log('tempCoupon', this.tempCoupon);
-        // console.log('due_date', this.due_date);
       }
       this.$refs.couponModal.openModal();
     },
     openDelCouponModal(item) {
       this.tempCoupon = { ...item };
-      this.$refs.couponModal.openModal();
+      this.$refs.delModal.openModal();
     },
     updateCoupon(tempCoupon) {
       this.isLoading = true;
@@ -149,14 +167,13 @@ export default {
       this.axios.delete(url)
         .then((res) => {
           this.isLoading = false;
-          console.log(res.data);
           this.addMessage({
             title: '刪除優惠券',
             content: res.data.message,
             style: 'success',
           });
           this.getCoupons();
-          this.$refs.couponModal.closeModal();
+          this.$refs.delModal.closeModal();
         })
         .catch((err) => {
           this.isLoading = false;
