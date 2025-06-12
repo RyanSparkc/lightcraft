@@ -10,27 +10,19 @@
   <table class="table mt-4">
     <thead>
       <tr>
-        <th width="120">標題</th>
+        <th>標題</th>
+        <th>描述</th>
         <th>作者</th>
-        <th>
-          描述
-        </th>
-        <th width="120">
-          建立時間
-        </th>
-        <th width="100">
-          是否公開
-        </th>
-        <th width="120">
-          編輯
-        </th>
+        <th width="120">建立時間</th>
+        <th width="100">是否公開</th>
+        <th width="120">編輯</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="item in articles" :key="item.id">
         <td>{{ item.title }}</td>
-        <td>{{ item.author }}</td>
         <td>{{ item.description }}</td>
+        <td>{{ item.author }}</td>
         <td>{{ $filters.date(item.create_at) }}</td>
         <td>
           <span v-if="item.isPublic" class="text-success">已上架</span>
@@ -38,12 +30,19 @@
         </td>
         <td>
           <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary
-            btn-sm" @click="getArticle(item.id)">
+            <button
+              type="button"
+              class="btn btn-outline-primary
+            btn-sm"
+              @click="getArticle(item.id)"
+            >
               編輯
             </button>
-            <button type="button" class="btn btn-outline-danger btn-sm"
-              @click="openDelArticleModal(item)">
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              @click="openDelArticleModal(item)"
+            >
               刪除
             </button>
           </div>
@@ -52,9 +51,17 @@
     </tbody>
   </table>
   <!-- </div> -->
-  <ArticleModal ref="articleModal" :article="tempArticle" :is-new="isNew"
-    @update-article="updateArticle"></ArticleModal>
-  <DelModal ref="delModal" :item="tempArticle" @del-item="delArticle"></DelModal>
+  <ArticleModal
+    ref="articleModal"
+    :article="tempArticle"
+    :is-new="isNew"
+    @update-article="updateArticle"
+  ></ArticleModal>
+  <DelModal
+    ref="delModal"
+    :item="tempArticle"
+    @del-item="delArticle"
+  ></DelModal>
 </template>
 <script>
 import { mapActions } from 'pinia';
