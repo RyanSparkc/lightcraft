@@ -31,8 +31,6 @@ deploy.sh
 /doc/api/*
 /doc/prd/
 docs/rules/*
-docs/prd/*
-prd.md
 
 .env
 .env.example
