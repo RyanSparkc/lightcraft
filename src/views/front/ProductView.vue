@@ -3,8 +3,45 @@
   <div class="product-detail-container container">
     <div class="row align-items-center">
       <div class="col-md-7">
-        <!-- Swiper -->
+        <!-- 骨架屏：載入中狀態 -->
+        <div v-if="isProductLoading" class="skeleton-swiper">
+          <div class="skeleton-image"></div>
+        </div>
+
+        <!-- 空狀態：沒有圖片時顯示燈具主題相關內容 -->
+        <div
+          v-else-if="displayImages.length === 0"
+          class="no-image-placeholder"
+        >
+          <div class="no-image-content">
+            <div class="lightbulb-icon">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <h5 class="no-image-title">此產品暫無圖片</h5>
+            <p class="no-image-subtitle">
+              <i class="bi bi-info-circle me-1"></i>
+              我們正在準備更多產品圖片，敬請期待
+            </p>
+            <div class="no-image-features">
+              <div class="feature-item">
+                <i class="fas fa-star text-warning me-2"></i>
+                <span>品質保證</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-shipping-fast text-info me-2"></i>
+                <span>快速配送</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-headset text-success me-2"></i>
+                <span>專業服務</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Swiper：有圖片時顯示 -->
         <swiper
+          v-else
           :modules="modules"
           :slides-per-view="1"
           :space-between="10"
@@ -25,87 +62,97 @@
         </swiper>
       </div>
       <div class="col-md-5">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb bg-white px-0 mb-0 py-3">
-            <li class="breadcrumb-item">
-              <router-link class="text-muted text-decoration-none" to="/">
-                <i class="bi bi-house-door me-1"></i>首頁
-              </router-link>
-            </li>
-            <li class="breadcrumb-item">
-              <router-link
-                class="text-muted text-decoration-none"
-                to="/products"
-              >
-                <i class="bi bi-grid me-1"></i>產品列表
-              </router-link>
-            </li>
-            <!-- 如果有產品分類，顯示分類層級 -->
-            <li class="breadcrumb-item" v-if="product.category">
-              <router-link
-                class="text-muted text-decoration-none"
-                :to="`/products?category=${product.category}`"
-              >
-                <i class="bi bi-tag me-1"></i>{{ product.category }}
-              </router-link>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-              <i class="bi bi-eye me-1"></i>
-              {{ product.title || '產品詳情' }}
-            </li>
-          </ol>
-        </nav>
-        <h2 class="fw-bold h1 mb-1">{{ product.title }}</h2>
-        <p class="mb-0 text-muted text-end">
-          <del>NT${{ product.origin_price }}</del>
-        </p>
-        <p class="h4 fw-bold text-end">NT${{ product.price }}</p>
-        <div class="row align-items-center">
-          <div class="col-6">
-            <div class="input-group my-3 bg-light rounded">
-              <div class="input-group-prepend">
-                <button
-                  class="btn btn-outline-dark border-0 py-2"
-                  type="button"
-                  id="button-addon1"
-                  @click="decreaseQuantity"
-                  :disabled="quantity <= 1"
+        <!-- 骨架屏：產品資訊載入中 -->
+        <div v-if="isProductLoading" class="skeleton-product-info">
+          <div class="skeleton-breadcrumb"></div>
+          <div class="skeleton-title"></div>
+          <div class="skeleton-price"></div>
+          <div class="skeleton-quantity"></div>
+        </div>
+        <!-- 產品資訊：載入完成後顯示 -->
+        <div v-else>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white px-0 mb-0 py-3">
+              <li class="breadcrumb-item">
+                <router-link class="text-muted text-decoration-none" to="/">
+                  <i class="bi bi-house-door me-1"></i>首頁
+                </router-link>
+              </li>
+              <li class="breadcrumb-item">
+                <router-link
+                  class="text-muted text-decoration-none"
+                  to="/products"
                 >
-                  <i class="fas fa-minus"></i>
-                </button>
-              </div>
-              <input
-                type="number"
-                class="form-control border-0 text-center my-auto shadow-none bg-light"
-                placeholder=""
-                aria-label="Example text with button addon"
-                aria-describedby="button-addon1"
-                v-model.number="quantity"
-                min="1"
-                max="20"
-                @change="validateQuantity"
-              />
-              <div class="input-group-append">
-                <button
-                  class="btn btn-outline-dark border-0 py-2"
-                  type="button"
-                  id="button-addon2"
-                  @click="increaseQuantity"
-                  :disabled="quantity >= 20"
+                  <i class="bi bi-grid me-1"></i>產品列表
+                </router-link>
+              </li>
+              <!-- 如果有產品分類，顯示分類層級 -->
+              <li class="breadcrumb-item" v-if="product.category">
+                <router-link
+                  class="text-muted text-decoration-none"
+                  :to="`/products?category=${product.category}`"
                 >
-                  <i class="fas fa-plus"></i>
-                </button>
+                  <i class="bi bi-tag me-1"></i>{{ product.category }}
+                </router-link>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-eye me-1"></i>
+                {{ product.title || '產品詳情' }}
+              </li>
+            </ol>
+          </nav>
+          <h2 class="fw-bold h1 mb-1">{{ product.title }}</h2>
+          <p class="mb-0 text-muted text-end">
+            <del>NT${{ product.origin_price }}</del>
+          </p>
+          <p class="h4 fw-bold text-end">NT${{ product.price }}</p>
+          <div class="row align-items-center">
+            <div class="col-6">
+              <div class="input-group my-3 bg-light rounded">
+                <div class="input-group-prepend">
+                  <button
+                    class="btn btn-outline-dark border-0 py-2"
+                    type="button"
+                    id="button-addon1"
+                    @click="decreaseQuantity"
+                    :disabled="quantity <= 1"
+                  >
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  class="form-control border-0 text-center my-auto shadow-none bg-light"
+                  placeholder=""
+                  aria-label="Example text with button addon"
+                  aria-describedby="button-addon1"
+                  v-model.number="quantity"
+                  min="1"
+                  max="20"
+                  @change="validateQuantity"
+                />
+                <div class="input-group-append">
+                  <button
+                    class="btn btn-outline-dark border-0 py-2"
+                    type="button"
+                    id="button-addon2"
+                    @click="increaseQuantity"
+                    :disabled="quantity >= 20"
+                  >
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="col-6">
-            <button
-              class="text-nowrap btn btn-dark w-100 py-2"
-              @click="addToCartHandler"
-              :disabled="!product.id"
-            >
-              加入購物車
-            </button>
+            <div class="col-6">
+              <button
+                class="text-nowrap btn btn-dark w-100 py-2"
+                @click="addToCartHandler"
+                :disabled="!product.id"
+              >
+                加入購物車
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -320,6 +367,8 @@ export default {
       quantity: 1,
       modules: [Navigation, Pagination, Autoplay],
       relatedProducts: [],
+      isProductLoading: true, // 新增載入狀態
+      imageLoadedCount: 0, // 追蹤圖片載入數量
     };
   },
   computed: {
@@ -346,14 +395,8 @@ export default {
         });
       }
 
-      // 如果沒有任何圖片，使用預設圖片
-      if (images.length === 0) {
-        images.push({
-          url: 'https://images.unsplash.com/photo-1502743780242-f10d2ce370f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1916&q=80',
-          alt: '預設產品圖片',
-        });
-      }
-
+      // 🎯 移除預設圖片邏輯，如果沒有圖片就返回空陣列
+      // 由骨架屏和空狀態來處理無圖片的情況
       return images;
     },
     // 產品規格資料處理（含預設值）
@@ -388,20 +431,43 @@ export default {
 
     getProduct() {
       const { id } = this.$route.params;
+      this.isProductLoading = true; // 開始載入
+      this.imageLoadedCount = 0; // 重置圖片載入計數
+
       fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`)
         .then((res) => res.json())
         .then((data) => {
           this.product = data.product;
-          // 當產品載入完成後，載入推薦商品
+          // 當產品資料載入完成，檢查是否需要繼續等待圖片載入
+          this.checkLoadingComplete();
           this.getRelatedProducts();
         })
         .catch((err) => {
+          this.isProductLoading = false;
           this.addMessage({
             title: '載入失敗',
             content: `載入產品失敗：${err.message || '未知錯誤'}`,
             style: 'danger',
           });
         });
+    },
+
+    checkLoadingComplete() {
+      // 當產品資料載入完成時
+      if (this.product.id) {
+        // 如果沒有圖片，直接完成載入
+        if (this.displayImages.length === 0) {
+          setTimeout(() => {
+            this.isProductLoading = false;
+          }, 600); // 稍微延遲以提供更好的視覺體驗
+        // 如果有圖片，給一個合理的載入時間，然後直接完成載入
+        // 不依賴圖片載入事件，因為 Swiper 可能延遲觸發載入事件
+        } else {
+          setTimeout(() => {
+            this.isProductLoading = false;
+          }, 800); // 給圖片一些載入時間，但不無限等待
+        }
+      }
     },
     getRelatedProducts() {
       if (!this.product.category) return;
@@ -450,10 +516,14 @@ export default {
     this.getProduct();
   },
   watch: {
-    '$route.params.id': function () {
-      this.quantity = 1;
-      this.relatedProducts = [];
-      this.getProduct();
+    '$route.params.id': {
+      handler() {
+        this.quantity = 1;
+        this.relatedProducts = [];
+        this.isProductLoading = true;
+        this.imageLoadedCount = 0;
+        this.getProduct();
+      },
     },
   },
 };
@@ -835,6 +905,177 @@ export default {
 
   .product-image {
     height: 160px;
+  }
+}
+
+/* ==== 骨架屏樣式 ==== */
+.skeleton-swiper {
+  width: 100%;
+  height: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-product-info {
+  padding: 20px 0;
+}
+
+.skeleton-breadcrumb {
+  height: 20px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  width: 80%;
+}
+
+.skeleton-title {
+  height: 40px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  width: 70%;
+}
+
+.skeleton-price {
+  height: 32px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  width: 50%;
+  margin-left: auto;
+}
+
+.skeleton-quantity {
+  height: 50px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  width: 100%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ==== 空狀態樣式（燈具主題） ==== */
+.no-image-placeholder {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+  margin-bottom: 30px;
+}
+
+.no-image-content {
+  text-align: center;
+  padding: 2rem;
+  max-width: 350px;
+}
+
+.lightbulb-icon {
+  margin-bottom: 1.5rem;
+}
+
+.lightbulb-icon i {
+  font-size: 4rem;
+  color: #FFC107;
+  animation: pulse-glow 2s infinite;
+}
+
+.no-image-title {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.no-image-subtitle {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.no-image-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+@keyframes pulse-glow {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* ==== 響應式調整：骨架屏和空狀態 ==== */
+@media (max-width: 768px) {
+  .skeleton-swiper,
+  .no-image-placeholder {
+    height: 280px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+
+  .lightbulb-icon i {
+    font-size: 3rem;
+  }
+
+  .no-image-title {
+    font-size: 1.1rem;
+  }
+
+  .no-image-content {
+    padding: 1.5rem;
+  }
+
+  .feature-item {
+    font-size: 0.85rem;
   }
 }
 </style>
