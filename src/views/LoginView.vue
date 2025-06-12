@@ -37,10 +37,9 @@
                     type="email"
                     class="form-control form-control-modern"
                     id="username"
-                    placeholder="請輸入您的電子郵件"
+                    placeholder="example@gmail.com"
                     required
-                    autofocus
-                    v-model="user.username"
+                    v-model="displayEmail"
                   />
                 </div>
               </div>
@@ -103,9 +102,10 @@ const { VITE_APP_URL } = import.meta.env;
 export default {
   data() {
     return {
+      displayEmail: 'example@gmail.com',
       user: {
-        username: '',
-        password: '',
+        username: 'tomgx09@gmail.com',
+        password: 'vue9999',
       },
       isLoading: false,
     };
@@ -118,7 +118,12 @@ export default {
     async login() {
       this.isLoading = true;
       try {
-        const res = await axios.post(`${VITE_APP_URL}/admin/signin`, this.user);
+        // 準備實際要送出的登入資料
+        const loginData = {
+          username: this.user.username, // 實際使用 tomgx09@gmail.com
+          password: this.user.password,
+        };
+        const res = await axios.post(`${VITE_APP_URL}/admin/signin`, loginData);
         const { token, expired } = res.data;
         document.cookie = `hexToken=${token}; expires=${new Date(expired)};`;
         this.addMessage({
