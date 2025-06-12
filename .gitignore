@@ -30,11 +30,13 @@ deploy.sh
 .cursor/*
 /doc/api/*
 /doc/prd/
-docs
+docs/rules/*
 prd.md
 
 .env
 .env.example
+
+
 
 
 
