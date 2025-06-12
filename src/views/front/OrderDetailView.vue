@@ -215,13 +215,13 @@
             <div class="d-flex justify-content-between mb-3" v-if="hasDiscount">
               <span>優惠折扣</span>
               <span class="text-danger"
-                >-NT$ {{ formatPrice(discountAmount) }}</span
+                >-NT$ {{ formatPrice(finalTotal) }}</span
               >
             </div>
             <hr />
             <div class="d-flex justify-content-between">
               <span class="fw-bold">總計</span>
-              <span class="fw-bold">NT$ {{ formatPrice(finalTotal) }}</span>
+              <span class="fw-bold">NT$ {{ formatPrice(discountAmount) }}</span>
             </div>
           </div>
         </div>

@@ -19,14 +19,20 @@
           <tr>
             <td>{{ formatDate(item.create_at)}}</td>
             <td>{{ item.user.email }}</td>
-            <td><span>{{ item.id }}</span></td>
-            <td>{{ item.total }}</td>
+            <td>
+              <span>{{ item.id }}</span>
+            </td>
+            <td>{{ calculateCorrectTotal(item).toLocaleString() }}</td>
             <td class="text-right">{{ item.message }}</td>
             <td>
               <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox"
-                 :id="`paidSwitch${item.id}`" v-model="item.is_paid"
-                  @change="updatePaid(item)" />
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :id="`paidSwitch${item.id}`"
+                  v-model="item.is_paid"
+                  @change="updatePaid(item)"
+                />
                 <label class="form-check-label" :for="`paidSwitch${item.id}`">
                   <span v-if="item.is_paid">已付款</span>
                   <span v-else>未付款</span>
@@ -35,12 +41,18 @@
             </td>
             <td>
               <div class="btn-group">
-                <button class="btn btn-outline-primary btn-sm"
-                 type="button" @click="openModal(item)">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  type="button"
+                  @click="openModal(item)"
+                >
                   檢視
                 </button>
-                <button class="btn btn-outline-danger btn-sm"
-                 type="button" @click="openDelModal(item)">
+                <button
+                  class="btn btn-outline-danger btn-sm"
+                  type="button"
+                  @click="openDelModal(item)"
+                >
                   刪除
                 </button>
               </div>
@@ -79,6 +91,37 @@ export default {
   },
   methods: {
     ...mapActions(useToastMessageStore, ['addMessage']),
+    calculateCorrectTotal(order) {
+      // 根據使用者反饋，後端 API 在有優惠券時，會將 `order.total` 誤存為「折扣金額」。
+      // 此為前端的修正邏輯，以確保顯示正確的訂單總額。
+
+      // 如果沒有 products 資訊，無法重新計算，回傳原始 total
+      if (!order.products) {
+        return Number(order.total || 0);
+      }
+
+      // 將 products 物件轉為陣列
+      const productItems = Object.values(order.products);
+
+      // 檢查訂單中是否有任何商品使用了 coupon
+      const couponApplied = productItems.some((item) => item.coupon);
+
+      if (couponApplied) {
+        // 如果有使用優惠券，則重新計算正確總額
+        // 1. 計算折扣前的商品總計 (subtotal)
+        const subtotal = productItems.reduce(
+          (sum, item) => sum + Number(item.total || 0),
+          0,
+        );
+        // 2. `order.total` 此時是折扣金額
+        const discountAmount = Number(order.total || 0);
+        // 3. 正確的最終金額 = 商品總計 - 折扣金額
+        return subtotal - discountAmount;
+      }
+
+      // 如果沒有使用優惠券，API 的 `order.total` 是正確的
+      return Number(order.total || 0);
+    },
     getOrders(currentPage = 1) {
       this.currentPage = currentPage;
       const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/orders?page=${currentPage}`;

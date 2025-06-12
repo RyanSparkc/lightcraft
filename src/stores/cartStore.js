@@ -27,9 +27,9 @@ export default defineStore('cart', {
           const hasCoupon = carts.length > 0 && carts[0].coupon;
 
           if (hasCoupon) {
-            // 有優惠券，API 回傳的 apiFinalTotal 為「折扣金額」，需自行計算折扣後金額
-            const discount = Math.round(apiFinalTotal);
-            this.final_total = Math.round(this.total - discount);
+            // 根據使用者反饋，API 回傳的 final_total 是「折扣金額」，並非最終價格。
+            // 因此，最終應付金額是 商品總額 (total) - 折扣金額 (apiFinalTotal)。
+            this.final_total = Math.round(this.total - apiFinalTotal);
           } else {
             // 沒有優惠券，總計金額等於小計金額
             this.final_total = Math.round(this.total);

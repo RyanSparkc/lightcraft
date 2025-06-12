@@ -39,7 +39,7 @@
                     'text-dark': $route.query.category !== category.name
                   }"
                 >
-                  {{ category.icon }} {{ category.name }}
+                  <i :class="category.icon" class="me-2"></i>{{ category.name }}
                 </RouterLink>
               </li>
             </ul>
@@ -80,7 +80,9 @@
                     style="left: 12px; top: 12px; font-size: 0.75rem; font-weight: bold;"
                   >
                     {{Math.round(
-                      (1 - product.price/product.origin_price) * 100)
+                      (1 - product.price/product.origin_price)
+                      * 100)
+
                     }}% OFF
                   </span>
                 </div>
@@ -102,7 +104,10 @@
                       class="badge bg-light text-dark me-1 mb-1"
                       v-if="product.category"
                     >
-                      {{ getCategoryIcon(product.category) }}
+                      <i
+                        :class="getCategoryIcon(product.category)"
+                        class="me-1"
+                      ></i>
                       {{ product.category }}
                     </span>
                     <span
@@ -302,25 +307,31 @@ export default {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     getCategoryIcon(categoryName) {
-      // 分類圖標映射
+      // 分類圖標映射 - 使用 Font Awesome 圖示
       const iconMap = {
-        室內照明: '🏠',
-        戶外照明: '🌙',
-        裝飾燈具: '✨',
-        智能燈泡: '🤖',
-        特殊用途: '🔬',
-        衣服: '👕',
-        蛋糕: '🍰',
-        食物: '🍕',
-        飲品: '🥤',
-        電子產品: '💻',
-        家電: '🏠',
-        書籍: '📚',
-        玩具: '🧸',
-        運動用品: '⚽',
-        美妝: '💄',
+        智慧吊燈: 'fas fa-lightbulb',
+        智慧檯燈: 'fas fa-desk-lamp',
+        智慧燈泡: 'fas fa-lightbulb',
+        智慧燈具: 'fas fa-home',
+        氣氛燈光: 'fas fa-star',
+        戶外照明: 'fas fa-moon',
+        燈光配件: 'fas fa-cog',
+        室內照明: 'fas fa-home',
+        裝飾燈具: 'fas fa-star',
+        特殊用途: 'fas fa-tools',
+        // 其他產品分類
+        衣服: 'fas fa-tshirt',
+        蛋糕: 'fas fa-birthday-cake',
+        食物: 'fas fa-utensils',
+        飲品: 'fas fa-coffee',
+        電子產品: 'fas fa-laptop',
+        家電: 'fas fa-tv',
+        書籍: 'fas fa-book',
+        玩具: 'fas fa-gamepad',
+        運動用品: 'fas fa-basketball-ball',
+        美妝: 'fas fa-palette',
       };
-      return iconMap[categoryName] || '💡';
+      return iconMap[categoryName] || 'fas fa-lightbulb text-warning';
     },
     // 自定義加入購物車方法，支援加載狀態
     async addToCart(productId, qty = 1) {

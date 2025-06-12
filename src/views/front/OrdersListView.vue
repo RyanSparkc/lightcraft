@@ -380,36 +380,37 @@ export default {
       return Math.round(total).toLocaleString();
     },
     getOrderTotalNumber(order) {
-      if (order.total !== undefined && order.total !== null) {
-        return Number(order.total);
+      // 根據使用者反饋，後端 API 在有優惠券時，會將 `order.total` 誤存為「折扣金額」。
+      // 此為前端的修正邏輯，以確保顯示正確的訂單總額。
+
+      // 如果沒有 products 資訊，無法重新計算，回傳原始 total
+      if (!order.products) {
+        return Number(order.total || 0);
       }
 
-      if (!order.products) return 0;
+      // 將 products 正規化為陣列
+      const productItems = Array.isArray(order.products)
+        ? order.products
+        : Object.values(order.products);
 
-      let total = 0;
+      // 檢查訂單中是否有任何商品使用了 coupon
+      const couponApplied = productItems.some((item) => item.coupon);
 
-      if (Array.isArray(order.products)) {
-        total = order.products.reduce((sum, item) => {
-          if (item.final_total !== undefined) {
-            return sum + Number(item.final_total);
-          }
-          const price = Number(item.product?.price) || 0;
-          const qty = Number(item.qty) || 0;
-          return sum + (price * qty);
-        }, 0);
-      } else if (typeof order.products === 'object') {
-        const productArray = Object.values(order.products);
-        total = productArray.reduce((sum, item) => {
-          if (item.final_total !== undefined) {
-            return sum + Number(item.final_total);
-          }
-          const price = Number(item.product?.price) || 0;
-          const qty = Number(item.qty) || 0;
-          return sum + (price * qty);
-        }, 0);
+      if (couponApplied) {
+        // 如果有使用優惠券，則重新計算正確總額
+        // 1. 計算折扣前的商品總計 (subtotal)
+        const subtotal = productItems.reduce(
+          (sum, item) => sum + Number(item.total || 0),
+          0,
+        );
+        // 2. `order.total` 此時是折扣金額
+        const discountAmount = Number(order.total || 0);
+        // 3. 正確的最終金額 = 商品總計 - 折扣金額
+        return subtotal - discountAmount;
       }
 
-      return total;
+      // 如果沒有使用優惠券，API 的 `order.total` 是正確的
+      return Number(order.total || 0);
     },
     getStatusClass(order) {
       return order.is_paid ? 'completed' : 'pending';
