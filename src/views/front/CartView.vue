@@ -156,8 +156,7 @@
               >
                 <span class="text-muted">折扣金額：</span>
                 <span class="fw-bold text-success">
-                  -NT$
-                  {{ formatPrice(discountAmount) }}
+                  折扣 NT$ {{ formatPrice(discountAmount) }}
                 </span>
               </div>
               <hr />
@@ -227,7 +226,10 @@
                 @click="clearCartLocal"
                 :disabled="cartStore.carts.length === 0 || isClearing"
               >
-                <i class="bi bi-arrow-clockwise spinner-icon" v-if="isClearing"></i>
+                <i
+                  class="bi bi-arrow-clockwise spinner-icon"
+                  v-if="isClearing"
+                ></i>
                 <i class="bi bi-trash me-1" v-else></i>
                 清空購物車
               </button>
@@ -277,6 +279,7 @@ export default {
     discountAmount() {
       // 計算折扣金額並四捨五入
       const discount = this.cartStore.total - this.cartStore.final_total;
+      console.log('total', this.cartStore.total);
       return Math.round(discount);
     },
   },

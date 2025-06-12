@@ -87,25 +87,6 @@
             </div>
           </div>
 
-          <!-- 優惠券輸入 -->
-          <div class="coupon-section mb-3">
-            <div class="input-group">
-              <input
-                type="text"
-                class="form-control"
-                v-model="couponCode"
-                placeholder="請輸入優惠券代碼"
-              />
-              <button
-                class="btn-apply"
-                @click="applyCouponCode"
-                :disabled="!couponCode.trim()"
-              >
-                套用
-              </button>
-            </div>
-          </div>
-
           <div class="info-item">
             <div class="info-label">商品總額</div>
             <div class="info-value">NT$ {{ formattedTotal }}</div>
@@ -174,7 +155,6 @@ export default {
   data() {
     return {
       selectedPayment: 'credit',
-      couponCode: '',
       isSubmitting: false,
       termsAccepted: true,
       orderId: null,
@@ -211,17 +191,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(useCartStore, ['getCart', 'applyCoupon', 'createOrder', 'payOrder']),
-    async applyCouponCode() {
-      if (!this.couponCode.trim()) return;
-
-      try {
-        await this.applyCoupon(this.couponCode.trim());
-        this.couponCode = '';
-      } catch (error) {
-        // 錯誤已在 store 中處理
-      }
-    },
+    ...mapActions(useCartStore, ['getCart', 'createOrder', 'payOrder']),
     async completeOrder() {
       if (this.isSubmitting) return;
 
@@ -439,40 +409,6 @@ export default {
 .info-value {
   font-weight: 600;
   color: #333;
-}
-
-/* 優惠券輸入樣式 */
-.coupon-section {
-  margin-bottom: 1rem;
-}
-
-.input-group {
-  display: flex;
-}
-
-.form-control {
-  flex: 1;
-  border: 1px solid #ddd;
-  border-radius: 8px 0 0 8px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-
-.btn-apply {
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-apply:hover {
-  background: #eee;
 }
 
 /* 條款確認樣式 */

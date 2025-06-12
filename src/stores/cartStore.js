@@ -18,6 +18,8 @@ export default defineStore('cart', {
         .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/cart`)
         .then((res) => {
           const { carts, total, final_total: apiFinalTotal } = res.data.data;
+
+          // 讀取 API 回傳資料並設定 state
           this.carts = carts;
           this.total = total;
 
@@ -25,11 +27,13 @@ export default defineStore('cart', {
           const hasCoupon = carts.length > 0 && carts[0].coupon;
 
           if (hasCoupon) {
-            // 有優惠券，使用 API 回傳的 final_total
-            this.final_total = Math.round(apiFinalTotal);
+            // 有優惠券，API 回傳的 apiFinalTotal 為「折扣金額」，需自行計算折扣後金額
+            const discount = Math.round(apiFinalTotal);
+            this.final_total = Math.round(this.total - discount);
           } else {
             // 沒有優惠券，總計金額等於小計金額
             this.final_total = Math.round(this.total);
+            // 無優惠券時 final_total = total
           }
         })
         .catch((err) => {
