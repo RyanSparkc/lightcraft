@@ -29,8 +29,9 @@ deploy.sh
 
 .cursor/*
 /doc/api/*
-/doc/prd/*
+/doc/prd/
 docs
+prd.md
 
 .env
 
