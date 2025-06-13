@@ -4,7 +4,7 @@
     <div class="container-fluid">
       <a class="navbar-brand" href="#">
         <i class="fas fa-lightbulb"></i>
-        燈泡市集後台
+        LightCraft 後台
       </a>
       <button
         class="navbar-toggler"

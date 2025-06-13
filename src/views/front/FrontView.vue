@@ -7,31 +7,6 @@
       <div>
         <RouterView />
       </div>
-      <div class="py-4 d-none">
-        <div class="container">
-          <div
-            class="d-flex flex-column flex-md-row justify-content-between align-items-md-center align-items-start"
-          >
-            <p class="mb-0 fw-bold">Lorem ipsum dolor sit amet.</p>
-            <div class="input-group w-md-50 mt-md-0 mt-3">
-              <input
-                type="text"
-                class="form-control rounded-0"
-                placeholder=""
-              />
-              <div class="input-group-append">
-                <button
-                  class="btn btn-dark rounded-0"
-                  type="button"
-                  id="search"
-                >
-                  Lorem ipsum
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="bg-dark py-5">
         <div class="container">
           <div class="row text-white">
@@ -162,7 +137,7 @@
           <div class="row align-items-center">
             <div class="col-md-6">
               <p class="mb-0 text-muted">
-                © 2024 LightCraft 燈具專家. All Rights Reserved.
+                © 2025 LightCraft 燈具專家. All Rights Reserved.
               </p>
             </div>
             <div class="col-md-6 text-md-end">
