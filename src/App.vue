@@ -5,6 +5,7 @@
 
 <script>
 import { StagewiseToolbar } from '@stagewise/toolbar-vue';
+import { VuePlugin } from '@stagewise-plugins/vue';
 
 export default {
   components: {
@@ -13,7 +14,7 @@ export default {
   data() {
     return {
       stagewiseConfig: {
-        plugins: [],
+        plugins: [VuePlugin],
       },
     };
   },

@@ -1,79 +1,107 @@
 <template>
   <LoadingOverlay :active="isLoading" />
-  <h2>產品列表</h2>
-  <div>
-    <div class="text-end mt-4">
-      <button class="btn btn-primary" @click="openModal('new')">
-        建立新的產品
-      </button>
+
+  <!-- 現代化頁面標題區域 -->
+  <div class="dashboard-header">
+    <div class="container-fluid">
+      <h2 class="dashboard-title"><i class="fas fa-cube me-3"></i>產品列表</h2>
+      <p class="dashboard-subtitle">管理您的產品資訊，編輯商品詳情與價格設定</p>
     </div>
-    <table class="table mt-4">
-      <thead>
-        <tr>
-          <th width="120">分類</th>
-          <th>產品名稱</th>
-          <th width="120">原價</th>
-          <th width="120">售價</th>
-          <th width="100">評分</th>
-          <th width="100">是否啟用</th>
-          <th width="120">編輯</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in products" :key="item.id">
-          <td>{{ item.category }}</td>
-          <td>{{ item.title }}</td>
-          <td class="text-end">{{ item.origin_price }}</td>
-          <td class="text-end">{{ item.price }}</td>
-          <td class="text-center">
-            <div
-              v-if="item.star && item.star > 0"
-              class="d-flex align-items-center justify-content-center"
-            >
-              <div class="stars me-1">
-                <i
-                  v-for="star in 5"
-                  :key="star"
-                  :class="star <= item.star ? 'fas fa-star text-warning' : 'far fa-star text-muted'"
-                  style="font-size: 0.7rem;"
-                ></i>
-              </div>
-              <small class="text-muted">{{ item.star }}</small>
-            </div>
-            <small v-else class="text-muted">未評分</small>
-          </td>
-          <td>
-            <span v-if="item.is_enabled" class="text-success">啟用</span>
-            <span v-else>未啟用</span>
-          </td>
-          <td>
-            <div class="btn-group">
-              <button
-                type="button"
-                class="btn btn-outline-primary
-              btn-sm"
-                @click="openModal('edit', item)"
-              >
-                編輯
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-danger btn-sm"
-                @click="openModal('delete', item)"
-              >
-                刪除
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <PaginationComponent
-      :pagination="pagination"
-      @change-page="getProducts"
-    />
   </div>
 
+  <!-- 頁面動作區域 -->
+  <div class="page-actions">
+    <div class="actions-left">
+      <div class="d-flex align-items-center gap-3">
+        <span class="text-muted">共 {{ products.length }} 項產品</span>
+        <span class="text-muted">|</span>
+        <span class="text-muted"
+          >第 {{ pagination.current_page || 1 }} 頁，共
+          {{ pagination.total_pages || 1 }} 頁</span
+        >
+      </div>
+    </div>
+    <div class="actions-right">
+      <button class="btn-modern btn-primary-modern" @click="openModal('new')">
+        <i class="fas fa-plus"></i>
+        建立新產品
+      </button>
+    </div>
+  </div>
+
+  <!-- 現代化產品卡片網格 -->
+  <div class="products-grid">
+    <div v-for="item in products" :key="item.id" class="product-card">
+      <!-- 卡片標題區域 -->
+      <div class="product-card-header">
+        <span class="product-category">{{ item.category }}</span>
+        <h3 class="product-title">{{ item.title }}</h3>
+      </div>
+
+      <!-- 卡片主要內容 -->
+      <div class="product-card-body">
+        <!-- 價格區域 -->
+        <div class="price-section">
+          <span v-if="item.origin_price !== item.price" class="price-original">
+            NT$ {{ formatCurrency(item.origin_price) }}
+          </span>
+          <span class="price-current"
+            >NT$ {{ formatCurrency(item.price) }}</span
+          >
+          <span v-if="item.origin_price !== item.price" class="price-discount">
+            {{ Math.round((1 - item.price / item.origin_price) * 100) }}% OFF
+          </span>
+        </div>
+
+        <!-- 評分區域 -->
+        <div class="rating-section">
+          <div v-if="item.star && item.star > 0" class="modern-rating">
+            <div class="stars">
+              <i
+                v-for="star in 5"
+                :key="star"
+                :class="star <= item.star ? 'fas fa-star' : 'far fa-star'"
+              ></i>
+            </div>
+            <span class="rating-value">{{ item.star }}.0</span>
+          </div>
+          <div v-else class="modern-rating">
+            <span class="rating-text">尚未評分</span>
+          </div>
+        </div>
+
+        <!-- 狀態區域 -->
+        <div class="status-section">
+          <span :class="item.is_enabled ? 'status-enabled' : 'status-disabled'">
+            {{ item.is_enabled ? '已啟用' : '未啟用' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- 卡片動作區域 -->
+      <div class="product-card-actions">
+        <button type="button" class="btn-edit" @click="openModal('edit', item)">
+          <i class="fas fa-edit me-1"></i>
+          編輯
+        </button>
+        <button
+          type="button"
+          class="btn-delete"
+          @click="openModal('delete', item)"
+        >
+          <i class="fas fa-trash me-1"></i>
+          刪除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分頁組件 -->
+  <div class="d-flex justify-content-center">
+    <PaginationComponent :pagination="pagination" @change-page="getProducts" />
+  </div>
+
+  <!-- 產品模態框 -->
   <ProductModal
     ref="productModal"
     :temp-product="tempProduct"
@@ -81,6 +109,7 @@
     @update-product="updateProduct"
   ></ProductModal>
 
+  <!-- 刪除確認模態框 -->
   <DeleteModal
     ref="deleteModal"
     :temp-product="tempProduct"
@@ -92,6 +121,7 @@
 import axios from 'axios';
 import { mapActions } from 'pinia';
 import useToastMessageStore from '@/stores/toastMessage';
+import { currency } from '@/methods/filters';
 
 import ProductModal from '../../components/ProductModal.vue';
 import DeleteModal from '../../components/DeleteModal.vue';
@@ -114,6 +144,9 @@ export default {
   },
   methods: {
     ...mapActions(useToastMessageStore, ['addMessage']),
+    formatCurrency(num) {
+      return currency(num);
+    },
     getProducts(page = 1) {
       this.isLoading = true;
       axios
@@ -190,3 +223,35 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+/* 額外的頁面特定樣式 */
+.dashboard-header {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.products-grid {
+  min-height: 400px; /* 確保載入時有最小高度 */
+}
+
+/* 載入狀態時的樣式 */
+.position-relative {
+  position: relative;
+}
+
+/* 響應式調整 */
+@media (max-width: 576px) {
+  .dashboard-header {
+    padding: 1.5rem 0;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem !important;
+  }
+
+  .products-grid {
+    padding: 0 0.5rem;
+  }
+}
+</style>

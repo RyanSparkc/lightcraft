@@ -4,6 +4,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+  ignorePatterns: ['node_modules/', 'dist/', 'public/'],
   extends: ['plugin:vue/vue3-essential', 'eslint:recommended', 'airbnb-base'],
   overrides: [],
   parserOptions: {
