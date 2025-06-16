@@ -209,16 +209,6 @@
                       <i class="fas fa-edit"></i>
                     </button>
                     <button
-                      :class="item.is_enabled ? 'btn btn-outline-warning btn-sm' : 'btn btn-outline-success btn-sm'"
-                      type="button"
-                      @click="toggleCouponStatus(item)"
-                      :title="item.is_enabled ? '停用優惠券' : '啟用優惠券'"
-                    >
-                      <i
-                        :class="item.is_enabled ? 'fas fa-pause' : 'fas fa-play'"
-                      ></i>
-                    </button>
-                    <button
                       class="btn btn-outline-danger btn-sm"
                       type="button"
                       @click="openDelCouponModal(item)"
