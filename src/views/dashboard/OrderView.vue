@@ -2,15 +2,12 @@
   <LoadingOverlay :active="isLoading" />
 
   <!-- 頁面標題區域 -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="h3 mb-1 text-dark fw-bold">
-        <i class="fas fa-shopping-cart text-warning me-2"></i>
-        訂單管理
-      </h2>
-      <p class="text-muted mb-0">管理所有客戶訂單與付款狀態</p>
-    </div>
-  </div>
+  <PageHeader
+    icon="fas fa-shopping-cart"
+    icon-color="text-primary"
+    title="訂單管理"
+    subtitle="管理所有客戶訂單與付款狀態"
+  />
 
   <!-- 統計卡片 -->
   <div class="row mb-4">
@@ -247,6 +244,7 @@
 import { mapActions } from 'pinia';
 import useToastMessageStore from '@/stores/toastMessage';
 
+import PageHeader from '@/components/PageHeader.vue';
 import OrderModal from '@/components/OrderModal.vue';
 import DelModal from '@/components/DelModal.vue';
 
@@ -266,6 +264,7 @@ export default {
     };
   },
   components: {
+    PageHeader,
     OrderModal,
     DelModal,
   },

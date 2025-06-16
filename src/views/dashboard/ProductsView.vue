@@ -2,12 +2,12 @@
   <LoadingOverlay :active="isLoading" />
 
   <!-- 現代化頁面標題區域 -->
-  <div class="dashboard-header">
-    <div class="container-fluid">
-      <h2 class="dashboard-title"><i class="fas fa-cube me-3"></i>產品列表</h2>
-      <p class="dashboard-subtitle">管理您的產品資訊，編輯商品詳情與價格設定</p>
-    </div>
-  </div>
+  <PageHeader
+    icon="fas fa-cube"
+    icon-color="text-primary"
+    title="產品列表"
+    subtitle="管理您的產品資訊，編輯商品詳情與價格設定"
+  />
 
   <!-- 頁面動作區域 -->
   <div class="page-actions">
@@ -123,6 +123,7 @@ import { mapActions } from 'pinia';
 import useToastMessageStore from '@/stores/toastMessage';
 import { currency } from '@/methods/filters';
 
+import PageHeader from '@/components/PageHeader.vue';
 import ProductModal from '../../components/ProductModal.vue';
 import DeleteModal from '../../components/DeleteModal.vue';
 import PaginationComponent from '../../components/PaginationComponent.vue';
@@ -172,7 +173,6 @@ export default {
           imagesUrl: [],
         };
         this.isNew = true;
-        console.log('new', this.tempProduct);
         this.$refs.productModal.openModal();
       } else if (status === 'edit') {
         this.tempProduct = { ...item };
@@ -217,6 +217,7 @@ export default {
     this.getProducts();
   },
   components: {
+    PageHeader,
     ProductModal,
     DeleteModal,
     PaginationComponent,
@@ -225,12 +226,6 @@ export default {
 </script>
 
 <style scoped>
-/* 額外的頁面特定樣式 */
-.dashboard-header {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
 .products-grid {
   min-height: 400px; /* 確保載入時有最小高度 */
 }
@@ -242,14 +237,6 @@ export default {
 
 /* 響應式調整 */
 @media (max-width: 576px) {
-  .dashboard-header {
-    padding: 1.5rem 0;
-  }
-
-  .dashboard-title {
-    font-size: 1.5rem !important;
-  }
-
   .products-grid {
     padding: 0 0.5rem;
   }
