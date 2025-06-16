@@ -105,9 +105,9 @@
           <thead class="bg-light">
             <tr>
               <th class="border-0 ps-4">文章資訊</th>
-              <th class="border-0">作者</th>
-              <th class="border-0">建立時間</th>
-              <th class="border-0">狀態</th>
+              <th class="border-0 d-none d-md-table-cell">作者</th>
+              <th class="border-0 d-none d-lg-table-cell">建立時間</th>
+              <th class="border-0 d-none d-md-table-cell">狀態</th>
               <th class="border-0 pe-4">操作</th>
             </tr>
           </thead>
@@ -121,13 +121,30 @@
                     >
                       <i class="fas fa-file-alt text-success"></i>
                     </div>
-                    <div>
-                      <div class="text-dark fw-medium">{{ item.title }}</div>
-                      <small class="text-muted">{{ item.description }}</small>
+                    <div class="article-info">
+                      <div class="text-dark fw-medium article-title">
+                        {{ item.title }}
+                      </div>
+                      <small
+                        class="text-muted article-description d-none d-sm-block"
+                        >{{ item.description }}</small
+                      >
+                      <!-- 手機版顯示狀態和作者信息 -->
+                      <div class="d-block d-md-none mt-1">
+                        <small class="text-muted me-2">{{ item.author }}</small>
+                        <span
+                          :class="item.isPublic
+                            ? 'badge bg-success bg-opacity-10 text-success'
+                            : 'badge bg-warning bg-opacity-10 text-warning'"
+                          style="font-size: 0.65rem;"
+                        >
+                          {{ item.isPublic ? '已發布' : '草稿' }}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </td>
-                <td>
+                <td class="d-none d-md-table-cell">
                   <div class="d-flex align-items-center">
                     <div
                       class="avatar-xs rounded-circle bg-primary bg-opacity-10 me-2 d-flex align-items-center justify-content-center"
@@ -137,12 +154,12 @@
                     <span class="text-dark fw-medium">{{ item.author }}</span>
                   </div>
                 </td>
-                <td>
+                <td class="d-none d-lg-table-cell">
                   <div class="text-dark fw-medium">
                     {{ $filters.date(item.create_at) }}
                   </div>
                 </td>
-                <td>
+                <td class="d-none d-md-table-cell">
                   <span
                     :class="item.isPublic
                       ? 'badge bg-success bg-opacity-10 text-success'
@@ -164,8 +181,8 @@
                       @click="getArticle(item.id)"
                       title="編輯文章"
                     >
-                      <i class="fas fa-edit me-1"></i>
-                      編輯
+                      <i class="fas fa-edit"></i>
+                      <span class="d-none d-md-inline ms-1">編輯</span>
                     </button>
                     <button
                       type="button"
@@ -173,8 +190,8 @@
                       @click="openDelArticleModal(item)"
                       title="刪除文章"
                     >
-                      <i class="fas fa-trash me-1"></i>
-                      刪除
+                      <i class="fas fa-trash"></i>
+                      <span class="d-none d-md-inline ms-1">刪除</span>
                     </button>
                   </div>
                 </td>
@@ -423,13 +440,19 @@ export default {
 @media (max-width: 768px) {
   .btn-group {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.25rem;
   }
 
   .btn-group .btn {
     margin-right: 0;
     font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .table td {
@@ -440,6 +463,88 @@ export default {
     width: 32px;
     height: 32px;
     font-size: 0.875rem;
+  }
+
+  /* 文章信息區域優化 */
+  .article-info {
+    min-width: 0; /* 允許 flex 子元素縮小 */
+    flex: 1;
+  }
+
+  .article-title {
+    font-size: 0.9rem;
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    max-height: 2.6rem;
+  }
+
+  /* 表格水平滾動優化 */
+  .table-responsive {
+    border-radius: 0.375rem;
+  }
+
+  .table {
+    margin-bottom: 0;
+    min-width: 500px; /* 確保最小寬度 */
+  }
+}
+
+/* 文字截斷樣式 */
+.article-title {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.article-description {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  max-width: 300px;
+  line-height: 1.4;
+  max-height: 2.8rem;
+}
+
+/* 表格內容對齊優化 */
+.table td {
+  vertical-align: middle;
+}
+
+/* 手機版特殊處理 */
+@media (max-width: 576px) {
+  .article-title {
+    font-size: 0.85rem;
+    max-width: 200px;
+  }
+
+  .btn-group .btn {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.4rem;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .table {
+    font-size: 0.85rem;
+    min-width: 450px;
+  }
+
+  .avatar-sm {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
   }
 }
 </style>
