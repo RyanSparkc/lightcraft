@@ -38,7 +38,9 @@
           <h1 class="display-5 fw-bold mb-4 text-dark">{{ article.title }}</h1>
 
           <!-- 文章資訊 -->
-          <div class="article-meta d-flex flex-wrap align-items-center text-muted mb-4">
+          <div
+            class="article-meta d-flex flex-wrap align-items-center text-muted mb-4"
+          >
             <div class="me-4 mb-2">
               <i class="fas fa-user me-2 text-warning"></i>
               <span>{{ article.author || '編輯部' }}</span>
@@ -59,7 +61,10 @@
         </div>
 
         <!-- 文章圖片 -->
-        <div class="article-image mb-4" v-if="article.imageUrl || article.image">
+        <div
+          class="article-image mb-4"
+          v-if="article.imageUrl || article.image"
+        >
           <img
             :src="article.imageUrl || article.image"
             :alt="article.title"
@@ -88,7 +93,9 @@
         </div>
 
         <!-- 文章操作 -->
-        <div class="article-actions d-flex justify-content-between align-items-center py-3 border-top border-bottom">
+        <div
+          class="article-actions d-flex justify-content-between align-items-center py-3 border-top border-bottom"
+        >
           <div class="like-section">
             <button class="btn btn-outline-danger me-3">
               <i class="fas fa-heart me-1"></i>
@@ -127,12 +134,18 @@
                   </div>
                   <div class="col-8">
                     <div class="card-body p-3">
-                      <h6 class="card-title mb-2">LED智能燈泡 {{ i === 1 ? 'A60' : 'G45' }}</h6>
+                      <h6 class="card-title mb-2">
+                        LED智能燈泡 {{ i === 1 ? 'A60' : 'G45' }}
+                      </h6>
                       <p class="card-text text-muted small mb-2">
                         {{ i === 1 ? '9W 暖白光 3000K' : '6W 自然光 4000K' }}
                       </p>
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-warning fw-bold">NT$ {{ i === 1 ? '299' : '199' }}</span>
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <span class="text-warning fw-bold"
+                          >NT$ {{ i === 1 ? '299' : '199' }}</span
+                        >
                         <button class="btn btn-sm btn-warning">查看</button>
                       </div>
                     </div>
@@ -187,9 +200,14 @@
           <!-- 廣告區塊 -->
           <div class="card">
             <div class="card-body text-center">
-              <i class="fas fa-lightbulb text-warning" style="font-size: 3rem;"></i>
+              <i
+                class="fas fa-lightbulb text-warning"
+                style="font-size: 3rem;"
+              ></i>
               <h6 class="mt-3 mb-2">專業照明諮詢</h6>
-              <p class="text-muted small mb-3">需要照明建議嗎？我們的專家團隊隨時為您服務</p>
+              <p class="text-muted small mb-3">
+                需要照明建議嗎？我們的專家團隊隨時為您服務
+              </p>
               <button class="btn btn-warning btn-sm">
                 <i class="fas fa-phone me-1"></i>
                 立即諮詢
