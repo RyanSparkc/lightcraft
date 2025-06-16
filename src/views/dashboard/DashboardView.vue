@@ -2,10 +2,10 @@
   <!-- 現代化導航列 -->
   <nav class="navbar navbar-expand-lg modern-navbar">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">
-        <i class="fas fa-lightbulb"></i>
+      <RouterLink class="navbar-brand fs-5" to="/admin/products">
+        <i class="fas fa-lightbulb fs-5"></i>
         LightCraft 後台
-      </a>
+      </RouterLink>
       <button
         class="navbar-toggler"
         type="button"
