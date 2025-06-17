@@ -88,6 +88,11 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/front/NotFoundView.vue'),
+  },
 ];
 
 const router = createRouter({
