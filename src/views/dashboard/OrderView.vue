@@ -240,8 +240,9 @@
   <DelModal ref="delModal" :item="tempOrder" @del-item="deleteOrder" />
 </template>
 
-<script>
-import { mapActions } from 'pinia';
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 
 import PageHeader from '@/components/PageHeader.vue';
@@ -250,200 +251,215 @@ import DelModal from '@/components/DelModal.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
-export default {
-  data() {
-    return {
-      orders: {},
-      currentPage: 1,
-      isLoading: true,
-      tempOrder: {},
-      isNew: false,
-      searchQuery: '',
-      paymentFilter: '',
-      dateFilter: '',
-    };
-  },
-  components: {
-    PageHeader,
-    OrderModal,
-    DelModal,
-  },
-  computed: {
-    ordersArray() {
-      return Object.values(this.orders || {});
-    },
-    filteredOrders() {
-      let filtered = this.ordersArray;
+// 響應式資料
+const orders = ref({});
+const currentPage = ref(1);
+const isLoading = ref(true);
+const tempOrder = ref({});
+const isNew = ref(false);
+const searchQuery = ref('');
+const paymentFilter = ref('');
+const dateFilter = ref('');
 
-      // 搜尋篩選
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter((order) => order.user.email.toLowerCase().includes(query)
-          || order.id.toLowerCase().includes(query));
-      }
+// 模板引用
+const orderModal = ref(null);
+const delModal = ref(null);
 
-      // 付款狀態篩選
-      if (this.paymentFilter === 'paid') {
-        filtered = filtered.filter((order) => order.is_paid);
-      } else if (this.paymentFilter === 'unpaid') {
-        filtered = filtered.filter((order) => !order.is_paid);
-      }
+// Store
+const toastStore = useToastMessageStore();
+const { addMessage } = toastStore;
 
-      // 日期篩選
-      if (this.dateFilter) {
-        const filterDate = new Date(this.dateFilter);
-        filtered = filtered.filter((order) => {
-          const orderDate = new Date(order.create_at * 1000);
-          return orderDate.toDateString() === filterDate.toDateString();
-        });
-      }
+// 工具函數
+const calculateCorrectTotal = (order) => {
+  // 根據使用者反饋，後端 API 在有優惠券時，會將 `order.total` 誤存為「折扣金額」。
+  // 此為前端的修正邏輯，以確保顯示正確的訂單總額。
 
-      return filtered;
-    },
-    orderStats() {
-      const orders = this.ordersArray;
-      const total = orders.length;
-      const paid = orders.filter((order) => order.is_paid).length;
-      const unpaid = total - paid;
-      const totalAmount = orders.reduce((sum, order) => sum + this.calculateCorrectTotal(order), 0);
+  // 如果沒有 products 資訊，無法重新計算，回傳原始 total
+  if (!order.products) {
+    return Number(order.total || 0);
+  }
 
-      return {
-        total,
-        paid,
-        unpaid,
-        totalAmount,
-      };
-    },
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    calculateCorrectTotal(order) {
-      // 根據使用者反饋，後端 API 在有優惠券時，會將 `order.total` 誤存為「折扣金額」。
-      // 此為前端的修正邏輯，以確保顯示正確的訂單總額。
+  // 將 products 物件轉為陣列
+  const productItems = Object.values(order.products);
 
-      // 如果沒有 products 資訊，無法重新計算，回傳原始 total
-      if (!order.products) {
-        return Number(order.total || 0);
-      }
+  // 檢查訂單中是否有任何商品使用了 coupon
+  const couponApplied = productItems.some((item) => item.coupon);
 
-      // 將 products 物件轉為陣列
-      const productItems = Object.values(order.products);
+  if (couponApplied) {
+    // 如果有使用優惠券，則重新計算正確總額
+    // 1. 計算折扣前的商品總計 (subtotal)
+    const subtotal = productItems.reduce(
+      (sum, item) => sum + Number(item.total || 0),
+      0,
+    );
+    // 2. `order.total` 此時是折扣金額
+    const discountAmount = Number(order.total || 0);
+    // 3. 正確的最終金額 = 商品總計 - 折扣金額
+    return subtotal - discountAmount;
+  }
 
-      // 檢查訂單中是否有任何商品使用了 coupon
-      const couponApplied = productItems.some((item) => item.coupon);
-
-      if (couponApplied) {
-        // 如果有使用優惠券，則重新計算正確總額
-        // 1. 計算折扣前的商品總計 (subtotal)
-        const subtotal = productItems.reduce(
-          (sum, item) => sum + Number(item.total || 0),
-          0,
-        );
-        // 2. `order.total` 此時是折扣金額
-        const discountAmount = Number(order.total || 0);
-        // 3. 正確的最終金額 = 商品總計 - 折扣金額
-        return subtotal - discountAmount;
-      }
-
-      // 如果沒有使用優惠券，API 的 `order.total` 是正確的
-      return Number(order.total || 0);
-    },
-    getOrders(currentPage = 1) {
-      this.currentPage = currentPage;
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/orders?page=${currentPage}`;
-      this.axios.get(url).then((response) => {
-        this.orders = response.data.orders;
-      }).catch((error) => {
-        this.addMessage({
-          title: '錯誤',
-          content: error.response.data.message,
-          style: 'danger',
-        });
-      }).finally(() => {
-        this.isLoading = false;
-      });
-    },
-    openModal(item) {
-      this.tempOrder = { ...item };
-      this.isNew = false;
-      this.$refs.orderModal.openModal();
-    },
-    openDelModal(item) {
-      this.tempOrder = { ...item };
-      this.$refs.delModal.openModal();
-    },
-    togglePaymentStatus(item) {
-      // 切換付款狀態 - 創建新物件避免直接修改參數
-      const updatedItem = { ...item, is_paid: !item.is_paid };
-      this.updatePaid(updatedItem);
-    },
-    updatePaid(item) {
-      this.isLoading = true;
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/order/${item.id}`;
-      const paid = {
-        is_paid: item.is_paid,
-      };
-      this.axios.put(url, { data: paid }).then((response) => {
-        this.$refs.orderModal.closeModal();
-        this.getOrders(this.currentPage);
-        this.addMessage({
-          title: '更新成功',
-          content: response.data.message,
-          style: 'success',
-        });
-      }).catch((error) => {
-        this.addMessage({
-          title: '錯誤',
-          content: error.response.data.message,
-          style: 'danger',
-        });
-      }).finally(() => {
-        this.isLoading = false;
-      });
-    },
-    deleteOrder() {
-      this.isLoading = true;
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/order/${this.tempOrder.id}`;
-      this.axios.delete(url).then((response) => {
-        this.$refs.delModal.closeModal();
-        this.getOrders(this.currentPage);
-        this.addMessage({
-          title: '刪除成功',
-          content: response.data.message,
-          style: 'success',
-        });
-      }).catch((error) => {
-        this.addMessage({
-          title: '錯誤',
-          content: error.response.data.message,
-          style: 'danger',
-        });
-      }).finally(() => {
-        this.isLoading = false;
-      });
-    },
-    clearFilters() {
-      this.searchQuery = '';
-      this.paymentFilter = '';
-      this.dateFilter = '';
-    },
-    // 組合時間
-    formatDate(timestamp) {
-      const getTime = new Date(timestamp * 1000);
-      return getTime.toLocaleDateString();
-    },
-    formatTime(timestamp) {
-      const getTime = new Date(timestamp * 1000);
-      return getTime.toLocaleTimeString('zh-TW', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    },
-  },
-  mounted() {
-    this.getOrders();
-  },
+  // 如果沒有使用優惠券，API 的 `order.total` 是正確的
+  return Number(order.total || 0);
 };
+
+const formatDate = (timestamp) => {
+  const getTime = new Date(timestamp * 1000);
+  return getTime.toLocaleDateString();
+};
+
+const formatTime = (timestamp) => {
+  const getTime = new Date(timestamp * 1000);
+  return getTime.toLocaleTimeString('zh-TW', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+// 計算屬性
+const ordersArray = computed(() => Object.values(orders.value || {}));
+
+const filteredOrders = computed(() => {
+  let filtered = ordersArray.value;
+
+  // 搜尋篩選
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter((order) => order.user.email.toLowerCase().includes(query)
+      || order.id.toLowerCase().includes(query));
+  }
+
+  // 付款狀態篩選
+  if (paymentFilter.value === 'paid') {
+    filtered = filtered.filter((order) => order.is_paid);
+  } else if (paymentFilter.value === 'unpaid') {
+    filtered = filtered.filter((order) => !order.is_paid);
+  }
+
+  // 日期篩選
+  if (dateFilter.value) {
+    const filterDate = new Date(dateFilter.value);
+    filtered = filtered.filter((order) => {
+      const orderDate = new Date(order.create_at * 1000);
+      return orderDate.toDateString() === filterDate.toDateString();
+    });
+  }
+
+  return filtered;
+});
+
+const orderStats = computed(() => {
+  const ordersData = ordersArray.value;
+  const total = ordersData.length;
+  const paid = ordersData.filter((order) => order.is_paid).length;
+  const unpaid = total - paid;
+  const totalAmount = ordersData.reduce((sum, order) => sum + calculateCorrectTotal(order), 0);
+
+  return {
+    total,
+    paid,
+    unpaid,
+    totalAmount,
+  };
+});
+
+// API 方法
+const getOrders = async (currentPageNum = 1) => {
+  currentPage.value = currentPageNum;
+  const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/orders?page=${currentPageNum}`;
+
+  try {
+    const response = await axios.get(url);
+    orders.value = response.data.orders;
+  } catch (error) {
+    addMessage({
+      title: '錯誤',
+      content: error.response.data.message,
+      style: 'danger',
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const updatePaid = async (item) => {
+  isLoading.value = true;
+  const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/order/${item.id}`;
+  const paid = {
+    is_paid: item.is_paid,
+  };
+
+  try {
+    const response = await axios.put(url, { data: paid });
+    orderModal.value.closeModal();
+    getOrders(currentPage.value);
+    addMessage({
+      title: '更新成功',
+      content: response.data.message,
+      style: 'success',
+    });
+  } catch (error) {
+    addMessage({
+      title: '錯誤',
+      content: error.response.data.message,
+      style: 'danger',
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const deleteOrder = async () => {
+  isLoading.value = true;
+  const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/order/${tempOrder.value.id}`;
+
+  try {
+    const response = await axios.delete(url);
+    delModal.value.closeModal();
+    getOrders(currentPage.value);
+    addMessage({
+      title: '刪除成功',
+      content: response.data.message,
+      style: 'success',
+    });
+  } catch (error) {
+    addMessage({
+      title: '錯誤',
+      content: error.response.data.message,
+      style: 'danger',
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// UI 操作方法
+const openModal = (item) => {
+  tempOrder.value = { ...item };
+  isNew.value = false;
+  orderModal.value.openModal();
+};
+
+const openDelModal = (item) => {
+  tempOrder.value = { ...item };
+  delModal.value.openModal();
+};
+
+const togglePaymentStatus = (item) => {
+  // 切換付款狀態 - 創建新物件避免直接修改參數
+  const updatedItem = { ...item, is_paid: !item.is_paid };
+  updatePaid(updatedItem);
+};
+
+const clearFilters = () => {
+  searchQuery.value = '';
+  paymentFilter.value = '';
+  dateFilter.value = '';
+};
+
+// 生命週期
+onMounted(() => {
+  getOrders();
+});
 </script>
 
 <style scoped>
