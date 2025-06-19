@@ -117,7 +117,7 @@
   ></DeleteModal>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
@@ -130,124 +130,95 @@ import PaginationComponent from '../../components/PaginationComponent.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
-export default {
-  name: 'ProductsView',
-  components: {
-    PageHeader,
-    ProductModal,
-    DeleteModal,
-    PaginationComponent,
-  },
-  setup() {
-    // 響應式資料
-    const products = ref([]);
-    const isNew = ref(false);
-    const tempProduct = ref({
-      imagesUrl: [],
+// 響應式資料
+const products = ref([]);
+const isNew = ref(false);
+const tempProduct = ref({
+  imagesUrl: [],
+});
+const pagination = ref({});
+const isLoading = ref(false);
+
+// 模板引用
+const productModal = ref(null);
+const deleteModal = ref(null);
+
+// Store
+const toastStore = useToastMessageStore();
+const { addMessage } = toastStore;
+
+// 方法
+const formatCurrency = (num) => currency(num);
+
+const getProducts = async (page = 1) => {
+  isLoading.value = true;
+  try {
+    const res = await axios.get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/products?page=${page}`);
+    const { products: productData, pagination: paginationData } = res.data;
+    products.value = productData;
+    pagination.value = paginationData;
+    isLoading.value = false;
+  } catch (err) {
+    isLoading.value = false;
+    addMessage({
+      title: '取得產品資訊失敗',
+      content: err.response.data.message,
+      style: 'danger',
     });
-    const pagination = ref({});
-    const isLoading = ref(false);
-
-    // 模板引用
-    const productModal = ref(null);
-    const deleteModal = ref(null);
-
-    // Store
-    const toastStore = useToastMessageStore();
-    const { addMessage } = toastStore;
-
-    // 方法
-    const formatCurrency = (num) => currency(num);
-
-    const getProducts = async (page = 1) => {
-      isLoading.value = true;
-      try {
-        const res = await axios.get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/products?page=${page}`);
-        const { products: productData, pagination: paginationData } = res.data;
-        products.value = productData;
-        pagination.value = paginationData;
-        isLoading.value = false;
-      } catch (err) {
-        isLoading.value = false;
-        addMessage({
-          title: '取得產品資訊失敗',
-          content: err.response.data.message,
-          style: 'danger',
-        });
-      }
-    };
-
-    const openModal = (status, item) => {
-      if (status === 'new') {
-        tempProduct.value = {
-          imagesUrl: [],
-        };
-        isNew.value = true;
-        productModal.value.openModal();
-      } else if (status === 'edit') {
-        tempProduct.value = { ...item };
-        isNew.value = false;
-        productModal.value.openModal();
-      } else if (status === 'delete') {
-        tempProduct.value = { ...item };
-        deleteModal.value.openModal();
-      }
-    };
-
-    const updateProduct = async (item) => {
-      isLoading.value = true;
-      let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product/${tempProduct.value.id}`;
-      let http = 'put';
-
-      if (isNew.value) {
-        url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product`;
-        http = 'post';
-      }
-
-      try {
-        const res = await axios[http](url, { data: item });
-        isLoading.value = false;
-        getProducts();
-        productModal.value.closeModal();
-        addMessage({
-          title: '成功更新產品',
-          content: res.data.message,
-          style: 'success',
-        });
-      } catch (err) {
-        isLoading.value = false;
-        addMessage({
-          title: '更新產品失敗',
-          content: err.response.data.message,
-          style: 'danger',
-        });
-      }
-    };
-
-    // 生命週期
-    onMounted(() => {
-      getProducts();
-    });
-
-    // 回傳給模板使用
-    return {
-      // 響應式資料
-      products,
-      isNew,
-      tempProduct,
-      pagination,
-      isLoading,
-      // 模板引用
-      productModal,
-      deleteModal,
-      // 方法
-      formatCurrency,
-      getProducts,
-      openModal,
-      updateProduct,
-    };
-  },
+  }
 };
+
+const openModal = (status, item) => {
+  if (status === 'new') {
+    tempProduct.value = {
+      imagesUrl: [],
+    };
+    isNew.value = true;
+    productModal.value.openModal();
+  } else if (status === 'edit') {
+    tempProduct.value = { ...item };
+    isNew.value = false;
+    productModal.value.openModal();
+  } else if (status === 'delete') {
+    tempProduct.value = { ...item };
+    deleteModal.value.openModal();
+  }
+};
+
+const updateProduct = async (item) => {
+  isLoading.value = true;
+  let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product/${tempProduct.value.id}`;
+  let http = 'put';
+
+  if (isNew.value) {
+    url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product`;
+    http = 'post';
+  }
+
+  try {
+    const res = await axios[http](url, { data: item });
+    isLoading.value = false;
+    getProducts();
+    productModal.value.closeModal();
+    addMessage({
+      title: '成功更新產品',
+      content: res.data.message,
+      style: 'success',
+    });
+  } catch (err) {
+    isLoading.value = false;
+    addMessage({
+      title: '更新產品失敗',
+      content: err.response.data.message,
+      style: 'danger',
+    });
+  }
+};
+
+// 生命週期
+onMounted(() => {
+  getProducts();
+});
 </script>
 
 <style scoped>
