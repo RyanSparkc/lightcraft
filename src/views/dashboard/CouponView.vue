@@ -242,8 +242,11 @@
   <DelModal ref="delModal" :item="tempCoupon" @del-item="deleteCoupon" />
 </template>
 
-<script>
-import { mapActions } from 'pinia';
+<script setup>
+import {
+  ref, computed, watch, onMounted,
+} from 'vue';
+import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 
 import PageHeader from '@/components/PageHeader.vue';
@@ -252,289 +255,270 @@ import DelModal from '@/components/DelModal.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
-export default {
-  components: {
-    PageHeader,
-    DelModal,
-    CouponModal,
-  },
-  data() {
-    return {
-      isLoading: false,
-      isNew: false,
-      coupons: {},
-      tempCoupon: {
-        title: '',
-        is_enabled: 0,
-        percent: 100,
-        code: '',
-      },
-      due_date: '',
-      modal: '',
-      searchQuery: '',
-      statusFilter: '',
-      expiryFilter: '',
-    };
-  },
-  computed: {
-    couponsArray() {
-      return Object.values(this.coupons || {});
-    },
-    filteredCoupons() {
-      let filtered = this.couponsArray;
+// Store
+const toastStore = useToastMessageStore();
 
-      // 搜尋篩選
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter((coupon) => coupon.title.toLowerCase().includes(query)
-          || coupon.code.toLowerCase().includes(query));
-      }
+// 響應式數據
+const isLoading = ref(false);
+const isNew = ref(false);
+const coupons = ref({});
+const tempCoupon = ref({
+  title: '',
+  is_enabled: 0,
+  percent: 100,
+  code: '',
+});
+const dueDate = ref('');
+const searchQuery = ref('');
+const statusFilter = ref('');
+const expiryFilter = ref('');
 
-      // 啟用狀態篩選
-      if (this.statusFilter === 'enabled') {
-        filtered = filtered.filter((coupon) => coupon.is_enabled);
-      } else if (this.statusFilter === 'disabled') {
-        filtered = filtered.filter((coupon) => !coupon.is_enabled);
-      }
+// 模板引用
+const couponModal = ref(null);
+const delModal = ref(null);
 
-      // 有效期限篩選
-      if (this.expiryFilter === 'valid') {
-        filtered = filtered.filter((coupon) => !this.isExpired(coupon.due_date));
-      } else if (this.expiryFilter === 'expiring') {
-        filtered = filtered.filter((coupon) => this.isExpiringSoon(coupon.due_date));
-      } else if (this.expiryFilter === 'expired') {
-        filtered = filtered.filter((coupon) => this.isExpired(coupon.due_date));
-      }
-
-      return filtered;
-    },
-    couponStats() {
-      const coupons = this.couponsArray;
-      const total = coupons.length;
-      const active = coupons.filter((coupon) => coupon.is_enabled && !this.isExpired(coupon.due_date)).length;
-      const expiringSoon = coupons.filter((coupon) => this.isExpiringSoon(coupon.due_date)).length;
-      const expired = coupons.filter((coupon) => this.isExpired(coupon.due_date)).length;
-
-      return {
-        total,
-        active,
-        expiringSoon,
-        expired,
-      };
-    },
-  },
-  watch: {
-    due_date() {
-      this.tempCoupon.due_date = Math.floor(new Date(this.due_date) / 1000);
-    },
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    getCoupons() {
-      this.isLoading = true;
-      this.axios.get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupons`)
-        .then((res) => {
-          this.coupons = res.data.coupons;
-          this.isLoading = false;
-        })
-        .catch((err) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '錯誤',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-        });
-    },
-    openCouponModal(isNew, item) {
-      this.isNew = isNew;
-      if (this.isNew) {
-        this.tempCoupon = {
-          due_date: new Date().getTime() / 1000,
-        };
-      } else {
-        this.tempCoupon = { ...item };
-        // 將時間格式改為 YYYY-MM-DD
-        const dateAndTime = new Date(this.tempCoupon.due_date * 1000)
-          .toISOString().split('T');
-        [this.due_date] = dateAndTime;
-      }
-      this.$refs.couponModal.openModal();
-    },
-    openDelCouponModal(item) {
-      this.tempCoupon = { ...item };
-      this.$refs.delModal.openModal();
-    },
-    toggleCouponStatus(item) {
-      // 切換啟用狀態
-      const updatedItem = { ...item, is_enabled: !item.is_enabled };
-      this.updateCouponStatus(updatedItem);
-    },
-    updateCouponStatus(item) {
-      this.isLoading = true;
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon/${item.id}`;
-      const data = {
-        is_enabled: item.is_enabled,
-      };
-      this.axios.put(url, { data })
-        .then((res) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '更新成功',
-            content: res.data.message,
-            style: 'success',
-          });
-          this.getCoupons();
-        })
-        .catch((err) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '錯誤',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-        });
-    },
-    updateCoupon(tempCoupon) {
-      this.isLoading = true;
-      let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon`;
-      let httpMethods = 'post';
-      let data = { ...tempCoupon };
-
-      if (!this.isNew) {
-        url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon/${tempCoupon.id}`;
-        httpMethods = 'put';
-        data = this.tempCoupon;
-      }
-      this.axios[httpMethods](url, { data })
-        .then((res) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '新增優惠券',
-            content: res.data.message,
-            style: 'success',
-          });
-          this.getCoupons();
-          this.$refs.couponModal.closeModal();
-        })
-        .catch((err) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '錯誤',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-        });
-    },
-    deleteCoupon() {
-      this.isLoading = true;
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon/${this.tempCoupon.id}`;
-      this.axios.delete(url)
-        .then((res) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '刪除優惠券',
-            content: res.data.message,
-            style: 'success',
-          });
-          this.getCoupons();
-          this.$refs.delModal.closeModal();
-        })
-        .catch((err) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '錯誤',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-        });
-    },
-    clearFilters() {
-      this.searchQuery = '';
-      this.statusFilter = '';
-      this.expiryFilter = '';
-    },
-    formatDate(timestamp) {
-      const date = new Date(timestamp * 1000);
-      return date.toLocaleDateString('zh-TW');
-    },
-    isExpired(timestamp) {
-      const now = new Date();
-      const expiryDate = new Date(timestamp * 1000);
-      return expiryDate < now;
-    },
-    isExpiringSoon(timestamp) {
-      const now = new Date();
-      const expiryDate = new Date(timestamp * 1000);
-      const daysDiff = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
-      return daysDiff <= 7 && daysDiff > 0;
-    },
-    getExpiryStatusClass(timestamp) {
-      if (this.isExpired(timestamp)) {
-        return 'text-danger';
-      }
-      if (this.isExpiringSoon(timestamp)) {
-        return 'text-warning';
-      }
-      return 'text-success';
-    },
-    getExpiryStatusText(timestamp) {
-      const now = new Date();
-      const expiryDate = new Date(timestamp * 1000);
-      const daysDiff = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
-
-      if (daysDiff < 0) {
-        return `已過期 ${Math.abs(daysDiff)} 天`;
-      }
-      if (daysDiff === 0) {
-        return '今天到期';
-      }
-      if (daysDiff <= 7) {
-        return `${daysDiff} 天後到期`;
-      }
-      return '有效期限內';
-    },
-    getStatusBadgeClass(item) {
-      if (!item.is_enabled) {
-        return 'badge bg-secondary';
-      }
-      if (this.isExpired(item.due_date)) {
-        return 'badge bg-danger';
-      }
-      if (this.isExpiringSoon(item.due_date)) {
-        return 'badge bg-warning text-dark';
-      }
-      return 'badge bg-success';
-    },
-    getStatusIcon(item) {
-      if (!item.is_enabled) {
-        return 'fas fa-pause me-1';
-      }
-      if (this.isExpired(item.due_date)) {
-        return 'fas fa-times me-1';
-      }
-      if (this.isExpiringSoon(item.due_date)) {
-        return 'fas fa-exclamation-triangle me-1';
-      }
-      return 'fas fa-check me-1';
-    },
-    getStatusText(item) {
-      if (!item.is_enabled) {
-        return '已停用';
-      }
-      if (this.isExpired(item.due_date)) {
-        return '已過期';
-      }
-      if (this.isExpiringSoon(item.due_date)) {
-        return '即將到期';
-      }
-      return '啟用中';
-    },
-  },
-  mounted() {
-    this.getCoupons();
-  },
+// 工具方法（需要提前定義）
+const formatDate = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleDateString('zh-TW');
 };
+
+const isExpired = (timestamp) => {
+  const now = new Date();
+  const expiryDate = new Date(timestamp * 1000);
+  return expiryDate < now;
+};
+
+const isExpiringSoon = (timestamp) => {
+  const now = new Date();
+  const expiryDate = new Date(timestamp * 1000);
+  const daysDiff = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+  return daysDiff <= 7 && daysDiff > 0;
+};
+
+const getExpiryStatusClass = (timestamp) => {
+  if (isExpired(timestamp)) {
+    return 'text-danger';
+  }
+  if (isExpiringSoon(timestamp)) {
+    return 'text-warning';
+  }
+  return 'text-success';
+};
+
+const getExpiryStatusText = (timestamp) => {
+  const now = new Date();
+  const expiryDate = new Date(timestamp * 1000);
+  const daysDiff = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+
+  if (daysDiff < 0) {
+    return `已過期 ${Math.abs(daysDiff)} 天`;
+  }
+  if (daysDiff === 0) {
+    return '今天到期';
+  }
+  if (daysDiff <= 7) {
+    return `${daysDiff} 天後到期`;
+  }
+  return '有效期限內';
+};
+
+const getStatusBadgeClass = (item) => {
+  if (!item.is_enabled) {
+    return 'badge bg-secondary';
+  }
+  if (isExpired(item.due_date)) {
+    return 'badge bg-danger';
+  }
+  if (isExpiringSoon(item.due_date)) {
+    return 'badge bg-warning text-dark';
+  }
+  return 'badge bg-success';
+};
+
+const getStatusIcon = (item) => {
+  if (!item.is_enabled) {
+    return 'fas fa-pause me-1';
+  }
+  if (isExpired(item.due_date)) {
+    return 'fas fa-times me-1';
+  }
+  if (isExpiringSoon(item.due_date)) {
+    return 'fas fa-exclamation-triangle me-1';
+  }
+  return 'fas fa-check me-1';
+};
+
+const getStatusText = (item) => {
+  if (!item.is_enabled) {
+    return '已停用';
+  }
+  if (isExpired(item.due_date)) {
+    return '已過期';
+  }
+  if (isExpiringSoon(item.due_date)) {
+    return '即將到期';
+  }
+  return '啟用中';
+};
+
+// 計算屬性
+const couponsArray = computed(() => Object.values(coupons.value || {}));
+
+const filteredCoupons = computed(() => {
+  let filtered = couponsArray.value;
+
+  // 搜尋篩選
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter((coupon) => coupon.title.toLowerCase().includes(query)
+      || coupon.code.toLowerCase().includes(query));
+  }
+
+  // 啟用狀態篩選
+  if (statusFilter.value === 'enabled') {
+    filtered = filtered.filter((coupon) => coupon.is_enabled);
+  } else if (statusFilter.value === 'disabled') {
+    filtered = filtered.filter((coupon) => !coupon.is_enabled);
+  }
+
+  // 有效期限篩選
+  if (expiryFilter.value === 'valid') {
+    filtered = filtered.filter((coupon) => !isExpired(coupon.due_date));
+  } else if (expiryFilter.value === 'expiring') {
+    filtered = filtered.filter((coupon) => isExpiringSoon(coupon.due_date));
+  } else if (expiryFilter.value === 'expired') {
+    filtered = filtered.filter((coupon) => isExpired(coupon.due_date));
+  }
+
+  return filtered;
+});
+
+const couponStats = computed(() => {
+  const couponsArrayValue = couponsArray.value;
+  const total = couponsArrayValue.length;
+  const active = couponsArrayValue.filter((coupon) => coupon.is_enabled && !isExpired(coupon.due_date)).length;
+  const expiringSoon = couponsArrayValue.filter((coupon) => isExpiringSoon(coupon.due_date)).length;
+  const expired = couponsArrayValue.filter((coupon) => isExpired(coupon.due_date)).length;
+
+  return {
+    total,
+    active,
+    expiringSoon,
+    expired,
+  };
+});
+
+// 監聽器
+watch(dueDate, () => {
+  tempCoupon.value.due_date = Math.floor(new Date(dueDate.value) / 1000);
+});
+
+// 方法
+const getCoupons = () => {
+  isLoading.value = true;
+  axios.get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupons`)
+    .then((res) => {
+      coupons.value = res.data.coupons;
+      isLoading.value = false;
+    })
+    .catch((err) => {
+      isLoading.value = false;
+      toastStore.addMessage({
+        title: '錯誤',
+        content: err.response.data.message,
+        style: 'danger',
+      });
+    });
+};
+
+const openCouponModal = (isNewCoupon, item) => {
+  isNew.value = isNewCoupon;
+  if (isNew.value) {
+    tempCoupon.value = {
+      due_date: new Date().getTime() / 1000,
+    };
+  } else {
+    tempCoupon.value = { ...item };
+    // 將時間格式改為 YYYY-MM-DD
+    const dateAndTime = new Date(tempCoupon.value.due_date * 1000)
+      .toISOString().split('T');
+    [dueDate.value] = dateAndTime;
+  }
+  couponModal.value.openModal();
+};
+
+const openDelCouponModal = (item) => {
+  tempCoupon.value = { ...item };
+  delModal.value.openModal();
+};
+
+const updateCoupon = (tempCouponData) => {
+  isLoading.value = true;
+  let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon`;
+  let httpMethods = 'post';
+  let data = { ...tempCouponData };
+
+  if (!isNew.value) {
+    url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon/${tempCouponData.id}`;
+    httpMethods = 'put';
+    data = tempCoupon.value;
+  }
+  axios[httpMethods](url, { data })
+    .then((res) => {
+      isLoading.value = false;
+      toastStore.addMessage({
+        title: '新增優惠券',
+        content: res.data.message,
+        style: 'success',
+      });
+      getCoupons();
+      couponModal.value.closeModal();
+    })
+    .catch((err) => {
+      isLoading.value = false;
+      toastStore.addMessage({
+        title: '錯誤',
+        content: err.response.data.message,
+        style: 'danger',
+      });
+    });
+};
+
+const deleteCoupon = () => {
+  isLoading.value = true;
+  const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon/${tempCoupon.value.id}`;
+  axios.delete(url)
+    .then((res) => {
+      isLoading.value = false;
+      toastStore.addMessage({
+        title: '刪除優惠券',
+        content: res.data.message,
+        style: 'success',
+      });
+      getCoupons();
+      delModal.value.closeModal();
+    })
+    .catch((err) => {
+      isLoading.value = false;
+      toastStore.addMessage({
+        title: '錯誤',
+        content: err.response.data.message,
+        style: 'danger',
+      });
+    });
+};
+
+const clearFilters = () => {
+  searchQuery.value = '';
+  statusFilter.value = '';
+  expiryFilter.value = '';
+};
+
+// 生命週期
+onMounted(() => {
+  getCoupons();
+});
 </script>
 
 <style scoped>
