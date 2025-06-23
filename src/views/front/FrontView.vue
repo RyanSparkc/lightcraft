@@ -173,14 +173,7 @@
 }
 </style>
 
-<script>
-import ToastMessages from '../../components/ToastMessages.vue';
-import NavbarComponent from '../../components/NavbarComponent.vue';
-
-export default {
-  components: {
-    NavbarComponent,
-    ToastMessages,
-  },
-};
+<script setup>
+import NavbarComponent from '@/components/NavbarComponent.vue';
+import ToastMessages from '@/components/ToastMessages.vue';
 </script>

@@ -162,39 +162,37 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'NotFoundView',
-  data() {
-    return {
-      isLit: false,
-      isFlickering: false,
-    };
-  },
-  methods: {
-    lightUp() {
-      if (this.isLit) {
-        // 如果已經亮著，讓燈泡閃爍一下
-        this.isFlickering = true;
-        setTimeout(() => {
-          this.isFlickering = false;
-        }, 500);
-        return;
-      }
+<script setup>
+import { ref, onMounted } from 'vue';
 
-      // 點亮燈泡效果
-      this.isFlickering = true;
-      setTimeout(() => {
-        this.isFlickering = false;
-        this.isLit = true;
-      }, 300);
-    },
-  },
-  mounted() {
-    // 頁面標題
-    document.title = '404 - 頁面不存在 | LightCraft';
-  },
+// 響應式數據
+const isLit = ref(false);
+const isFlickering = ref(false);
+
+// 方法
+const lightUp = () => {
+  if (isLit.value) {
+    // 如果已經亮著，讓燈泡閃爍一下
+    isFlickering.value = true;
+    setTimeout(() => {
+      isFlickering.value = false;
+    }, 500);
+    return;
+  }
+
+  // 點亮燈泡效果
+  isFlickering.value = true;
+  setTimeout(() => {
+    isFlickering.value = false;
+    isLit.value = true;
+  }, 300);
 };
+
+// 生命週期
+onMounted(() => {
+  // 頁面標題
+  document.title = '404 - 頁面不存在 | LightCraft';
+});
 </script>
 
 <style lang="scss" scoped>
