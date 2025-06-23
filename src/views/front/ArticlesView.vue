@@ -47,13 +47,16 @@
                 </span>
                 <small class="text-muted">
                   <i class="fas fa-calendar me-1"></i>
-                  {{ $filters.date(article.create_at) }}
+                  {{ formatDate(article.create_at) }}
                 </small>
               </div>
 
               <h5 class="card-title mb-3">{{ article.title }}</h5>
 
-              <div class="article-description text-muted mb-3 flex-grow-1" v-html="article.description"></div>
+              <div
+                class="article-description text-muted mb-3 flex-grow-1"
+                v-html="article.description"
+              ></div>
 
               <div class="d-flex justify-content-between align-items-center">
                 <small class="text-muted">
@@ -61,7 +64,10 @@
                   {{ article.author || '編輯部' }}
                 </small>
                 <div class="article-actions">
-                  <button class="btn btn-sm btn-outline-secondary me-2" disabled>
+                  <button
+                    class="btn btn-sm btn-outline-secondary me-2"
+                    disabled
+                  >
                     <i class="fas fa-eye me-1"></i>
                     {{ Math.floor(Math.random() * 500) + 100 }}
                   </button>
@@ -88,8 +94,14 @@
     </div>
 
     <!-- 空狀態 -->
-    <div v-if="articles.filter(article => article.isPublic).length === 0" class="text-center py-5">
-      <i class="fas fa-lightbulb text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+    <div
+      v-if="articles.filter(article => article.isPublic).length === 0"
+      class="text-center py-5"
+    >
+      <i
+        class="fas fa-lightbulb text-muted"
+        style="font-size: 4rem; opacity: 0.3;"
+      ></i>
       <h3 class="text-muted mt-3">暫無文章</h3>
       <p class="text-muted">精彩內容即將推出，敬請期待！</p>
     </div>
@@ -100,7 +112,11 @@
         <nav aria-label="文章分頁">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{ disabled: !pagination.has_pre }">
-              <a class="page-link" href="#" @click.prevent="getArticles(pagination.current_page - 1)">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="getArticles(pagination.current_page - 1)"
+              >
                 <i class="fas fa-chevron-left"></i>
                 上一頁
               </a>
@@ -111,7 +127,11 @@
               </span>
             </li>
             <li class="page-item" :class="{ disabled: !pagination.has_next }">
-              <a class="page-link" href="#" @click.prevent="getArticles(pagination.current_page + 1)">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="getArticles(pagination.current_page + 1)"
+              >
                 下一頁
                 <i class="fas fa-chevron-right"></i>
               </a>
@@ -123,49 +143,48 @@
   </div>
 </template>
 
-<script>
-import { mapActions } from 'pinia';
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 import HeroSection from '@/components/HeroSection.vue';
+import { date as formatDate } from '@/methods/filters';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
-export default {
-  components: {
-    HeroSection,
-  },
-  data() {
-    return {
-      isLoading: false,
-      articles: [],
-      pagination: {},
-    };
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    getArticles(page = 1) {
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/articles?page=${page}`;
-      this.isLoading = true;
-      this.axios(url)
-        .then((res) => {
-          this.articles = res.data.articles;
-          this.pagination = res.data.pagination;
-          this.isLoading = false;
-        })
-        .catch((err) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '取得文章失敗',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-        });
-    },
-  },
-  mounted() {
-    this.getArticles();
-  },
+// Store
+const toastMessageStore = useToastMessageStore();
+const { addMessage } = toastMessageStore;
+
+// 響應式數據
+const isLoading = ref(false);
+const articles = ref([]);
+const pagination = ref({});
+
+// 方法
+const getArticles = (page = 1) => {
+  const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/articles?page=${page}`;
+  isLoading.value = true;
+  axios.get(url)
+    .then((res) => {
+      articles.value = res.data.articles;
+      pagination.value = res.data.pagination;
+      isLoading.value = false;
+    })
+    .catch((err) => {
+      isLoading.value = false;
+      addMessage({
+        title: '取得文章失敗',
+        content: err.response.data.message,
+        style: 'danger',
+      });
+    });
 };
+
+// 生命週期鉤子
+onMounted(() => {
+  getArticles();
+});
 </script>
 
 <style scoped>
