@@ -63,7 +63,7 @@
                   <button
                     type="button"
                     class="btn btn-primary"
-                    @click="$emit('add-to-cart', product.id, qty)"
+                    @click="emit('add-to-cart', product.id, qty)"
                   >
                     加入購物車
                   </button>
@@ -77,36 +77,50 @@
     </div>
   </div>
 </template>
-<script>
+
+<script setup>
+import { ref, onMounted, watch } from 'vue';
 import { Modal } from 'bootstrap';
 
-export default {
-  props: ['product'],
-  data() {
-    return {
-      status: {},
-      productModal: '',
-      qty: 1,
-    };
+const props = defineProps({
+  product: {
+    type: Object,
+    default: () => ({}),
   },
-  mounted() {
-    this.productModal = new Modal(this.$refs.modal, {
-      keyboard: false,
-      backdrop: 'static',
-    });
-  },
-  methods: {
-    openModal() {
-      this.productModal.show();
-    },
-    hideModal() {
-      this.productModal.hide();
-    },
-  },
-  watch: {
-    product() {
-      this.qty = 1;
-    },
-  },
+});
+
+const emit = defineEmits(['add-to-cart']);
+
+// Reactive data
+const productModal = ref(null);
+const qty = ref(1);
+const modal = ref(null);
+
+// Methods
+const openModal = () => {
+  productModal.value?.show();
 };
+
+const hideModal = () => {
+  productModal.value?.hide();
+};
+
+// Lifecycle
+onMounted(() => {
+  productModal.value = new Modal(modal.value, {
+    keyboard: false,
+    backdrop: 'static',
+  });
+});
+
+// Watch
+watch(() => props.product, () => {
+  qty.value = 1;
+});
+
+// Expose methods for parent component access
+defineExpose({
+  openModal,
+  hideModal,
+});
 </script>
