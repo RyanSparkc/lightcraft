@@ -337,8 +337,11 @@
   </div>
 </template>
 
-<script>
-import { mapActions } from 'pinia';
+<script setup>
+import {
+  ref, computed, watch, onMounted,
+} from 'vue';
+import { useRoute } from 'vue-router';
 
 // Import Swiper Vue.js components
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -356,177 +359,181 @@ import useToastMessageStore from '@/stores/toastMessage';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
-export default {
-  components: {
-    Swiper,
-    SwiperSlide,
-  },
-  data() {
-    return {
-      product: {},
-      quantity: 1,
-      modules: [Navigation, Pagination, Autoplay],
-      relatedProducts: [],
-      isProductLoading: true, // 新增載入狀態
-      imageLoadedCount: 0, // 追蹤圖片載入數量
-    };
-  },
-  computed: {
-    displayImages() {
-      const images = [];
+// 組合式函數
+const route = useRoute();
+const cartStore = useCartStore();
+const toastMessageStore = useToastMessageStore();
+const { addToCart } = cartStore;
+const { addMessage } = toastMessageStore;
 
-      // 如果有主要圖片，加入主要圖片
-      if (this.product.imageUrl) {
+// 響應式數據
+const product = ref({});
+const quantity = ref(1);
+const modules = ref([Navigation, Pagination, Autoplay]);
+const relatedProducts = ref([]);
+const isProductLoading = ref(true);
+const imageLoadedCount = ref(0);
+
+// 計算屬性
+const displayImages = computed(() => {
+  const images = [];
+
+  // 如果有主要圖片，加入主要圖片
+  if (product.value.imageUrl) {
+    images.push({
+      url: product.value.imageUrl,
+      alt: `${product.value.title || '產品'} - 主圖`,
+    });
+  }
+
+  // 如果有多張圖片，加入多張圖片
+  if (product.value.imagesUrl && Array.isArray(product.value.imagesUrl)) {
+    product.value.imagesUrl.forEach((imageUrl, index) => {
+      if (imageUrl && imageUrl.trim() !== '') {
         images.push({
-          url: this.product.imageUrl,
-          alt: `${this.product.title || '產品'} - 主圖`,
+          url: imageUrl,
+          alt: `${product.value.title || '產品'} - 圖片 ${index + 2}`,
         });
       }
+    });
+  }
 
-      // 如果有多張圖片，加入多張圖片
-      if (this.product.imagesUrl && Array.isArray(this.product.imagesUrl)) {
-        this.product.imagesUrl.forEach((imageUrl, index) => {
-          if (imageUrl && imageUrl.trim() !== '') {
-            images.push({
-              url: imageUrl,
-              alt: `${this.product.title || '產品'} - 圖片 ${index + 2}`,
-            });
-          }
-        });
-      }
+  // 🎯 移除預設圖片邏輯，如果沒有圖片就返回空陣列
+  // 由骨架屏和空狀態來處理無圖片的情況
+  return images;
+});
 
-      // 🎯 移除預設圖片邏輯，如果沒有圖片就返回空陣列
-      // 由骨架屏和空狀態來處理無圖片的情況
-      return images;
-    },
-    // 產品規格資料處理（含預設值）
-    productSpecs() {
-      // 預設規格資料
-      const defaultSpecs = {
-        size: '30 x 20 x 15 cm',
-        weight: '2.5 kg',
-        material: '環保 ABS 塑料',
-        color: '黑色、白色、銀色',
-        origin: '台灣製造',
-      };
+// 產品規格資料處理（含預設值）
+const productSpecs = computed(() => {
+  // 預設規格資料
+  const defaultSpecs = {
+    size: '30 x 20 x 15 cm',
+    weight: '2.5 kg',
+    material: '環保 ABS 塑料',
+    color: '黑色、白色、銀色',
+    origin: '台灣製造',
+  };
 
-      // 如果產品有規格資料，使用 API 資料，否則使用預設值
-      if (this.product.specifications) {
-        return {
-          size: this.product.specifications.size || defaultSpecs.size,
-          weight: this.product.specifications.weight || defaultSpecs.weight,
-          material: this.product.specifications.material || defaultSpecs.material,
-          color: this.product.specifications.color || defaultSpecs.color,
-          origin: this.product.specifications.origin || defaultSpecs.origin,
-        };
-      }
+  // 如果產品有規格資料，使用 API 資料，否則使用預設值
+  if (product.value.specifications) {
+    return {
+      size: product.value.specifications.size || defaultSpecs.size,
+      weight: product.value.specifications.weight || defaultSpecs.weight,
+      material: product.value.specifications.material || defaultSpecs.material,
+      color: product.value.specifications.color || defaultSpecs.color,
+      origin: product.value.specifications.origin || defaultSpecs.origin,
+    };
+  }
 
-      // 如果沒有規格資料，直接返回預設值
-      return defaultSpecs;
-    },
-  },
-  methods: {
-    ...mapActions(useCartStore, ['addToCart']),
-    ...mapActions(useToastMessageStore, ['addMessage']),
+  // 如果沒有規格資料，直接返回預設值
+  return defaultSpecs;
+});
 
-    getProduct() {
-      const { id } = this.$route.params;
-      this.isProductLoading = true; // 開始載入
-      this.imageLoadedCount = 0; // 重置圖片載入計數
-
-      fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          this.product = data.product;
-          // 當產品資料載入完成，檢查是否需要繼續等待圖片載入
-          this.checkLoadingComplete();
-          this.getRelatedProducts();
-        })
-        .catch((err) => {
-          this.isProductLoading = false;
-          this.addMessage({
-            title: '載入失敗',
-            content: `載入產品失敗：${err.message || '未知錯誤'}`,
-            style: 'danger',
-          });
-        });
-    },
-
-    checkLoadingComplete() {
-      // 當產品資料載入完成時
-      if (this.product.id) {
-        // 如果沒有圖片，直接完成載入
-        if (this.displayImages.length === 0) {
-          setTimeout(() => {
-            this.isProductLoading = false;
-          }, 600); // 稍微延遲以提供更好的視覺體驗
-        // 如果有圖片，給一個合理的載入時間，然後直接完成載入
-        // 不依賴圖片載入事件，因為 Swiper 可能延遲觸發載入事件
-        } else {
-          setTimeout(() => {
-            this.isProductLoading = false;
-          }, 800); // 給圖片一些載入時間，但不無限等待
-        }
-      }
-    },
-    getRelatedProducts() {
-      if (!this.product.category) return;
-
-      fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${this.product.category}`)
-        .then((res) => res.json())
-        .then((data) => {
-          // 過濾掉當前產品，只顯示其他同分類產品，最多顯示4個
-          this.relatedProducts = data.products
-            .filter((product) => product.id !== this.product.id)
-            .slice(0, 4);
-        })
-        .catch((err) => {
-          this.addMessage({
-            title: '載入推薦商品失敗',
-            content: `無法載入推薦商品：${err.message || '未知錯誤'}`,
-            style: 'warning',
-          });
-          this.relatedProducts = [];
-        });
-    },
-    increaseQuantity() {
-      if (this.quantity < 20) {
-        this.quantity += 1;
-      }
-    },
-    decreaseQuantity() {
-      if (this.quantity > 1) {
-        this.quantity -= 1;
-      }
-    },
-    validateQuantity() {
-      if (this.quantity < 1) {
-        this.quantity = 1;
-      } else if (this.quantity > 20) {
-        this.quantity = 20;
-      }
-    },
-    addToCartHandler() {
-      if (this.product.id && this.quantity >= 1) {
-        this.addToCart(this.product.id, this.quantity);
-      }
-    },
-  },
-  mounted() {
-    this.getProduct();
-  },
-  watch: {
-    '$route.params.id': {
-      handler() {
-        this.quantity = 1;
-        this.relatedProducts = [];
-        this.isProductLoading = true;
-        this.imageLoadedCount = 0;
-        this.getProduct();
-      },
-    },
-  },
+// 方法
+const checkLoadingComplete = () => {
+  // 當產品資料載入完成時
+  if (product.value.id) {
+    // 如果沒有圖片，直接完成載入
+    if (displayImages.value.length === 0) {
+      setTimeout(() => {
+        isProductLoading.value = false;
+      }, 600); // 稍微延遲以提供更好的視覺體驗
+    // 如果有圖片，給一個合理的載入時間，然後直接完成載入
+    // 不依賴圖片載入事件，因為 Swiper 可能延遲觸發載入事件
+    } else {
+      setTimeout(() => {
+        isProductLoading.value = false;
+      }, 800); // 給圖片一些載入時間，但不無限等待
+    }
+  }
 };
+
+const getRelatedProducts = () => {
+  if (!product.value.category) return;
+
+  fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${product.value.category}`)
+    .then((res) => res.json())
+    .then((data) => {
+      // 過濾掉當前產品，只顯示其他同分類產品，最多顯示4個
+      relatedProducts.value = data.products
+        .filter((prod) => prod.id !== product.value.id)
+        .slice(0, 4);
+    })
+    .catch((err) => {
+      addMessage({
+        title: '載入推薦商品失敗',
+        content: `無法載入推薦商品：${err.message || '未知錯誤'}`,
+        style: 'warning',
+      });
+      relatedProducts.value = [];
+    });
+};
+
+const getProduct = () => {
+  const { id } = route.params;
+  isProductLoading.value = true; // 開始載入
+  imageLoadedCount.value = 0; // 重置圖片載入計數
+
+  fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      product.value = data.product;
+      // 當產品資料載入完成，檢查是否需要繼續等待圖片載入
+      checkLoadingComplete();
+      getRelatedProducts();
+    })
+    .catch((err) => {
+      isProductLoading.value = false;
+      addMessage({
+        title: '載入失敗',
+        content: `載入產品失敗：${err.message || '未知錯誤'}`,
+        style: 'danger',
+      });
+    });
+};
+
+const increaseQuantity = () => {
+  if (quantity.value < 20) {
+    quantity.value += 1;
+  }
+};
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value -= 1;
+  }
+};
+
+const validateQuantity = () => {
+  if (quantity.value < 1) {
+    quantity.value = 1;
+  } else if (quantity.value > 20) {
+    quantity.value = 20;
+  }
+};
+
+const addToCartHandler = () => {
+  if (product.value.id && quantity.value >= 1) {
+    addToCart(product.value.id, quantity.value);
+  }
+};
+
+// 生命週期鉤子
+onMounted(() => {
+  getProduct();
+});
+
+// 監聽器
+watch(
+  () => route.params.id,
+  () => {
+    quantity.value = 1;
+    relatedProducts.value = [];
+    isProductLoading.value = true;
+    imageLoadedCount.value = 0;
+    getProduct();
+  },
+);
 </script>
 
 <style scoped>
