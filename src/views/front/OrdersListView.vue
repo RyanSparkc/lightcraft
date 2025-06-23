@@ -278,151 +278,146 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import PaginationComponent from '@/components/PaginationComponent.vue';
 import HeroSection from '@/components/HeroSection.vue';
 
-export default {
-  name: 'OrdersListView',
-  components: {
-    PaginationComponent,
-    HeroSection,
-  },
-  data() {
-    return {
-      orders: [],
-      pagination: {
-        total_pages: 1,
-        current_page: 1,
-        has_pre: false,
-        has_next: false,
-      },
-      isLoading: false,
-      error: null,
-    };
-  },
-  computed: {
-    statistics() {
-      const totalOrders = this.orders.length;
-      const pendingOrders = this.orders.filter((order) => !order.is_paid).length;
-      const completedOrders = this.orders.filter((order) => order.is_paid).length;
-      const totalAmount = this.orders.reduce((sum, order) => {
-        const orderTotal = this.getOrderTotalNumber(order);
-        return sum + orderTotal;
-      }, 0);
+// 響應式數據
+const orders = ref([]);
+const pagination = ref({
+  total_pages: 1,
+  current_page: 1,
+  has_pre: false,
+  has_next: false,
+});
+const isLoading = ref(false);
+const error = ref(null);
 
-      return {
-        totalOrders,
-        pendingOrders,
-        completedOrders,
-        totalAmount: Math.round(totalAmount).toLocaleString(),
-      };
-    },
-  },
-  methods: {
-    async fetchOrders(page = 1) {
-      try {
-        this.isLoading = true;
-        this.error = null;
+// 方法定義
+const getOrderTotalNumber = (order) => {
+  // 根據使用者反饋，後端 API 在有優惠券時，會將 `order.total` 誤存為「折扣金額」。
+  // 此為前端的修正邏輯，以確保顯示正確的訂單總額。
 
-        const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
-        const response = await axios.get(
-          `${VITE_APP_URL}/api/${VITE_APP_PATH}/orders?page=${page}`,
-        );
+  // 如果沒有 products 資訊，無法重新計算，回傳原始 total
+  if (!order.products) {
+    return Number(order.total || 0);
+  }
 
-        if (response.data.success) {
-          this.orders = response.data.orders;
-          this.pagination = response.data.pagination;
-        } else {
-          throw new Error('獲取訂單列表失敗');
-        }
-      } catch (error) {
-        this.error = error.response?.data?.message
-          || error.message
-          || '獲取訂單列表失敗';
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    changePage(page) {
-      if (page >= 1 && page <= this.pagination.total_pages) {
-        this.fetchOrders(page);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    },
-    formatDate(timestamp) {
-      if (!timestamp) return '';
-      const date = new Date(timestamp * 1000);
-      return date.toLocaleDateString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    },
-    getProductCount(order) {
-      if (!order.products) return 0;
+  // 將 products 正規化為陣列
+  const productItems = Array.isArray(order.products)
+    ? order.products
+    : Object.values(order.products);
 
-      if (Array.isArray(order.products)) {
-        return order.products.length;
-      }
+  // 檢查訂單中是否有任何商品使用了 coupon
+  const couponApplied = productItems.some((item) => item.coupon);
 
-      if (typeof order.products === 'object') {
-        return Object.keys(order.products).length;
-      }
+  if (couponApplied) {
+    // 如果有使用優惠券，則重新計算正確總額
+    // 1. 計算折扣前的商品總計 (subtotal)
+    const subtotal = productItems.reduce(
+      (sum, item) => sum + Number(item.total || 0),
+      0,
+    );
+    // 2. `order.total` 此時是折扣金額
+    const discountAmount = Number(order.total || 0);
+    // 3. 正確的最終金額 = 商品總計 - 折扣金額
+    return subtotal - discountAmount;
+  }
 
-      return 0;
-    },
-    calculateOrderTotal(order) {
-      const total = this.getOrderTotalNumber(order);
-      return Math.round(total).toLocaleString();
-    },
-    getOrderTotalNumber(order) {
-      // 根據使用者反饋，後端 API 在有優惠券時，會將 `order.total` 誤存為「折扣金額」。
-      // 此為前端的修正邏輯，以確保顯示正確的訂單總額。
-
-      // 如果沒有 products 資訊，無法重新計算，回傳原始 total
-      if (!order.products) {
-        return Number(order.total || 0);
-      }
-
-      // 將 products 正規化為陣列
-      const productItems = Array.isArray(order.products)
-        ? order.products
-        : Object.values(order.products);
-
-      // 檢查訂單中是否有任何商品使用了 coupon
-      const couponApplied = productItems.some((item) => item.coupon);
-
-      if (couponApplied) {
-        // 如果有使用優惠券，則重新計算正確總額
-        // 1. 計算折扣前的商品總計 (subtotal)
-        const subtotal = productItems.reduce(
-          (sum, item) => sum + Number(item.total || 0),
-          0,
-        );
-        // 2. `order.total` 此時是折扣金額
-        const discountAmount = Number(order.total || 0);
-        // 3. 正確的最終金額 = 商品總計 - 折扣金額
-        return subtotal - discountAmount;
-      }
-
-      // 如果沒有使用優惠券，API 的 `order.total` 是正確的
-      return Number(order.total || 0);
-    },
-    getStatusClass(order) {
-      return order.is_paid ? 'completed' : 'pending';
-    },
-    getStatusText(order) {
-      return order.is_paid ? '已完成' : '處理中';
-    },
-  },
-  mounted() {
-    this.fetchOrders();
-  },
+  // 如果沒有使用優惠券，API 的 `order.total` 是正確的
+  return Number(order.total || 0);
 };
+
+// 計算屬性
+const statistics = computed(() => {
+  const totalOrders = orders.value.length;
+  const pendingOrders = orders.value.filter((order) => !order.is_paid).length;
+  const completedOrders = orders.value.filter((order) => order.is_paid).length;
+  const totalAmount = orders.value.reduce((sum, order) => {
+    const orderTotal = getOrderTotalNumber(order);
+    return sum + orderTotal;
+  }, 0);
+
+  return {
+    totalOrders,
+    pendingOrders,
+    completedOrders,
+    totalAmount: Math.round(totalAmount).toLocaleString(),
+  };
+});
+const fetchOrders = async (page = 1) => {
+  try {
+    isLoading.value = true;
+    error.value = null;
+
+    const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
+    const response = await axios.get(
+      `${VITE_APP_URL}/api/${VITE_APP_PATH}/orders?page=${page}`,
+    );
+
+    if (response.data.success) {
+      orders.value = response.data.orders;
+      pagination.value = response.data.pagination;
+    } else {
+      throw new Error('獲取訂單列表失敗');
+    }
+  } catch (err) {
+    error.value = err.response?.data?.message
+      || err.message
+      || '獲取訂單列表失敗';
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const changePage = (page) => {
+  if (page >= 1 && page <= pagination.value.total_pages) {
+    fetchOrders(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+const formatDate = (timestamp) => {
+  if (!timestamp) return '';
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleDateString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const getProductCount = (order) => {
+  if (!order.products) return 0;
+
+  if (Array.isArray(order.products)) {
+    return order.products.length;
+  }
+
+  if (typeof order.products === 'object') {
+    return Object.keys(order.products).length;
+  }
+
+  return 0;
+};
+
+const calculateOrderTotal = (order) => {
+  const total = getOrderTotalNumber(order);
+  return Math.round(total).toLocaleString();
+};
+
+const getStatusClass = (order) => (order.is_paid ? 'completed' : 'pending');
+
+const getStatusText = (order) => (order.is_paid ? '已完成' : '處理中');
+
+// 生命週期
+onMounted(() => {
+  fetchOrders();
+});
 </script>
 
 <style scoped>
