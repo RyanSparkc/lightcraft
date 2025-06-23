@@ -561,61 +561,57 @@
   </section>
 </template>
 
-<script>
-import bannerImage from '@/assets/images/banner.jpg';
+<script setup>
+import { ref, onMounted } from 'vue';
 import person1 from '@/assets/images/person1.jpg';
 import person2 from '@/assets/images/person2.jpg';
 import person3 from '@/assets/images/person3.jpg';
 
-export default {
-  name: 'HomeView',
-  data() {
-    return {
-      isLoading: false,
-      bannerImage,
-      person1,
-      person2,
-      person3,
-    };
-  },
+// 響應式數據
+const isLoading = ref(false);
 
-  methods: {
-    scrollToProducts() {
-      const element = document.getElementById('products');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    },
-  },
-  mounted() {
-    // 模擬頁面載入
-    this.isLoading = true;
-    // Add scroll animations
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px',
-    };
+// 靜態圖片資源 (在 script setup 中導入後自動可用於 template)
+// person1, person2, person3 會自動可用於 template
+// bannerImage 在 CSS 中直接使用 URL 路徑，不需要導入
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // eslint-disable-next-line no-param-reassign
-          entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
-        }
-      });
-    }, observerOptions);
-
-    // Observe all sections for animations
-    document.querySelectorAll('.category-card, .feature-item, .product-card').forEach((el) => {
-      observer.observe(el);
-    });
-
-    // 模擬載入完成
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 800);
-  },
+// 方法定義
+const scrollToProducts = () => {
+  const element = document.getElementById('products');
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
 };
+
+// 生命週期
+onMounted(() => {
+  // 模擬頁面載入
+  isLoading.value = true;
+
+  // Add scroll animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px',
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // eslint-disable-next-line no-param-reassign
+        entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+      }
+    });
+  }, observerOptions);
+
+  // Observe all sections for animations
+  document.querySelectorAll('.category-card, .feature-item, .product-card').forEach((el) => {
+    observer.observe(el);
+  });
+
+  // 模擬載入完成
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 800);
+});
 </script>
 
 <style scoped>
