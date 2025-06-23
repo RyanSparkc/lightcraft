@@ -433,18 +433,24 @@ const getCoupons = () => {
 };
 
 const openCouponModal = (isNewCoupon, item) => {
+  console.log('開啟優惠券 Modal:', { isNewCoupon, item }); // 除錯用
+
   isNew.value = isNewCoupon;
   if (isNew.value) {
+    // 新增模式：設定預設值
     tempCoupon.value = {
-      due_date: new Date().getTime() / 1000,
+      title: '',
+      code: '',
+      percent: 0,
+      is_enabled: 1,
+      due_date: Math.floor(new Date().getTime() / 1000),
     };
   } else {
+    // 編輯模式：複製現有資料
     tempCoupon.value = { ...item };
-    // 將時間格式改為 YYYY-MM-DD
-    const dateAndTime = new Date(tempCoupon.value.due_date * 1000)
-      .toISOString().split('T');
-    [dueDate.value] = dateAndTime;
   }
+
+  console.log('設定的 tempCoupon:', tempCoupon.value); // 除錯用
   couponModal.value.openModal();
 };
 
@@ -454,6 +460,8 @@ const openDelCouponModal = (item) => {
 };
 
 const updateCoupon = (tempCouponData) => {
+  console.log('收到的優惠券資料:', tempCouponData); // 除錯用
+
   isLoading.value = true;
   let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon`;
   let httpMethods = 'post';
@@ -462,13 +470,16 @@ const updateCoupon = (tempCouponData) => {
   if (!isNew.value) {
     url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon/${tempCouponData.id}`;
     httpMethods = 'put';
-    data = tempCoupon.value;
+    data = { ...tempCouponData }; // 修正：使用傳入的資料而不是父組件的 tempCoupon
   }
+
+  console.log('API 請求:', { url, httpMethods, data }); // 除錯用
+
   axios[httpMethods](url, { data })
     .then((res) => {
       isLoading.value = false;
       toastStore.addMessage({
-        title: '新增優惠券',
+        title: isNew.value ? '新增優惠券' : '更新優惠券', // 修正：根據模式顯示正確標題
         content: res.data.message,
         style: 'success',
       });
@@ -479,9 +490,10 @@ const updateCoupon = (tempCouponData) => {
       isLoading.value = false;
       toastStore.addMessage({
         title: '錯誤',
-        content: err.response.data.message,
+        content: err.response?.data?.message || '操作失敗',
         style: 'danger',
       });
+      console.error('API 錯誤:', err); // 除錯用
     });
 };
 

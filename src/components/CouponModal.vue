@@ -49,7 +49,7 @@
                 type="date"
                 class="form-control"
                 id="coupon-date"
-                v-model="due_date"
+                v-model="dueDate"
               />
             </div>
             <div class="mb-3">
@@ -93,7 +93,7 @@
           <button
             type="button"
             class="btn btn-primary"
-            @click="$emit('update-coupon', tempCoupon)"
+            @click="handleUpdateCoupon"
           >
             {{ isNew ? '新增優惠券' : '更新優惠券' }}
           </button>
@@ -102,31 +102,113 @@
     </div>
   </div>
 </template>
-<script>
-import modalMixin from '@/mixins/modalMixin';
 
-export default {
-  props: {
-    coupon: Object,
-    isNew: Boolean,
+<script setup>
+import { ref, watch, onMounted } from 'vue';
+import { Modal } from 'bootstrap';
+
+// Props 定義
+const props = defineProps({
+  coupon: {
+    type: Object,
+    default: () => ({}),
   },
-  data() {
-    return {
-      tempCoupon: {},
-      due_date: '',
-    };
+  isNew: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['update-coupon'],
-  watch: {
-    due_date() {
-      this.tempCoupon.due_date = Math.floor(new Date(this.due_date) / 1000);
-    },
-    coupon() {
-      this.tempCoupon = this.coupon;
-      const dateAndTime = new Date(this.tempCoupon.due_date * 1000).toISOString().split('T');
-      [this.due_date] = dateAndTime;
-    },
-  },
-  mixins: [modalMixin],
+});
+
+// Emits 定義
+const emit = defineEmits(['update-coupon']);
+
+// 響應式數據
+const tempCoupon = ref({});
+const dueDate = ref('');
+
+// 模板引用
+const modal = ref(null);
+
+// Modal 實例
+let modalInstance = null;
+
+// Modal 方法（來自 modalMixin）
+const openModal = () => {
+  if (modalInstance) {
+    modalInstance.show();
+  }
 };
+
+const closeModal = () => {
+  if (modalInstance) {
+    modalInstance.hide();
+  }
+};
+
+// 處理更新優惠券
+const handleUpdateCoupon = () => {
+  console.log('準備發送的優惠券資料:', tempCoupon.value); // 除錯用
+
+  // 確保資料完整性
+  if (!tempCoupon.value || Object.keys(tempCoupon.value).length === 0) {
+    console.warn('tempCoupon 沒有完整的資料');
+    return;
+  }
+
+  // 確保 due_date 存在
+  if (!tempCoupon.value.due_date && dueDate.value) {
+    tempCoupon.value.due_date = Math.floor(new Date(dueDate.value) / 1000);
+  }
+
+  emit('update-coupon', tempCoupon.value);
+};
+
+// 監聽器
+watch(dueDate, (newDate) => {
+  if (newDate) {
+    tempCoupon.value.due_date = Math.floor(new Date(newDate) / 1000);
+  }
+});
+
+watch(() => props.coupon, (newCoupon) => {
+  if (newCoupon && Object.keys(newCoupon).length > 0) {
+    tempCoupon.value = { ...newCoupon };
+
+    // 安全的日期轉換
+    if (newCoupon.due_date && !Number.isNaN(newCoupon.due_date)) {
+      try {
+        const date = new Date(newCoupon.due_date * 1000);
+        if (date instanceof Date && !Number.isNaN(date.getTime())) {
+          const dateAndTime = date.toISOString().split('T');
+          [dueDate.value] = dateAndTime;
+        } else {
+          // 如果日期無效，設置為今天
+          [dueDate.value] = new Date().toISOString().split('T');
+        }
+      } catch (error) {
+        console.warn('日期轉換錯誤:', error);
+        [dueDate.value] = new Date().toISOString().split('T');
+      }
+    } else {
+      // 如果沒有 due_date，設置為今天
+      [dueDate.value] = new Date().toISOString().split('T');
+    }
+  }
+}, { immediate: true });
+
+// 生命週期
+onMounted(() => {
+  if (modal.value) {
+    modalInstance = new Modal(modal.value, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+});
+
+// 暴露方法供父組件使用
+defineExpose({
+  openModal,
+  closeModal,
+});
 </script>
