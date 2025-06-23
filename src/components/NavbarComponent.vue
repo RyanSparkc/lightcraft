@@ -22,7 +22,11 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent" ref="navbarCollapse">
+      <div
+        class="collapse navbar-collapse"
+        id="navbarSupportedContent"
+        ref="navbarCollapse"
+      >
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" @click="closeNavbar">
           <li class="nav-item">
             <RouterLink class="nav-link" to="/about">關於我們</RouterLink>
@@ -58,32 +62,94 @@
   </nav>
 </template>
 
-<script>
-import { mapActions, mapState } from 'pinia';
-import * as bootstrap from 'bootstrap';
+<script setup>
+import { ref, onMounted, nextTick } from 'vue';
+import { storeToRefs } from 'pinia';
 
 import useCartStore from '@/stores/cartStore';
 
-export default {
-  computed: {
-    ...mapState(useCartStore, ['carts']),
-  },
-  methods: {
-    ...mapActions(useCartStore, ['getCart']),
-    closeNavbar() {
-      const collapseElement = this.$refs.navbarCollapse;
-      if (collapseElement.classList.contains('show')) {
-        const bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
-        if (bsCollapse) {
-          bsCollapse.hide();
+// Store 設定
+const cartStore = useCartStore();
+const { carts } = storeToRefs(cartStore);
+const { getCart } = cartStore;
+
+// 模板引用
+const navbarCollapse = ref(null);
+
+// 導航欄初始化狀態
+const navbarInitialized = ref(false);
+
+// DOM 操作方法
+const initNavbar = () => {
+  // 防止重複初始化
+  if (navbarInitialized.value) {
+    return;
+  }
+
+  const navbarToggler = document.querySelector('.navbar-toggler');
+  const navbarCollapseElement = document.getElementById('navbarSupportedContent');
+
+  if (navbarToggler && navbarCollapseElement) {
+    // 移除Bootstrap data屬性，完全接管控制
+    navbarToggler.removeAttribute('data-bs-toggle');
+    navbarToggler.removeAttribute('data-bs-target');
+
+    // 添加自定義點擊處理
+    navbarToggler.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // 切換選單顯示狀態
+      if (navbarCollapseElement.classList.contains('show')) {
+        navbarCollapseElement.classList.remove('show');
+        navbarToggler.setAttribute('aria-expanded', 'false');
+        navbarToggler.classList.remove('collapsed');
+      } else {
+        navbarCollapseElement.classList.add('show');
+        navbarToggler.setAttribute('aria-expanded', 'true');
+        navbarToggler.classList.add('collapsed');
+      }
+    };
+
+    // 點擊其他地方關閉選單
+    document.addEventListener('click', (event) => {
+      if (!navbarToggler.contains(event.target) && !navbarCollapseElement.contains(event.target)) {
+        if (navbarCollapseElement.classList.contains('show')) {
+          navbarCollapseElement.classList.remove('show');
+          navbarToggler.setAttribute('aria-expanded', 'false');
+          navbarToggler.classList.remove('collapsed');
         }
       }
-    },
-  },
-  mounted() {
-    this.getCart();
-  },
+    });
+
+    navbarInitialized.value = true;
+  }
 };
+
+// 方法
+const closeNavbar = () => {
+  // 關閉導覽列
+  const navbarCollapseElement = document.getElementById('navbarSupportedContent');
+  const navbarToggler = document.querySelector('.navbar-toggler');
+
+  if (navbarCollapseElement && navbarCollapseElement.classList.contains('show')) {
+    navbarCollapseElement.classList.remove('show');
+    if (navbarToggler) {
+      navbarToggler.setAttribute('aria-expanded', 'false');
+      navbarToggler.classList.remove('collapsed');
+    }
+  }
+};
+
+// 生命週期
+onMounted(() => {
+  getCart();
+
+  // 初始化導覽列
+  nextTick(() => {
+    initNavbar();
+  });
+});
 </script>
 
 <style scoped>
@@ -96,5 +162,4 @@ export default {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 </style>
