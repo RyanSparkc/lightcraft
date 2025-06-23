@@ -21,7 +21,7 @@
             :class="`bg-${msg.style}`"
             class="d-inline-block p-2 rounded-circle me-2"
           ></span>
-          <strong class="me-auto">{{msg.title}}</strong>
+          <strong class="me-auto">{{ msg.title }}</strong>
           <button
             type="button"
             class="btn-close"
@@ -31,25 +31,21 @@
           ></button>
         </div>
         <div class="toast-body" v-if="msg.content">
-          {{msg.content}}
+          {{ msg.content }}
         </div>
       </div>
     </transition-group>
   </div>
 </template>
 
-<script>
-import { mapState, mapActions } from 'pinia';
+<script setup>
 import useToastMessageStore from '@/stores/toastMessage';
 
-export default {
-  computed: {
-    ...mapState(useToastMessageStore, ['messages']),
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['removeMessage']),
-  },
-};
+// 獲取 Toast Message Store
+const toastStore = useToastMessageStore();
+
+// 解構 store 中的狀態和方法
+const { messages, removeMessage } = toastStore;
 </script>
 
 <style>
