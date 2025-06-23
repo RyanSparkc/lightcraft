@@ -47,7 +47,7 @@
             </div>
             <div class="me-4 mb-2">
               <i class="fas fa-calendar me-2 text-warning"></i>
-              <span>{{ $filters.date(article.create_at) }}</span>
+              <span>{{ formatDate(article.create_at) }}</span>
             </div>
             <div class="me-4 mb-2">
               <i class="fas fa-eye me-2 text-warning"></i>
@@ -220,45 +220,51 @@
   </div>
 </template>
 
-<script>
-import { mapActions } from 'pinia';
+<script setup>
+import { ref, onMounted, getCurrentInstance } from 'vue';
+import { useRoute } from 'vue-router';
 import useToastMessageStore from '@/stores/toastMessage';
+import { date as formatDate } from '@/methods/filters';
 
+// 環境變數
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
-export default {
-  data() {
-    return {
-      isLoading: false,
-      article: {},
-      id: '',
-    };
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    getArticle() {
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/article/${this.id}`;
-      this.isLoading = true;
-      this.axios.get(url)
-        .then((res) => {
-          this.article = res.data.article;
-          this.isLoading = false;
-        })
-        .catch((err) => {
-          this.isLoading = false;
-          this.addMessage({
-            title: '取得文章失敗',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-        });
-    },
-  },
-  mounted() {
-    this.id = this.$route.params.id;
-    this.getArticle();
-  },
+// 路由和 store
+const route = useRoute();
+const toastStore = useToastMessageStore();
+const instance = getCurrentInstance();
+
+// 響應式數據
+const isLoading = ref(false);
+const article = ref({});
+const id = ref('');
+
+// 方法
+const getArticle = () => {
+  const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/article/${id.value}`;
+  isLoading.value = true;
+
+  // 使用全域註冊的 axios
+  instance.proxy.axios.get(url)
+    .then((res) => {
+      article.value = res.data.article;
+      isLoading.value = false;
+    })
+    .catch((err) => {
+      isLoading.value = false;
+      toastStore.addMessage({
+        title: '取得文章失敗',
+        content: err.response?.data?.message || '載入文章時發生錯誤',
+        style: 'danger',
+      });
+    });
 };
+
+// 生命週期
+onMounted(() => {
+  id.value = route.params.id;
+  getArticle();
+});
 </script>
 
 <style scoped>
