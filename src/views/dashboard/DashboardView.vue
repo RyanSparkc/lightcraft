@@ -77,136 +77,132 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
-
-import { mapActions } from 'pinia';
 import useToastMessageStore from '@/stores/toastMessage';
+
 import ToastMessages from '@/components/ToastMessages.vue';
 
 const { VITE_APP_URL } = import.meta.env;
 
-export default {
-  data() {
-    return {
-      // 產品資料格式
-      products: [],
-      tempProduct: {
-        imagesUrl: [],
-      },
-      success: false,
-      navbarInitialized: false,
-    };
-  },
-  components: {
-    ToastMessages,
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    initNavbar() {
-      // 防止重複初始化
-      if (this.navbarInitialized) {
-        return;
-      }
+// 路由和 Store
+const router = useRouter();
+const toastStore = useToastMessageStore();
 
-      const navbarToggler = document.querySelector('.navbar-toggler');
-      const navbarCollapse = document.getElementById('navbarSupportedContent');
+// 響應式數據
+const success = ref(false);
+const navbarInitialized = ref(false);
 
-      if (navbarToggler && navbarCollapse) {
-        // 移除Bootstrap data屬性，完全接管控制
-        navbarToggler.removeAttribute('data-bs-toggle');
-        navbarToggler.removeAttribute('data-bs-target');
+// DOM 操作方法
+const initNavbar = () => {
+  // 防止重複初始化
+  if (navbarInitialized.value) {
+    return;
+  }
 
-        // 添加自定義點擊處理
-        navbarToggler.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
+  const navbarToggler = document.querySelector('.navbar-toggler');
+  const navbarCollapse = document.getElementById('navbarSupportedContent');
 
-          // 切換選單顯示狀態
-          if (navbarCollapse.classList.contains('show')) {
-            navbarCollapse.classList.remove('show');
-            navbarToggler.setAttribute('aria-expanded', 'false');
-            navbarToggler.classList.remove('collapsed');
-          } else {
-            navbarCollapse.classList.add('show');
-            navbarToggler.setAttribute('aria-expanded', 'true');
-            navbarToggler.classList.add('collapsed');
-          }
-        };
+  if (navbarToggler && navbarCollapse) {
+    // 移除Bootstrap data屬性，完全接管控制
+    navbarToggler.removeAttribute('data-bs-toggle');
+    navbarToggler.removeAttribute('data-bs-target');
 
-        // 點擊其他地方關閉選單
-        document.addEventListener('click', (event) => {
-          if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
-            if (navbarCollapse.classList.contains('show')) {
-              navbarCollapse.classList.remove('show');
-              navbarToggler.setAttribute('aria-expanded', 'false');
-              navbarToggler.classList.remove('collapsed');
-            }
-          }
-        });
+    // 添加自定義點擊處理
+    navbarToggler.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-        this.navbarInitialized = true;
-      }
-    },
-    closeNavbar() {
-      // 關閉導覽列
-      const navbarCollapse = document.getElementById('navbarSupportedContent');
-      const navbarToggler = document.querySelector('.navbar-toggler');
-
-      if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+      // 切換選單顯示狀態
+      if (navbarCollapse.classList.contains('show')) {
         navbarCollapse.classList.remove('show');
-        if (navbarToggler) {
+        navbarToggler.setAttribute('aria-expanded', 'false');
+        navbarToggler.classList.remove('collapsed');
+      } else {
+        navbarCollapse.classList.add('show');
+        navbarToggler.setAttribute('aria-expanded', 'true');
+        navbarToggler.classList.add('collapsed');
+      }
+    };
+
+    // 點擊其他地方關閉選單
+    document.addEventListener('click', (event) => {
+      if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
+        if (navbarCollapse.classList.contains('show')) {
+          navbarCollapse.classList.remove('show');
           navbarToggler.setAttribute('aria-expanded', 'false');
+          navbarToggler.classList.remove('collapsed');
         }
       }
-    },
-    handleLogout() {
-      this.closeNavbar();
-      this.logout();
-    },
-    checkLogin() {
-      axios
-        .post(`${VITE_APP_URL}/api/user/check`)
-        .then((res) => {
-          console.log(res.data.success);
-          this.addMessage(
-            {
-              title: '登入成功',
-              content: res.data.message,
-              style: 'success',
-            },
-          );
-          this.success = true;
-        })
-        .catch((err) => {
-          console.log(err.response.data.message);
-          this.$router.push('/login');
-        });
-    },
-    logout() {
-      axios
-        .post(`${VITE_APP_URL}/logout`)
-        .then(() => {
-          this.$router.push('/login');
-        })
-        .catch((err) => {
-          console.error(err.response.data.message);
-        });
-    },
-  },
-  mounted() {
-    // 取得 cookie
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
-    // 將 token 加入到 headers
-    axios.defaults.headers.common.Authorization = token;
-    this.checkLogin();
-
-    // 初始化導覽列
-    this.$nextTick(() => {
-      this.initNavbar();
     });
-  },
+
+    navbarInitialized.value = true;
+  }
 };
+
+const closeNavbar = () => {
+  // 關閉導覽列
+  const navbarCollapse = document.getElementById('navbarSupportedContent');
+  const navbarToggler = document.querySelector('.navbar-toggler');
+
+  if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+    navbarCollapse.classList.remove('show');
+    if (navbarToggler) {
+      navbarToggler.setAttribute('aria-expanded', 'false');
+    }
+  }
+};
+
+// API 方法
+const checkLogin = () => {
+  axios
+    .post(`${VITE_APP_URL}/api/user/check`)
+    .then((res) => {
+      console.log(res.data.success);
+      toastStore.addMessage({
+        title: '登入成功',
+        content: res.data.message,
+        style: 'success',
+      });
+      success.value = true;
+    })
+    .catch((err) => {
+      console.log(err.response.data.message);
+      router.push('/login');
+    });
+};
+
+const logout = () => {
+  axios
+    .post(`${VITE_APP_URL}/logout`)
+    .then(() => {
+      router.push('/login');
+    })
+    .catch((err) => {
+      console.error(err.response.data.message);
+    });
+};
+
+const handleLogout = () => {
+  closeNavbar();
+  logout();
+};
+
+// 生命週期
+onMounted(() => {
+  // 取得 cookie
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
+  // 將 token 加入到 headers
+  axios.defaults.headers.common.Authorization = token;
+  checkLogin();
+
+  // 初始化導覽列
+  nextTick(() => {
+    initNavbar();
+  });
+});
 </script>
 
 <style scoped>
