@@ -215,13 +215,13 @@
             <div class="d-flex justify-content-between mb-3" v-if="hasDiscount">
               <span>優惠折扣</span>
               <span class="text-danger"
-                >-NT$ {{ formatPrice(finalTotal) }}</span
+                >-NT$ {{ formatPrice(actualDiscountAmount) }}</span
               >
             </div>
             <hr />
             <div class="d-flex justify-content-between">
               <span class="fw-bold">總計</span>
-              <span class="fw-bold">NT$ {{ formatPrice(discountAmount) }}</span>
+              <span class="fw-bold">NT$ {{ formatPrice(actualTotal) }}</span>
             </div>
           </div>
         </div>
@@ -301,6 +301,17 @@ export default {
     hasDiscount() {
       return this.discountAmount > 0;
     },
+    // 實際要付的總金額
+    actualTotal() {
+      // 如果有折扣，根據 API 的奇怪邏輯，discountAmount 是實際要付的金額
+      // 如果沒有折扣，finalTotal 就是要付的金額
+      return this.hasDiscount ? this.discountAmount : this.finalTotal;
+    },
+    // 實際的折扣金額 (用於顯示)
+    actualDiscountAmount() {
+      // 如果有折扣，根據 API 的奇怪邏輯，finalTotal 是折扣金額
+      return this.hasDiscount ? this.finalTotal : 0;
+    },
   },
   methods: {
     async getOrder(orderId) {
@@ -316,6 +327,7 @@ export default {
         const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/order/${orderId}`;
         const response = await axios.get(url);
         this.order = response.data.order;
+        console.log(this.order);
       } catch (error) {
         console.error('獲取訂單失敗', error);
         // 如果是 404，顯示找不到訂單
