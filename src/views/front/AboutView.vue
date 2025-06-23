@@ -230,32 +230,31 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AboutView',
-  data() {
-    return {
-      imageLoadError: false,
-      isLoading: false,
-    };
-  },
-  methods: {
-    handleImageError() {
-      this.imageLoadError = true;
-    },
-    handleImageLoad() {
-      this.imageLoadError = false;
-    },
-  },
-  mounted() {
-    // 模擬頁面載入
-    this.isLoading = true;
-    // 模擬載入完成
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 600);
-  },
+<script setup>
+import { ref, onMounted } from 'vue';
+
+// 響應式數據
+const imageLoadError = ref(false);
+const isLoading = ref(false);
+
+// 方法
+const handleImageError = () => {
+  imageLoadError.value = true;
 };
+
+const handleImageLoad = () => {
+  imageLoadError.value = false;
+};
+
+// 生命週期鉤子
+onMounted(() => {
+  // 模擬頁面載入
+  isLoading.value = true;
+  // 模擬載入完成
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 600);
+});
 </script>
 
 <style scoped>
