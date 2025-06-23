@@ -247,151 +247,159 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 
-export default {
-  name: 'OrderDetailView',
-  data() {
-    return {
-      order: {},
-      isLoading: false,
-      // 付款方式對照表
-      paymentMethods: {
-        credit_card: '信用卡',
-        credit: '信用卡',
-        atm: 'ATM 轉帳',
-        transfer: '銀行轉帳',
-        bank_transfer: '銀行轉帳',
-      },
-    };
-  },
-  computed: {
-    // 檢查是否有有效的訂單數據
-    hasOrderData() {
-      return this.order && this.order.id;
-    },
-    orderProducts() {
-      if (!this.order.products) return [];
-      return Object.values(this.order.products);
-    },
-    // 計算商品原始總額（基於商品原價）
-    subtotal() {
-      if (!this.orderProducts.length) return 0;
-      return this.orderProducts.reduce((sum, item) => {
-        const originalPrice = Number(item.product?.price) || 0;
-        const qty = Number(item.qty) || 0;
-        return sum + (originalPrice * qty);
-      }, 0);
-    },
-    // 最終金額（計算所有商品的 final_total 總和）
-    finalTotal() {
-      if (!this.orderProducts.length) return 0;
-      return this.orderProducts.reduce((sum, item) => {
-        const itemFinalTotal = Number(item.final_total) || 0;
-        return sum + itemFinalTotal;
-      }, 0);
-    },
-    // 計算優惠折扣金額
-    discountAmount() {
-      const discount = this.subtotal - this.finalTotal;
-      return discount > 0 ? discount : 0;
-    },
-    // 是否有優惠折扣
-    hasDiscount() {
-      return this.discountAmount > 0;
-    },
-    // 實際要付的總金額
-    actualTotal() {
-      // 如果有折扣，根據 API 的奇怪邏輯，discountAmount 是實際要付的金額
-      // 如果沒有折扣，finalTotal 就是要付的金額
-      return this.hasDiscount ? this.discountAmount : this.finalTotal;
-    },
-    // 實際的折扣金額 (用於顯示)
-    actualDiscountAmount() {
-      // 如果有折扣，根據 API 的奇怪邏輯，finalTotal 是折扣金額
-      return this.hasDiscount ? this.finalTotal : 0;
-    },
-  },
-  methods: {
-    async getOrder(orderId) {
-      if (!orderId) {
-        console.error('訂單 ID 無效');
-        return;
-      }
+// 路由
+const route = useRoute();
+const router = useRouter();
 
-      const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
-      this.isLoading = true;
+// 響應式數據
+const order = ref({});
+const isLoading = ref(false);
 
-      try {
-        const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/order/${orderId}`;
-        const response = await axios.get(url);
-        this.order = response.data.order;
-        console.log(this.order);
-      } catch (error) {
-        console.error('獲取訂單失敗', error);
-        // 如果是 404，顯示找不到訂單
-        if (error.response?.status === 404) {
-          this.order = null;
-        }
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    formatDate(timestamp) {
-      if (!timestamp) return '無資料';
-      const date = new Date(timestamp * 1000);
-      return date.toLocaleString('zh-TW', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    },
-    formatPrice(price) {
-      const numericPrice = Number(price);
-      if (!numericPrice || Number.isNaN(numericPrice)) {
-        return '0';
-      }
-      return Math.round(numericPrice).toLocaleString();
-    },
-    getShippingStatus(order) {
-      if (!order.is_paid) return '待付款';
-      return '備貨中';
-    },
-    getPaymentMethod(order) {
-      if (!order?.payment_method) return '未設定';
-      return this.paymentMethods[order.payment_method] || '其他方式';
-    },
-    goToPayment() {
-      // 保存當前訂單的商品資料到 localStorage，以便付款頁面使用
-      const orderCartData = {
-        carts: this.orderProducts.map((item) => ({
-          id: item.id,
-          product: item.product,
-          qty: item.qty,
-        })),
-        total: this.subtotal,
-        final_total: this.finalTotal,
-      };
+// 付款方式對照表
+const paymentMethods = ref({
+  credit_card: '信用卡',
+  credit: '信用卡',
+  atm: 'ATM 轉帳',
+  transfer: '銀行轉帳',
+  bank_transfer: '銀行轉帳',
+});
 
-      localStorage.setItem('orderCartData', JSON.stringify(orderCartData));
+// 計算屬性
+const hasOrderData = computed(() => order.value && order.value.id);
 
-      // 跳轉到付款頁面，並帶上訂單 ID
-      this.$router.push({
-        path: '/checkout/payment',
-        query: { orderId: this.order.id },
-      });
-    },
-  },
-  created() {
-    const orderId = this.$route.params.id;
-    if (orderId) {
-      this.getOrder(orderId);
+const orderProducts = computed(() => {
+  if (!order.value.products) return [];
+  return Object.values(order.value.products);
+});
+
+// 計算商品原始總額（基於商品原價）
+const subtotal = computed(() => {
+  if (!orderProducts.value.length) return 0;
+  return orderProducts.value.reduce((sum, item) => {
+    const originalPrice = Number(item.product?.price) || 0;
+    const qty = Number(item.qty) || 0;
+    return sum + (originalPrice * qty);
+  }, 0);
+});
+
+// 最終金額（計算所有商品的 final_total 總和）
+const finalTotal = computed(() => {
+  if (!orderProducts.value.length) return 0;
+  return orderProducts.value.reduce((sum, item) => {
+    const itemFinalTotal = Number(item.final_total) || 0;
+    return sum + itemFinalTotal;
+  }, 0);
+});
+
+// 計算優惠折扣金額
+const discountAmount = computed(() => {
+  const discount = subtotal.value - finalTotal.value;
+  return discount > 0 ? discount : 0;
+});
+
+// 是否有優惠折扣
+const hasDiscount = computed(() => discountAmount.value > 0);
+
+// 實際要付的總金額
+const actualTotal = computed(() =>
+  // 如果有折扣，根據 API 的奇怪邏輯，discountAmount 是實際要付的金額
+  // 如果沒有折扣，finalTotal 就是要付的金額
+  (hasDiscount.value ? discountAmount.value : finalTotal.value));
+
+// 實際的折扣金額 (用於顯示)
+const actualDiscountAmount = computed(() =>
+  // 如果有折扣，根據 API 的奇怪邏輯，finalTotal 是折扣金額
+  (hasDiscount.value ? finalTotal.value : 0));
+
+// 方法定義
+const getOrder = async (orderId) => {
+  if (!orderId) {
+    console.error('訂單 ID 無效');
+    return;
+  }
+
+  const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
+  isLoading.value = true;
+
+  try {
+    const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/order/${orderId}`;
+    const response = await axios.get(url);
+    order.value = response.data.order;
+    console.log(order.value);
+  } catch (error) {
+    console.error('獲取訂單失敗', error);
+    // 如果是 404，顯示找不到訂單
+    if (error.response?.status === 404) {
+      order.value = null;
     }
-  },
+  } finally {
+    isLoading.value = false;
+  }
 };
+
+const formatDate = (timestamp) => {
+  if (!timestamp) return '無資料';
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleString('zh-TW', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const formatPrice = (price) => {
+  const numericPrice = Number(price);
+  if (!numericPrice || Number.isNaN(numericPrice)) {
+    return '0';
+  }
+  return Math.round(numericPrice).toLocaleString();
+};
+
+function getShippingStatus(orderData) {
+  if (!orderData.is_paid) return '待付款';
+  return '備貨中';
+}
+
+function getPaymentMethod(orderData) {
+  if (!orderData?.payment_method) return '未設定';
+  return paymentMethods.value[orderData.payment_method] || '其他方式';
+}
+
+const goToPayment = () => {
+  // 保存當前訂單的商品資料到 localStorage，以便付款頁面使用
+  const orderCartData = {
+    carts: orderProducts.value.map((item) => ({
+      id: item.id,
+      product: item.product,
+      qty: item.qty,
+    })),
+    total: subtotal.value,
+    final_total: finalTotal.value,
+  };
+
+  localStorage.setItem('orderCartData', JSON.stringify(orderCartData));
+
+  // 跳轉到付款頁面，並帶上訂單 ID
+  router.push({
+    path: '/checkout/payment',
+    query: { orderId: order.value.id },
+  });
+};
+
+// 生命週期
+onMounted(() => {
+  const orderId = route.params.id;
+  if (orderId) {
+    getOrder(orderId);
+  }
+});
 </script>
 
 <style scoped>
