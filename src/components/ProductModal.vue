@@ -1,7 +1,7 @@
 <template>
   <div
     id="productModal"
-    ref="modal"
+    ref="modalRef"
     class="modal fade"
     tabindex="-1"
     aria-labelledby="productModalLabel"
@@ -46,7 +46,7 @@
                     type="file"
                     id="customFile"
                     class="form-control"
-                    ref="fileInput"
+                    ref="fileInputRef"
                     @change="upLoadFile"
                   />
                 </div>
@@ -320,7 +320,7 @@
           <button
             type="button"
             class="btn btn-primary"
-            @click="$emit('update-product', editProduct)"
+            @click="emit('update-product', editProduct)"
           >
             確認
           </button>
@@ -329,121 +329,231 @@
     </div>
   </div>
 </template>
-<script>
+
+<script setup>
+import {
+  ref, reactive, onMounted, watch,
+} from 'vue';
+import { Modal } from 'bootstrap';
 import axios from 'axios';
-import { mapActions } from 'pinia';
 import useToastMessageStore from '@/stores/toastMessage';
 
-import modalMixin from '@/mixins/modalMixin';
+// 環境變數
+const {
+  VITE_APP_URL,
+  VITE_APP_PATH,
+} = import.meta.env;
 
-const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
-export default {
-  data() {
-    return {
-      status: {},
-      modal: '',
-      editProduct: {
-        specifications: {
-          size: '',
-          weight: '',
-          material: '',
-          color: '',
-          origin: '',
-        },
-        star: 0,
-      },
-      isLoading: true,
-      hoverStar: 0, // 滑鼠懸停的星星數量
-    };
+// Props 定義
+const props = defineProps({
+  tempProduct: {
+    type: Object,
+    default: () => ({}),
   },
-  props: ['tempProduct', 'isNew'],
-  emits: ['update', 'update-product'],
-  mixins: [modalMixin],
-  mounted() {
-    this.editProduct = this.tempProduct;
-    // 確保 specifications 物件存在
-    if (!this.editProduct.specifications) {
-      this.editProduct.specifications = {
+  isNew: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+// Emits 定義
+const emit = defineEmits(['update', 'update-product']);
+
+// Stores
+const toastStore = useToastMessageStore();
+
+// 響應式數據
+const modalRef = ref(null);
+const fileInputRef = ref(null);
+const modal = ref(null);
+
+const status = reactive({
+  fileUploading: false,
+});
+
+const editProduct = reactive({
+  imageUrl: '',
+  imagesUrl: [],
+  title: '',
+  category: '',
+  unit: '',
+  origin_price: 0,
+  price: 0,
+  description: '',
+  content: '',
+  is_enabled: 1,
+  specifications: {
+    size: '',
+    weight: '',
+    material: '',
+    color: '',
+    origin: '',
+  },
+  star: 0,
+});
+
+const isLoading = ref(true);
+const hoverStar = ref(0);
+
+// Modal 相關方法（來自 modalMixin）
+const openModal = () => {
+  modal.value?.show();
+};
+
+const closeModal = () => {
+  modal.value?.hide();
+};
+
+// 產品相關方法
+const setStarRating = (star) => {
+  editProduct.star = star;
+};
+
+const clearStarRating = () => {
+  editProduct.star = 0;
+};
+
+const createImages = () => {
+  editProduct.imagesUrl = [''];
+};
+
+const upLoadFile = () => {
+  const uploadedFile = fileInputRef.value.files[0];
+  const formData = new FormData();
+  formData.append('file-to-upload', uploadedFile);
+  const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/upload`;
+
+  status.fileUploading = true;
+
+  axios.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+    .then((res) => {
+      status.fileUploading = false;
+      editProduct.imageUrl = res.data.imageUrl;
+      fileInputRef.value.value = '';
+      isLoading.value = false;
+      toastStore.addMessage({
+        title: '圖片上傳結果',
+        content: res.data.message,
+        style: 'success',
+      });
+    })
+    .catch((err) => {
+      status.fileUploading = false;
+      toastStore.addMessage({
+        title: '圖片上傳結果',
+        content: err.response.data.message,
+        style: 'danger',
+      });
+    });
+};
+
+// 初始化產品數據的函數
+const initializeProductData = (product) => {
+  // 清空當前數據
+  Object.keys(editProduct).forEach((key) => {
+    if (key === 'specifications') {
+      editProduct.specifications = {
         size: '',
         weight: '',
         material: '',
         color: '',
         origin: '',
       };
+    } else if (key === 'imagesUrl') {
+      editProduct.imagesUrl = [];
+    } else if (key === 'star') {
+      editProduct.star = 0;
+    } else if (typeof editProduct[key] === 'number') {
+      editProduct[key] = 0;
+    } else if (typeof editProduct[key] === 'string') {
+      editProduct[key] = '';
+    } else {
+      editProduct[key] = null;
     }
-    // 確保 star 欄位存在
-    if (typeof this.editProduct.star === 'undefined') {
-      this.editProduct.star = 0;
-    }
-  },
-  watch: {
-    tempProduct() {
-      this.editProduct = this.tempProduct;
-      if (!this.editProduct.imagesUrl) {
-        this.editProduct.imagesUrl = [];
-      }
-      if (!this.editProduct.imagesUrl.length) {
-        this.editProduct.imagesUrl.push('');
-      }
-      // 確保 star 欄位存在
-      if (typeof this.editProduct.star === 'undefined') {
-        this.editProduct.star = 0;
-      }
-      // 確保 specifications 物件存在
-      if (!this.editProduct.specifications) {
-        this.editProduct.specifications = {
-          size: '',
-          weight: '',
-          material: '',
-          color: '',
-          origin: '',
+  });
+
+  // 複製新數據
+  if (product && typeof product === 'object') {
+    Object.keys(product).forEach((key) => {
+      if (key === 'specifications') {
+        editProduct.specifications = {
+          size: product.specifications?.size || '',
+          weight: product.specifications?.weight || '',
+          material: product.specifications?.material || '',
+          color: product.specifications?.color || '',
+          origin: product.specifications?.origin || '',
         };
+      } else if (key === 'imagesUrl') {
+        editProduct.imagesUrl = Array.isArray(product.imagesUrl)
+          ? [...product.imagesUrl]
+          : [];
+      } else {
+        editProduct[key] = product[key];
       }
-    },
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    // 設定星級評分
-    setStarRating(star) {
-      this.editProduct.star = star;
-    },
-    // 清除星級評分
-    clearStarRating() {
-      this.editProduct.star = 0;
-    },
-    upLoadFile() {
-      const upLoadFile = this.$refs.fileInput.files[0];
-      const formData = new FormData();
-      formData.append('file-to-upload', upLoadFile);
-      const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/upload`;
-      this.status.fileUploading = true;
-      axios.post(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-        .then((res) => {
-          this.status.fileUploading = false;
-          this.editProduct.imageUrl = res.data.imageUrl;
-          this.$refs.fileInput.value = '';
-          this.isLoading = false;
-          this.addMessage({
-            title: '圖片上傳結果',
-            content: res.data.message,
-            style: 'success',
-          });
-        })
-        .catch((err) => {
-          this.status.fileUploading = false;
-          this.addMessage({
-            title: '圖片上傳結果',
-            content: err.response.data.message,
-            style: 'danger',
-          });
-        });
-    },
-  },
+    });
+  }
+
+  // 確保必要的欄位存在
+  if (!editProduct.specifications) {
+    editProduct.specifications = {
+      size: '',
+      weight: '',
+      material: '',
+      color: '',
+      origin: '',
+    };
+  }
+
+  if (typeof editProduct.star === 'undefined') {
+    editProduct.star = 0;
+  }
+
+  if (!Array.isArray(editProduct.imagesUrl)) {
+    editProduct.imagesUrl = [];
+  }
+
+  if (!editProduct.imagesUrl.length) {
+    editProduct.imagesUrl.push('');
+  }
 };
+
+// 監聽 tempProduct 變化
+watch(
+  () => props.tempProduct,
+  (newProduct) => {
+    if (newProduct) {
+      initializeProductData(newProduct);
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+// 組件掛載時的初始化
+onMounted(() => {
+  // 初始化 Bootstrap Modal
+  modal.value = new Modal(modalRef.value, {
+    backdrop: 'static',
+    keyboard: false,
+  });
+
+  // 初始化產品數據
+  if (props.tempProduct) {
+    initializeProductData(props.tempProduct);
+  }
+});
+
+// 暴露方法給父組件使用
+defineExpose({
+  openModal,
+  closeModal,
+});
 </script>
 
 <style scoped>
