@@ -133,13 +133,13 @@
                       <span
                         class="current-price h6 text-primary me-2 mb-0 fw-bold"
                       >
-                        NT${{ $filters.currency(product.price) }}
+                        NT${{ formatCurrency(product.price) }}
                       </span>
                       <span
                         v-if="product.origin_price > product.price"
                         class="original-price text-muted text-decoration-line-through small"
                       >
-                        NT${{ $filters.currency(product.origin_price) }}
+                        NT${{ formatCurrency(product.origin_price) }}
                       </span>
                     </div>
                   </div>
@@ -209,156 +209,152 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import {
+  ref, reactive, computed, watch, onMounted,
+} from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 import useCartStore from '@/stores/cartStore';
-import { mapActions } from 'pinia';
 import PaginationComponent from '@/components/PaginationComponent.vue';
 import HeroSection from '@/components/HeroSection.vue';
 
+// 環境變數
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
-export default {
-  components: {
-    PaginationComponent,
-    HeroSection,
-  },
-  data() {
-    return {
-      // 產品資料格式
-      products: [],
-      // 動態獲取的分類資料
-      categories: [],
-      isLoading: true,
-      isLoadingCart: null, // 用於追蹤哪個產品正在加入購物車
-      pagination: {
-        total_pages: 1,
-        current_page: 1,
-        has_pre: false,
-        has_next: false,
-      },
-    };
-  },
-  computed: {
-    heroTitle() {
-      return this.$route.query.category ? `${this.$route.query.category} 系列` : '全部商品';
-    },
-  },
-  watch: {
-    '$route.query': {
-      handler() {
-        this.getProducts(1); // 當分類改變時，重置到第一頁
-      },
-    },
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    // 獲取所有分類
-    getCategories() {
-      axios
-        .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products/all`)
-        .then((res) => {
-          // 從所有產品中提取唯一的分類
-          const uniqueCategories = [...new Set(res.data.products.map((product) => product.category))];
-          this.categories = uniqueCategories
-            .filter((category) => category) // 過濾掉空值
-            .map((categoryName) => ({
-              name: categoryName,
-              icon: this.getCategoryIcon(categoryName),
-            }));
-        })
-        .catch((err) => {
-          this.addMessage({
-            style: 'danger',
-            title: '錯誤',
-            content: err.response?.data?.message || '載入分類失敗',
-          });
-        });
-    },
-    getProducts(page = 1) {
-      const { category = '' } = this.$route.query;
-      this.isLoading = true;
-      axios
-        .get(
-          // eslint-disable-next-line comma-dangle
-          `${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${category}&page=${page}`
-        )
-        .then((res) => {
-          this.products = res.data.products;
-          this.pagination = res.data.pagination;
-          this.isLoading = false;
-        })
-        .catch((err) => {
-          this.addMessage({
-            style: 'danger',
-            title: '錯誤',
-            content: err.response.data.message,
-          });
-          this.isLoading = false;
-        });
-    },
-    changePage(page) {
-      if (page < 1 || page > this.pagination.total_pages) {
-        return;
-      }
-      this.getProducts(page);
-      // 滾動到頂部
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    },
-    getCategoryIcon(categoryName) {
-      // 分類圖標映射 - 使用 Font Awesome 圖示
-      const iconMap = {
-        智慧吊燈: 'fas fa-lightbulb',
-        智慧檯燈: 'fas fa-desk-lamp',
-        智慧燈泡: 'fas fa-lightbulb',
-        智慧燈具: 'fas fa-home',
-        氣氛燈光: 'fas fa-star',
-        戶外照明: 'fas fa-moon',
-        燈光配件: 'fas fa-cog',
-        室內照明: 'fas fa-home',
-        裝飾燈具: 'fas fa-star',
-        特殊用途: 'fas fa-tools',
-        // 其他產品分類
-        衣服: 'fas fa-tshirt',
-        蛋糕: 'fas fa-birthday-cake',
-        食物: 'fas fa-utensils',
-        飲品: 'fas fa-coffee',
-        電子產品: 'fas fa-laptop',
-        家電: 'fas fa-tv',
-        書籍: 'fas fa-book',
-        玩具: 'fas fa-gamepad',
-        運動用品: 'fas fa-basketball-ball',
-        美妝: 'fas fa-palette',
-      };
-      return iconMap[categoryName] || 'fas fa-lightbulb text-warning';
-    },
-    // 自定義加入購物車方法，支援加載狀態
-    async addToCart(productId, qty = 1) {
-      this.isLoadingCart = productId;
-      const cartStore = useCartStore();
-      try {
-        await cartStore.addToCart(productId, qty);
-      } finally {
-        this.isLoadingCart = null;
-      }
-    },
-  },
-  mounted() {
-    this.getCategories(); // 先載入分類
-    this.getProducts();
-  },
-  // 新增過濾器用於格式化價格
-  beforeCreate() {
-    if (!this.$options.filters) {
-      this.$options.filters = {};
-    }
-    this.$options.filters.currency = function currencyFilter(value) {
-      if (!value) return '';
-      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
-  },
+// 路由
+const route = useRoute();
+
+// Store
+const toastStore = useToastMessageStore();
+const { addMessage } = toastStore;
+const cartStore = useCartStore();
+
+// 響應式數據
+const products = ref([]);
+const categories = ref([]);
+const isLoading = ref(true);
+const isLoadingCart = ref(null); // 用於追蹤哪個產品正在加入購物車
+const pagination = reactive({
+  total_pages: 1,
+  current_page: 1,
+  has_pre: false,
+  has_next: false,
+});
+
+// 計算屬性
+const heroTitle = computed(() => (route.query.category ? `${route.query.category} 系列` : '全部商品'));
+
+// 工具方法
+const formatCurrency = (value) => {
+  if (!value) return '';
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
+
+const getCategoryIcon = (categoryName) => {
+  // 分類圖標映射 - 使用 Font Awesome 圖示
+  const iconMap = {
+    智慧吊燈: 'fas fa-lightbulb',
+    智慧檯燈: 'fas fa-desk-lamp',
+    智慧燈泡: 'fas fa-lightbulb',
+    智慧燈具: 'fas fa-home',
+    氣氛燈光: 'fas fa-star',
+    戶外照明: 'fas fa-moon',
+    燈光配件: 'fas fa-cog',
+    室內照明: 'fas fa-home',
+    裝飾燈具: 'fas fa-star',
+    特殊用途: 'fas fa-tools',
+    // 其他產品分類
+    衣服: 'fas fa-tshirt',
+    蛋糕: 'fas fa-birthday-cake',
+    食物: 'fas fa-utensils',
+    飲品: 'fas fa-coffee',
+    電子產品: 'fas fa-laptop',
+    家電: 'fas fa-tv',
+    書籍: 'fas fa-book',
+    玩具: 'fas fa-gamepad',
+    運動用品: 'fas fa-basketball-ball',
+    美妝: 'fas fa-palette',
+  };
+  return iconMap[categoryName] || 'fas fa-lightbulb text-warning';
+};
+
+// API 方法
+const getCategories = () => {
+  axios
+    .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products/all`)
+    .then((res) => {
+      // 從所有產品中提取唯一的分類
+      const uniqueCategories = [...new Set(res.data.products.map((product) => product.category))];
+      categories.value = uniqueCategories
+        .filter((category) => category) // 過濾掉空值
+        .map((categoryName) => ({
+          name: categoryName,
+          icon: getCategoryIcon(categoryName),
+        }));
+    })
+    .catch((err) => {
+      addMessage({
+        style: 'danger',
+        title: '錯誤',
+        content: err.response?.data?.message || '載入分類失敗',
+      });
+    });
+};
+
+const getProducts = (page = 1) => {
+  const { category = '' } = route.query;
+  isLoading.value = true;
+  axios
+    .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${category}&page=${page}`)
+    .then((res) => {
+      products.value = res.data.products;
+      Object.assign(pagination, res.data.pagination);
+      isLoading.value = false;
+    })
+    .catch((err) => {
+      addMessage({
+        style: 'danger',
+        title: '錯誤',
+        content: err.response.data.message,
+      });
+      isLoading.value = false;
+    });
+};
+
+const changePage = (page) => {
+  if (page < 1 || page > pagination.total_pages) {
+    return;
+  }
+  getProducts(page);
+  // 滾動到頂部
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// 自定義加入購物車方法，支援加載狀態
+const addToCart = async (productId, qty = 1) => {
+  isLoadingCart.value = productId;
+  try {
+    await cartStore.addToCart(productId, qty);
+  } finally {
+    isLoadingCart.value = null;
+  }
+};
+
+// 監聽器
+watch(
+  () => route.query,
+  () => {
+    getProducts(1); // 當分類改變時，重置到第一頁
+  },
+);
+
+// 生命週期
+onMounted(() => {
+  getCategories(); // 先載入分類
+  getProducts();
+});
 </script>
 
 <style scoped>
