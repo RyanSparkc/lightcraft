@@ -17,24 +17,21 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HeroSection',
-  props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    subtitle: {
-      type: String,
-      required: true,
-    },
-    iconClass: {
-      type: String,
-      default: 'fas fa-lightbulb',
-    },
+<script setup>
+defineProps({
+  title: {
+    type: String,
+    required: true,
   },
-};
+  subtitle: {
+    type: String,
+    required: true,
+  },
+  iconClass: {
+    type: String,
+    default: 'fas fa-lightbulb',
+  },
+});
 </script>
 
 <style scoped>
