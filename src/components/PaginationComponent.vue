@@ -5,10 +5,7 @@
     class="pagination-wrapper"
   >
     <ul class="pagination justify-content-center mb-0">
-      <li
-        class="page-item"
-        :class="{ disabled: !pagination.has_pre }"
-      >
+      <li class="page-item" :class="{ disabled: !pagination.has_pre }">
         <button
           class="page-link custom-page-link"
           @click="changePage(pagination.current_page - 1)"
@@ -32,10 +29,7 @@
           {{ page }}
         </button>
       </li>
-      <li
-        class="page-item"
-        :class="{ disabled: !pagination.has_next }"
-      >
+      <li class="page-item" :class="{ disabled: !pagination.has_next }">
         <button
           class="page-link custom-page-link"
           @click="changePage(pagination.current_page + 1)"
@@ -49,51 +43,53 @@
   </nav>
 </template>
 
-<script>
-export default {
-  name: 'PaginationComponent',
-  emits: ['change-page'],
-  props: {
-    pagination: {
-      type: Object,
-      required: true,
-      default: () => ({
-        total_pages: 1,
-        current_page: 1,
-        has_pre: false,
-        has_next: false,
-      }),
-    },
-    ariaLabel: {
-      type: String,
-      default: '分頁導航',
-    },
-  },
-  computed: {
-    displayPages() {
-      const pages = [];
-      const totalPages = this.pagination.total_pages;
-      const currentPage = this.pagination.current_page;
+<script setup>
+import { computed } from 'vue';
 
-      for (let i = 1; i <= totalPages; i += 1) {
-        if (
-          i === 1
-          || i === totalPages
-          || (i >= currentPage - 2 && i <= currentPage + 2)
-        ) {
-          pages.push(i);
-        }
-      }
-      return pages;
-    },
+// Props 定義
+const props = defineProps({
+  pagination: {
+    type: Object,
+    required: true,
+    default: () => ({
+      total_pages: 1,
+      current_page: 1,
+      has_pre: false,
+      has_next: false,
+    }),
   },
-  methods: {
-    changePage(page) {
-      if (page >= 1 && page <= this.pagination.total_pages) {
-        this.$emit('change-page', page);
-      }
-    },
+  ariaLabel: {
+    type: String,
+    default: '分頁導航',
   },
+});
+
+// Emits 定義
+const emit = defineEmits(['change-page']);
+
+// 計算屬性
+const displayPages = computed(() => {
+  const pages = [];
+  const totalPages = props.pagination.total_pages;
+  const currentPage = props.pagination.current_page;
+
+  for (let i = 1; i <= totalPages; i += 1) {
+    if (
+      i === 1
+      || i === totalPages
+      || (i >= currentPage - 2 && i <= currentPage + 2)
+    ) {
+      pages.push(i);
+    }
+  }
+  return pages;
+});
+
+// 方法
+const changePage = (page) => {
+  if (page >= 1 && page <= props.pagination.total_pages) {
+    emit('change-page', page);
+  }
 };
 </script>
 
