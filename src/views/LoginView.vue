@@ -91,61 +91,61 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { mapActions } from 'pinia';
 import useToastMessageStore from '@/stores/toastMessage';
 import ToastMessages from '@/components/ToastMessages.vue';
 
+// 環境變數
 const { VITE_APP_URL } = import.meta.env;
 
-export default {
-  data() {
-    return {
-      displayEmail: 'example@gmail.com',
-      user: {
-        username: 'tomgx09@gmail.com',
-        password: 'vue9999',
-      },
-      isLoading: false,
-    };
-  },
-  components: {
-    ToastMessages,
-  },
-  methods: {
-    ...mapActions(useToastMessageStore, ['addMessage']),
-    async login() {
-      this.isLoading = true;
-      try {
-        // 準備實際要送出的登入資料
-        const loginData = {
-          username: this.user.username, // 實際使用 tomgx09@gmail.com
-          password: this.user.password,
-        };
-        const res = await axios.post(`${VITE_APP_URL}/admin/signin`, loginData);
-        const { token, expired } = res.data;
-        document.cookie = `hexToken=${token}; expires=${new Date(expired)};`;
-        this.addMessage({
-          title: '登入成功',
-          content: '歡迎回來！正在跳轉到管理介面...',
-          style: 'success',
-        });
+// 路由
+const router = useRouter();
 
-        setTimeout(() => {
-          this.$router.push('/admin/products');
-        }, 1000);
-      } catch (err) {
-        this.addMessage({
-          title: '登入失敗',
-          content: err.response?.data?.message || '登入時發生錯誤，請稍後再試',
-          style: 'danger',
-        });
-      } finally {
-        this.isLoading = false;
-      }
-    },
-  },
+// Store
+const toastStore = useToastMessageStore();
+const { addMessage } = toastStore;
+
+// 響應式數據
+const displayEmail = ref('example@gmail.com');
+const user = reactive({
+  username: 'tomgx09@gmail.com',
+  password: 'vue9999',
+});
+const isLoading = ref(false);
+
+// 登入方法
+const login = async () => {
+  isLoading.value = true;
+  try {
+    // 準備實際要送出的登入資料
+    const loginData = {
+      username: user.username, // 實際使用 tomgx09@gmail.com
+      password: user.password,
+    };
+    const res = await axios.post(`${VITE_APP_URL}/admin/signin`, loginData);
+    const { token, expired } = res.data;
+    document.cookie = `hexToken=${token}; expires=${new Date(expired)};`;
+    addMessage({
+      title: '登入成功',
+      content: '歡迎回來！正在跳轉到管理介面...',
+      style: 'success',
+    });
+
+    setTimeout(() => {
+      router.push('/admin/products');
+    }, 1000);
+  } catch (err) {
+    addMessage({
+      title: '登入失敗',
+      content: err.response?.data?.message || '登入時發生錯誤，請稍後再試',
+      style: 'danger',
+    });
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 
