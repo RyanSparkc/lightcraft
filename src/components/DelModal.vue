@@ -48,8 +48,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { Modal } from 'bootstrap';
+import useModal from '@/composables/useModal';
 
 // Props 定義
 defineProps({
@@ -62,28 +61,10 @@ defineProps({
 // Emits 定義
 const emit = defineEmits(['del-item']);
 
-// 響應式數據
-const modal = ref(null); // Bootstrap Modal 實例
-const modalRef = ref(null); // template ref
+// useModal
+const { modalRef, openModal, closeModal } = useModal();
 
-// Modal 控制方法
-const openModal = () => {
-  modal.value?.show();
-};
-
-const closeModal = () => {
-  modal.value?.hide();
-};
-
-// 生命週期
-onMounted(() => {
-  if (modalRef.value) {
-    modal.value = new Modal(modalRef.value, {
-      backdrop: 'static',
-      keyboard: false,
-    });
-  }
-});
+// 生命週期 (已移至 useModal)
 
 // 暴露方法供父組件調用
 defineExpose({
