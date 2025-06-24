@@ -103,105 +103,110 @@
   </div>
 </template>
 
-<script>
-import { mapActions, mapState } from 'pinia';
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+
 import useCartStore from '@/stores/cartStore';
 
-export default {
-  name: 'CheckoutAddress',
-  data() {
-    return {
-      form: {
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        message: '',
-      },
-      errors: {},
-      shippingFee: 'NT$ 0',
-      estimatedDelivery: '3–5 個工作天',
-      isSubmitting: false,
-    };
-  },
-  computed: {
-    ...mapState(useCartStore, ['carts', 'total', 'final_total']),
-  },
-  methods: {
-    ...mapActions(useCartStore, ['createOrder']),
-    validate() {
-      this.errors = {};
-      if (!this.form.name) {
-        this.errors.name = '姓名為必填';
-      }
-      if (!this.form.email) {
-        this.errors.email = 'Email為必填';
-      } else if (!/^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.form.email)) {
-        this.errors.email = 'Email格式不正確';
-      }
-      if (!this.form.phone) {
-        this.errors.phone = '手機為必填';
-      } else if (!/^[0-9]+$/.test(this.form.phone)) {
-        this.errors.phone = '手機格式需為數字';
-      }
-      if (!this.form.address) {
-        this.errors.address = '地址為必填';
-      }
-      return Object.keys(this.errors).length === 0;
-    },
-    async nextStep() {
-      if (!this.validate()) return;
+const router = useRouter();
+const cartStore = useCartStore();
+const { carts, total, final_total: finalTotal } = storeToRefs(cartStore);
 
-      if (this.isSubmitting) return;
-      this.isSubmitting = true;
+// 表單數據
+const form = ref({
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+  message: '',
+});
 
-      try {
-        // 保存購物車資料到 localStorage（建立訂單前）
-        const cartData = {
-          carts: this.carts,
-          total: this.total,
-          final_total: this.final_total,
-        };
-        localStorage.setItem('orderCartData', JSON.stringify(cartData));
+// 錯誤處理
+const errors = ref({});
 
-        // 準備訂單資料，按照 API 文件格式
-        const orderData = {
-          user: {
-            name: this.form.name,
-            email: this.form.email,
-            tel: this.form.phone,
-            address: this.form.address,
-          },
-          message: this.form.message || '',
-        };
+// 其他狀態
+const shippingFee = ref('NT$ 0');
+const estimatedDelivery = ref('3–5 個工作天');
+const isSubmitting = ref(false);
 
-        // 建立訂單
-        const response = await this.createOrder(orderData);
-
-        // 清除地址暫存
-        localStorage.removeItem('checkoutAddress');
-
-        // 跳轉到付款頁面，攜帶訂單 ID
-        this.$router.push(`/checkout/payment?orderId=${response.orderId}`);
-      } catch (error) {
-        // 錯誤處理已在 store 中完成
-      } finally {
-        this.isSubmitting = false;
-      }
-    },
-    // 從 localStorage 讀取之前保存的地址數據
-    loadAddressData() {
-      const savedAddress = localStorage.getItem('checkoutAddress');
-      if (savedAddress) {
-        this.form = JSON.parse(savedAddress);
-      }
-    },
-  },
-  mounted() {
-    // 組件載入時讀取之前保存的地址數據
-    this.loadAddressData();
-  },
+// 表單驗證
+const validate = () => {
+  errors.value = {};
+  if (!form.value.name) {
+    errors.value.name = '姓名為必填';
+  }
+  if (!form.value.email) {
+    errors.value.email = 'Email為必填';
+  } else if (!/^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(form.value.email)) {
+    errors.value.email = 'Email格式不正確';
+  }
+  if (!form.value.phone) {
+    errors.value.phone = '手機為必填';
+  } else if (!/^[0-9]+$/.test(form.value.phone)) {
+    errors.value.phone = '手機格式需為數字';
+  }
+  if (!form.value.address) {
+    errors.value.address = '地址為必填';
+  }
+  return Object.keys(errors.value).length === 0;
 };
+
+// 提交表單並建立訂單
+const nextStep = async () => {
+  if (!validate()) return;
+
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
+
+  try {
+    // 保存購物車資料到 localStorage（建立訂單前）
+    const cartData = {
+      carts: carts.value,
+      total: total.value,
+      final_total: finalTotal.value,
+    };
+    localStorage.setItem('orderCartData', JSON.stringify(cartData));
+
+    // 準備訂單資料，按照 API 文件格式
+    const orderData = {
+      user: {
+        name: form.value.name,
+        email: form.value.email,
+        tel: form.value.phone,
+        address: form.value.address,
+      },
+      message: form.value.message || '',
+    };
+
+    // 建立訂單
+    const response = await cartStore.createOrder(orderData);
+
+    // 清除地址暫存
+    localStorage.removeItem('checkoutAddress');
+
+    // 跳轉到付款頁面，攜帶訂單 ID
+    router.push(`/checkout/payment?orderId=${response.orderId}`);
+  } catch (error) {
+    // 錯誤處理已在 store 中完成
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+// 從 localStorage 讀取之前保存的地址數據
+const loadAddressData = () => {
+  const savedAddress = localStorage.getItem('checkoutAddress');
+  if (savedAddress) {
+    form.value = JSON.parse(savedAddress);
+  }
+};
+
+onMounted(() => {
+  // 組件載入時讀取之前保存的地址數據
+  loadAddressData();
+});
 </script>
 
 <style scoped>
