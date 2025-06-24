@@ -1,7 +1,7 @@
 <template>
   <div
     id="delProductModal"
-    ref="delProductModal"
+    ref="modalRef"
     class="modal fade"
     tabindex="-1"
     aria-labelledby="delProductModalLabel"
@@ -43,10 +43,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
-import { Modal } from 'bootstrap';
+import useModal from '@/composables/useModal';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
@@ -62,22 +61,13 @@ const props = defineProps({
 const emit = defineEmits(['update']);
 
 // 響應式數據
-const delProductModal = ref(null);
-const modalInstance = ref(null);
+const { modalRef, openModal, closeModal } = useModal();
 
 // Store
 const toastStore = useToastMessageStore();
 const { addMessage } = toastStore;
 
-// 方法定義（注意順序，避免使用前未定義的問題）
-const openModal = () => {
-  modalInstance.value?.show();
-};
-
-const closeModal = () => {
-  modalInstance.value?.hide();
-};
-
+// 方法定義
 const deleteProduct = async () => {
   try {
     const response = await axios.delete(
@@ -101,15 +91,7 @@ const deleteProduct = async () => {
   }
 };
 
-// 生命週期
-onMounted(() => {
-  if (delProductModal.value) {
-    modalInstance.value = new Modal(delProductModal.value, {
-      keyboard: false,
-      backdrop: 'static',
-    });
-  }
-});
+// 生命週期 (已移至 useModal)
 
 // 暴露方法供父組件調用
 defineExpose({
