@@ -239,7 +239,7 @@
     ref="couponModal"
     @update-coupon="updateCoupon"
   />
-  <DelModal ref="delModal" :item="tempCoupon" @del-item="deleteCoupon" />
+  <DeleteModal ref="delModal" :item="tempCoupon" @confirm="deleteCoupon" />
 </template>
 
 <script setup>
@@ -251,7 +251,7 @@ import useToastMessageStore from '@/stores/toastMessage';
 
 import PageHeader from '@/components/PageHeader.vue';
 import CouponModal from '@/components/CouponModal.vue';
-import DelModal from '@/components/DelModal.vue';
+import DeleteModal from '@/components/DeleteModal.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
