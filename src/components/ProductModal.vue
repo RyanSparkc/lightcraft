@@ -123,7 +123,7 @@
                   />
                 </div>
                 <div class="mb-3 col-md-6">
-                  <label for="price" class="form-label">單位</label>
+                  <label for="unit" class="form-label">單位</label>
                   <input
                     id="unit"
                     type="text"
@@ -332,11 +332,11 @@
 
 <script setup>
 import {
-  ref, reactive, onMounted, watch,
+  ref, reactive, watch,
 } from 'vue';
-import { Modal } from 'bootstrap';
 import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
+import useModal from '@/composables/useModal';
 
 // 環境變數
 const {
@@ -363,9 +363,8 @@ const emit = defineEmits(['update', 'update-product']);
 const toastStore = useToastMessageStore();
 
 // 響應式數據
-const modalRef = ref(null);
+const { modalRef, openModal, closeModal } = useModal();
 const fileInputRef = ref(null);
-const modal = ref(null);
 
 const status = reactive({
   fileUploading: false,
@@ -395,14 +394,7 @@ const editProduct = reactive({
 const isLoading = ref(true);
 const hoverStar = ref(0);
 
-// Modal 相關方法（來自 modalMixin）
-const openModal = () => {
-  modal.value?.show();
-};
-
-const closeModal = () => {
-  modal.value?.hide();
-};
+// Modal 相關方法 (來自 useModal)
 
 // 產品相關方法
 const setStarRating = (star) => {
@@ -535,19 +527,19 @@ watch(
   },
 );
 
-// 組件掛載時的初始化
-onMounted(() => {
-  // 初始化 Bootstrap Modal
-  modal.value = new Modal(modalRef.value, {
-    backdrop: 'static',
-    keyboard: false,
-  });
-
-  // 初始化產品數據
-  if (props.tempProduct) {
-    initializeProductData(props.tempProduct);
-  }
-});
+// 組件掛載時的初始化 (Modal 部分已移至 useModal)
+watch(
+  () => props.tempProduct,
+  (newProduct) => {
+    if (newProduct) {
+      initializeProductData(newProduct);
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 
 // 暴露方法給父組件使用
 defineExpose({
