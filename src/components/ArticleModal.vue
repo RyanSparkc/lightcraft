@@ -6,7 +6,7 @@
     role="dialog"
     aria-labelledby="exampleModalLabel"
     aria-modal="true"
-    ref="modal"
+    ref="modalRef"
   >
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content border-0">
@@ -174,12 +174,12 @@
 
 <script setup>
 import {
-  ref, computed, watch, onMounted,
+  ref, computed, watch,
 } from 'vue';
-import { Modal } from 'bootstrap';
 import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import useModal from '@/composables/useModal';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
@@ -199,8 +199,7 @@ const props = defineProps({
 const emit = defineEmits(['update-article']);
 
 // 響應式數據
-const modal = ref(null);
-const modalInstance = ref(null);
+const { modalRef, openModal, closeModal } = useModal();
 const fileInput = ref(null);
 const tempArticle = ref({
   tag: [''],
@@ -301,64 +300,26 @@ const upLoadFile = async () => {
   }
 };
 
-// Modal 控制方法 (從 modalMixin 拆解而來)
-const openModal = () => {
-  modalInstance.value?.show();
-};
-
-const closeModal = () => {
-  modalInstance.value?.hide();
-};
-
 // Watch 邏輯 (優化版)
 watch(() => props.article, (newArticle) => {
-  if (newArticle && Object.keys(newArticle).length > 0) {
-    // 深拷貝防止直接修改 props
-    tempArticle.value = {
-      ...newArticle,
-      tag: Array.isArray(newArticle.tag) && newArticle.tag.length > 0
-        ? [...newArticle.tag]
-        : [''],
-      create_at: newArticle.create_at || Math.floor(Date.now() / 1000),
-    };
-
-    // 安全的日期轉換
-    if (newArticle.create_at) {
-      try {
-        const date = new Date(newArticle.create_at * 1000);
-        if (!Number.isNaN(date.getTime())) {
-          const [dateString] = date.toISOString().split('T');
-          createAt.value = dateString;
-        } else {
-          // 如果日期無效，使用當前日期
-          const [currentDateString] = new Date().toISOString().split('T');
-          createAt.value = currentDateString;
-        }
-      } catch (error) {
-        console.warn('日期轉換錯誤:', error);
-        const [currentDateString] = new Date().toISOString().split('T');
-        createAt.value = currentDateString;
-      }
-    } else {
-      // 如果沒有建立時間，使用當前日期
-      const [currentDateString] = new Date().toISOString().split('T');
-      createAt.value = currentDateString;
+  if (newArticle && Object.keys(newArticle).length) {
+    tempArticle.value = { ...newArticle };
+    if (Array.isArray(tempArticle.value.tag)) {
+      [createAt.value] = new Date(tempArticle.value.create_at * 1000)
+        .toISOString()
+        .split('T');
+    }
+    if (tempArticle.value.tag === undefined) {
+      tempArticle.value.tag = [''];
     }
   } else {
-    // 重置為預設值
+    // isNew
     tempArticle.value = {
-      title: '',
-      author: '',
-      description: '',
-      content: '',
-      image: '',
-      imageUrl: '',
       tag: [''],
       isPublic: false,
-      create_at: Math.floor(Date.now() / 1000),
+      create_at: new Date().getTime() / 1000,
     };
-    const [currentDateString] = new Date().toISOString().split('T');
-    createAt.value = currentDateString;
+    [createAt.value] = new Date().toISOString().split('T');
   }
 }, { immediate: true, deep: true });
 
@@ -394,16 +355,6 @@ watch(() => tempArticle.value.create_at, (newTimestamp) => {
     setTimeout(() => {
       isUpdatingDate = false;
     }, 0);
-  }
-});
-
-// 生命週期
-onMounted(() => {
-  if (modal.value) {
-    modalInstance.value = new Modal(modal.value, {
-      backdrop: 'static',
-      keyboard: false,
-    });
   }
 });
 
