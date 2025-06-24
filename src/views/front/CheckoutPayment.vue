@@ -134,7 +134,7 @@
 
     <!-- 底部按鈕 -->
     <div class="d-flex justify-content-between mt-4">
-      <button class="btn-secondary" @click="$router.back()">上一步</button>
+      <button class="btn-secondary" @click="router.back()">上一步</button>
       <button
         class="btn-primary"
         @click="completeOrder"
@@ -146,98 +146,96 @@
   </div>
 </template>
 
-<script>
-import { mapState, mapActions } from 'pinia';
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
+
 import useCartStore from '@/stores/cartStore';
 
-export default {
-  name: 'CheckoutPayment',
-  data() {
-    return {
-      selectedPayment: 'credit',
-      isSubmitting: false,
-      termsAccepted: true,
-      orderId: null,
-      orderCartData: {
-        carts: [],
-        total: 0,
-        final_total: 0,
-      },
-    };
-  },
-  computed: {
-    ...mapState(useCartStore, ['carts', 'total', 'final_total']),
-    // 使用保存的購物車資料
-    displayCarts() {
-      return this.orderCartData.carts.length > 0 ? this.orderCartData.carts : this.carts;
-    },
-    displayTotal() {
-      return this.orderCartData.total > 0 ? this.orderCartData.total : this.total;
-    },
-    displayFinalTotal() {
-      return this.orderCartData.final_total > 0 ? this.orderCartData.final_total : this.final_total;
-    },
-    formattedTotal() {
-      return Math.round(this.displayTotal).toLocaleString();
-    },
-    formattedFinalTotal() {
-      return Math.round(this.displayFinalTotal).toLocaleString();
-    },
-    discountAmount() {
-      return Math.round(this.displayTotal - this.displayFinalTotal);
-    },
-    hasDiscount() {
-      return this.discountAmount > 0;
-    },
-  },
-  methods: {
-    ...mapActions(useCartStore, ['getCart', 'createOrder', 'payOrder']),
-    async completeOrder() {
-      if (this.isSubmitting) return;
+const router = useRouter();
+const route = useRoute();
+const cartStore = useCartStore();
+const { carts, total, final_total: finalTotal } = storeToRefs(cartStore);
 
-      try {
-        this.isSubmitting = true;
+// 響應式數據
+const selectedPayment = ref('credit');
+const isSubmitting = ref(false);
+const orderId = ref(null);
+const orderCartData = ref({
+  carts: [],
+  total: 0,
+  final_total: 0,
+});
 
-        // 檢查是否有訂單 ID
-        if (!this.orderId) {
-          this.$router.push('/checkout/address');
-          return;
-        }
+// Computed 屬性
+const displayCarts = computed(() =>
+  (orderCartData.value.carts.length > 0 ? orderCartData.value.carts : carts.value));
 
-        // 立即處理付款
-        await this.payOrder(this.orderId);
+const displayTotal = computed(() =>
+  (orderCartData.value.total > 0 ? orderCartData.value.total : total.value));
 
-        // 清除保存的購物車資料
-        localStorage.removeItem('orderCartData');
+const displayFinalTotal = computed(() =>
+  (orderCartData.value.final_total > 0 ? orderCartData.value.final_total : finalTotal.value));
 
-        // 跳轉到完成頁面
-        this.$router.push(`/checkout/complete/${this.orderId}`);
-      } catch (error) {
-        // 錯誤處理已在 store 中完成
-      } finally {
-        this.isSubmitting = false;
-      }
-    },
-  },
-  mounted() {
-    // 載入購物車資料
-    this.getCart();
+const formattedTotal = computed(() =>
+  Math.round(displayTotal.value).toLocaleString());
 
-    // 從 URL 查詢參數中獲取訂單 ID
-    this.orderId = this.$route.query.orderId;
+const formattedFinalTotal = computed(() =>
+  Math.round(displayFinalTotal.value).toLocaleString());
 
-    // 載入保存的購物車資料
-    const savedCartData = localStorage.getItem('orderCartData');
-    if (savedCartData) {
-      this.orderCartData = JSON.parse(savedCartData);
+const discountAmount = computed(() =>
+  Math.round(displayTotal.value - displayFinalTotal.value));
+
+const hasDiscount = computed(() =>
+  discountAmount.value > 0);
+
+// 完成訂單付款
+const completeOrder = async () => {
+  if (isSubmitting.value) return;
+
+  try {
+    isSubmitting.value = true;
+
+    // 檢查是否有訂單 ID
+    if (!orderId.value) {
+      router.push('/checkout/address');
+      return;
     }
 
-    // 如果沒有訂單 ID，跳轉回地址頁面
-    if (!this.orderId) {
-      this.$router.push('/checkout/address');
-    }
-  },
+    // 立即處理付款
+    await cartStore.payOrder(orderId.value);
+
+    // 清除保存的購物車資料
+    localStorage.removeItem('orderCartData');
+
+    // 跳轉到完成頁面
+    router.push(`/checkout/complete/${orderId.value}`);
+  } catch (error) {
+    // 錯誤處理已在 store 中完成
+  } finally {
+    isSubmitting.value = false;
+  }
 };
+
+onMounted(() => {
+  // 載入購物車資料
+  cartStore.getCart();
+
+  // 從 URL 查詢參數中獲取訂單 ID
+  orderId.value = route.query.orderId;
+
+  // 載入保存的購物車資料
+  const savedCartData = localStorage.getItem('orderCartData');
+  if (savedCartData) {
+    orderCartData.value = JSON.parse(savedCartData);
+  }
+
+  // 如果沒有訂單 ID，跳轉回地址頁面
+  if (!orderId.value) {
+    router.push('/checkout/address');
+  }
+});
 </script>
 
 <style scoped>
