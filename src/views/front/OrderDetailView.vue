@@ -50,7 +50,10 @@
         <!-- 未付款時顯示付款按鈕 -->
         <div v-if="!order.is_paid" class="mt-3 pt-3 border-top">
           <div class="d-flex justify-content-end">
-            <button class="btn btn-primary btn-lg px-4" @click="goToPayment">
+            <button
+              class="btn btn-warning btn-lg px-4 payment-btn"
+              @click="goToPayment"
+            >
               <i class="bi bi-credit-card me-2"></i>
               前往付款
             </button>
@@ -500,14 +503,26 @@ onMounted(() => {
   border-top-right-radius: 12px;
 }
 
-.btn-primary:hover {
-  background-color: #354298;
-  border-color: #354298;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
+/* 前往付款按鈕的自定義樣式 */
+.payment-btn {
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
-.btn-primary:focus {
-  box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+.payment-btn:hover {
+  background-color: #e6a100 !important;
+  border-color: #e6a100 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+  color: #000 !important;
+}
+
+.payment-btn:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25) !important;
+}
+
+.payment-btn:active {
+  background-color: #d39e00 !important;
+  border-color: #d39e00 !important;
 }
 </style>
