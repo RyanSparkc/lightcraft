@@ -6,7 +6,7 @@
     role="dialog"
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
-    ref="modal"
+    ref="modalRef"
   >
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content border-0">
@@ -79,8 +79,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { Modal } from 'bootstrap';
+import { ref, watch } from 'vue';
+import useModal from '@/composables/useModal';
 
 const props = defineProps({
   product: {
@@ -92,26 +92,8 @@ const props = defineProps({
 const emit = defineEmits(['add-to-cart']);
 
 // Reactive data
-const productModal = ref(null);
 const qty = ref(1);
-const modal = ref(null);
-
-// Methods
-const openModal = () => {
-  productModal.value?.show();
-};
-
-const hideModal = () => {
-  productModal.value?.hide();
-};
-
-// Lifecycle
-onMounted(() => {
-  productModal.value = new Modal(modal.value, {
-    keyboard: false,
-    backdrop: 'static',
-  });
-});
+const { modalRef, openModal, closeModal: hideModal } = useModal();
 
 // Watch
 watch(() => props.product, () => {
