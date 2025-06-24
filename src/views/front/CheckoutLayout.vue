@@ -21,19 +21,21 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'CheckoutLayout',
-  computed: {
-    activeStep() {
-      const { path } = this.$route;
-      if (path.includes('/checkout/address')) return 1;
-      if (path.includes('/checkout/payment')) return 2;
-      if (path.includes('/checkout/complete')) return 3;
-      return 1;
-    },
-  },
-};
+<script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+// 路由
+const route = useRoute();
+
+// 計算屬性
+const activeStep = computed(() => {
+  const { path } = route;
+  if (path.includes('/checkout/address')) return 1;
+  if (path.includes('/checkout/payment')) return 2;
+  if (path.includes('/checkout/complete')) return 3;
+  return 1;
+});
 </script>
 
 <style scoped>
