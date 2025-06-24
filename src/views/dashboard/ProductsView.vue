@@ -118,15 +118,17 @@
 </template>
 
 <script setup>
+// 第三方函式庫
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+
+// @ 別名路徑
 import useToastMessageStore from '@/stores/toastMessage';
 import { currency } from '@/methods/filters';
-
 import PageHeader from '@/components/PageHeader.vue';
-import ProductModal from '../../components/ProductModal.vue';
-import DeleteModal from '../../components/DeleteModal.vue';
-import PaginationComponent from '../../components/PaginationComponent.vue';
+import ProductModal from '@/components/ProductModal.vue';
+import DeleteModal from '@/components/DeleteModal.vue';
+import PaginationComponent from '@/components/PaginationComponent.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 

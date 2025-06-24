@@ -92,9 +92,12 @@
 </template>
 
 <script setup>
+// 第三方函式庫
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+
+// @ 別名路徑
 import useToastMessageStore from '@/stores/toastMessage';
 import ToastMessages from '@/components/ToastMessages.vue';
 

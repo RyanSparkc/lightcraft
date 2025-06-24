@@ -247,8 +247,9 @@ import {
   ref, computed, watch, onMounted,
 } from 'vue';
 import axios from 'axios';
-import useToastMessageStore from '@/stores/toastMessage';
 
+// @ 別名路徑
+import useToastMessageStore from '@/stores/toastMessage';
 import PageHeader from '@/components/PageHeader.vue';
 import CouponModal from '@/components/CouponModal.vue';
 import DeleteModal from '@/components/DeleteModal.vue';
@@ -433,8 +434,6 @@ const getCoupons = () => {
 };
 
 const openCouponModal = (isNewCoupon, item) => {
-  console.log('開啟優惠券 Modal:', { isNewCoupon, item }); // 除錯用
-
   isNew.value = isNewCoupon;
   if (isNew.value) {
     // 新增模式：設定預設值
@@ -450,7 +449,6 @@ const openCouponModal = (isNewCoupon, item) => {
     tempCoupon.value = { ...item };
   }
 
-  console.log('設定的 tempCoupon:', tempCoupon.value); // 除錯用
   couponModal.value.openModal();
 };
 
@@ -460,8 +458,6 @@ const openDelCouponModal = (item) => {
 };
 
 const updateCoupon = (tempCouponData) => {
-  console.log('收到的優惠券資料:', tempCouponData); // 除錯用
-
   isLoading.value = true;
   let url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/coupon`;
   let httpMethods = 'post';
@@ -472,8 +468,6 @@ const updateCoupon = (tempCouponData) => {
     httpMethods = 'put';
     data = { ...tempCouponData }; // 修正：使用傳入的資料而不是父組件的 tempCoupon
   }
-
-  console.log('API 請求:', { url, httpMethods, data }); // 除錯用
 
   axios[httpMethods](url, { data })
     .then((res) => {
@@ -493,7 +487,6 @@ const updateCoupon = (tempCouponData) => {
         content: err.response?.data?.message || '操作失敗',
         style: 'danger',
       });
-      console.error('API 錯誤:', err); // 除錯用
     });
 };
 

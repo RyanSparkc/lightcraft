@@ -270,7 +270,6 @@ const showCoupon = computed(() => !!carts.value?.[0]?.coupon);
 
 const discountAmount = computed(() => {
   const discount = total.value - finalTotal.value;
-  console.log('total', total.value);
   return Math.round(discount);
 });
 

@@ -55,7 +55,7 @@ const props = defineProps({
 
 // for lint
 if (props.item.id === -1) {
-  console.log('never');
+  // 不會執行到這裡
 }
 
 // Emits 定義

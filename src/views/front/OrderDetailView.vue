@@ -322,7 +322,6 @@ const actualDiscountAmount = computed(() =>
 // 方法定義
 const getOrder = async (orderId) => {
   if (!orderId) {
-    console.error('訂單 ID 無效');
     return;
   }
 
@@ -333,9 +332,8 @@ const getOrder = async (orderId) => {
     const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/order/${orderId}`;
     const response = await axios.get(url);
     order.value = response.data.order;
-    console.log(order.value);
   } catch (error) {
-    console.error('獲取訂單失敗', error);
+    // 錯誤已在 axios 攔截器中處理
     // 如果是 404，顯示找不到訂單
     if (error.response?.status === 404) {
       order.value = null;

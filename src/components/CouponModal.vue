@@ -131,11 +131,8 @@ const { modalRef, openModal, closeModal } = useModal();
 
 // 處理更新優惠券
 const handleUpdateCoupon = () => {
-  console.log('準備發送的優惠券資料:', tempCoupon.value); // 除錯用
-
   // 確保資料完整性
   if (!tempCoupon.value || Object.keys(tempCoupon.value).length === 0) {
-    console.warn('tempCoupon 沒有完整的資料');
     return;
   }
 
@@ -170,7 +167,6 @@ watch(() => props.coupon, (newCoupon) => {
           [dueDate.value] = new Date().toISOString().split('T');
         }
       } catch (error) {
-        console.warn('日期轉換錯誤:', error);
         [dueDate.value] = new Date().toISOString().split('T');
       }
     } else {

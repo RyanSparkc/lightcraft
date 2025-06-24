@@ -160,7 +160,6 @@ const checkLogin = () => {
   axios
     .post(`${VITE_APP_URL}/api/user/check`)
     .then((res) => {
-      console.log(res.data.success);
       toastStore.addMessage({
         title: '登入成功',
         content: res.data.message,
@@ -168,8 +167,7 @@ const checkLogin = () => {
       });
       success.value = true;
     })
-    .catch((err) => {
-      console.log(err.response.data.message);
+    .catch(() => {
       router.push('/login');
     });
 };
@@ -180,8 +178,8 @@ const logout = () => {
     .then(() => {
       router.push('/login');
     })
-    .catch((err) => {
-      console.error(err.response.data.message);
+    .catch(() => {
+      // 錯誤已在上層處理
     });
 };
 
