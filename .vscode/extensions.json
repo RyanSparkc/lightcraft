@@ -1,5 +1,6 @@
 {
   "recommendations": [
     "Vue.volar",
+    "stagewise.stagewise-vscode-extension"
   ]
 }

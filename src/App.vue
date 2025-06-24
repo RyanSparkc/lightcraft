@@ -1,20 +1,15 @@
 <template>
   <RouterView />
-  <StagewiseToolbar v-if="isDevelopment" :config="stagewiseConfig" />
+  <StagewiseToolbar :config="stagewiseConfig" />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
 import { StagewiseToolbar } from '@stagewise/toolbar-vue';
 import { VuePlugin } from '@stagewise-plugins/vue';
 
-// Stagewise 配置
-const stagewiseConfig = ref({
+const stagewiseConfig = {
   plugins: [VuePlugin],
-});
-
-// 開發環境判斷
-const isDevelopment = computed(() => import.meta.env.MODE === 'development');
+};
 </script>
 
 <style lang="scss">
