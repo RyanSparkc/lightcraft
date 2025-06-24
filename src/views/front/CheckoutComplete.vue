@@ -15,53 +15,41 @@
       您的訂單已成立，訂單編號：<strong>#{{ displayOrderId }}</strong>
     </p>
     <div class="d-flex justify-content-center mt-2">
-      <button class="btn-primary me-3" @click="$router.push('/')">
-        回首頁
-      </button>
+      <button class="btn-primary me-3" @click="router.push('/')">回首頁</button>
       <button class="btn-secondary me-3" @click="viewOrder">
         查看訂單詳情
       </button>
-      <button class="btn-outline-primary" @click="$router.push('/orders')">
+      <button class="btn-outline-primary" @click="router.push('/orders')">
         查看所有訂單
       </button>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Vue3Lottie } from 'vue3-lottie';
 import completeAnimationData from '@/assets/lottie/checkout-complete.json';
 
-export default {
-  name: 'CheckoutComplete',
-  components: {
-    Vue3Lottie,
-  },
-  data() {
-    return {
-      completeAnimationData,
-    };
-  },
-  computed: {
-    orderId() {
-      return this.$route.params.orderId;
-    },
-    displayOrderId() {
-      return this.orderId || 'N/A';
-    },
-  },
-  methods: {
-    viewOrder() {
-      // 使用實際的訂單 ID 跳轉到訂單詳情頁面
-      if (this.orderId) {
-        this.$router.push(`/order/${this.orderId}`);
-      } else {
-        // 如果沒有訂單 ID，跳轉到首頁
-        this.$router.push('/');
-      }
-    },
-  },
+// 路由
+const route = useRoute();
+const router = useRouter();
+
+// 計算屬性
+const orderId = computed(() => route.params.orderId);
+const displayOrderId = computed(() => orderId.value || 'N/A');
+
+// 方法
+const viewOrder = () => {
+  // 使用實際的訂單 ID 跳轉到訂單詳情頁面
+  if (orderId.value) {
+    router.push(`/order/${orderId.value}`);
+  } else {
+    // 如果沒有訂單 ID，跳轉到首頁
+    router.push('/');
+  }
 };
 </script>
 
