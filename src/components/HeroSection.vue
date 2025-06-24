@@ -22,14 +22,17 @@ defineProps({
   title: {
     type: String,
     required: true,
+    validator: (value) => value && value.length > 0,
   },
   subtitle: {
     type: String,
     required: true,
+    validator: (value) => value && value.length > 0,
   },
   iconClass: {
     type: String,
     default: 'fas fa-lightbulb',
+    validator: (value) => value && value.length > 0,
   },
 });
 </script>

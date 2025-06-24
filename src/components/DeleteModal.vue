@@ -46,20 +46,25 @@
 import useModal from '@/composables/useModal';
 
 // Props 定義
-const props = defineProps({
+defineProps({
   item: {
     type: Object,
     required: true,
+    default: () => ({
+      id: '',
+      title: '',
+    }),
+    validator: (value) => value && typeof value === 'object' && 'title' in value,
   },
 });
 
-// for lint
-if (props.item.id === -1) {
-  // 不會執行到這裡
-}
-
 // Emits 定義
-const emit = defineEmits(['confirm']);
+const emit = defineEmits({
+  confirm: {
+    type: Function,
+    required: true,
+  },
+});
 
 // 響應式數據
 const { modalRef, openModal, closeModal } = useModal();

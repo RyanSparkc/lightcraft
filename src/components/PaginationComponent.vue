@@ -57,6 +57,11 @@ const props = defineProps({
       has_pre: false,
       has_next: false,
     }),
+    validator: (value) => {
+      const requiredKeys = ['total_pages', 'current_page', 'has_pre', 'has_next'];
+      return value && typeof value === 'object'
+        && requiredKeys.every((key) => key in value);
+    },
   },
   ariaLabel: {
     type: String,
@@ -65,7 +70,12 @@ const props = defineProps({
 });
 
 // Emits 定義
-const emit = defineEmits(['change-page']);
+const emit = defineEmits({
+  'change-page': {
+    type: Function,
+    required: true,
+  },
+});
 
 // 計算屬性
 const displayPages = computed(() => {

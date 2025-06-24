@@ -85,11 +85,30 @@ import useModal from '@/composables/useModal';
 const props = defineProps({
   product: {
     type: Object,
-    default: () => ({}),
+    required: true,
+    default: () => ({
+      id: '',
+      title: '',
+      category: '',
+      origin_price: 0,
+      price: 0,
+      unit: '',
+      description: '',
+      content: '',
+      imageUrl: '',
+      imagesUrl: [],
+      is_enabled: 1,
+    }),
+    validator: (value) => value && typeof value === 'object',
   },
 });
 
-const emit = defineEmits(['add-to-cart']);
+const emit = defineEmits({
+  'add-to-cart': {
+    type: Function,
+    required: true,
+  },
+});
 
 // Reactive data
 const qty = ref(1);

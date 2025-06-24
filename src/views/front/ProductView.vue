@@ -364,7 +364,6 @@ const route = useRoute();
 const cartStore = useCartStore();
 const toastMessageStore = useToastMessageStore();
 const { addToCart } = cartStore;
-const { addMessage } = toastMessageStore;
 
 // 響應式數據
 const product = ref({});
@@ -448,48 +447,56 @@ const checkLoadingComplete = () => {
   }
 };
 
-const getRelatedProducts = () => {
+const getRelatedProducts = async () => {
   if (!product.value.category) return;
 
-  fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${product.value.category}`)
-    .then((res) => res.json())
-    .then((data) => {
-      // 過濾掉當前產品，只顯示其他同分類產品，最多顯示4個
-      relatedProducts.value = data.products
-        .filter((prod) => prod.id !== product.value.id)
-        .slice(0, 4);
-    })
-    .catch((err) => {
-      addMessage({
-        title: '載入推薦商品失敗',
-        content: `無法載入推薦商品：${err.message || '未知錯誤'}`,
-        style: 'warning',
-      });
-      relatedProducts.value = [];
+  try {
+    const response = await fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products/all`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || '載入推薦商品失敗');
+    }
+
+    // 過濾掉當前產品，只顯示其他同分類產品，最多顯示4個
+    relatedProducts.value = data.products
+      .filter((prod) => prod.id !== product.value.id)
+      .slice(0, 4);
+  } catch (error) {
+    toastMessageStore.addMessage({
+      title: '載入推薦商品失敗',
+      content: error.message || '無法載入推薦商品，請稍後再試',
+      style: 'warning',
     });
+    relatedProducts.value = [];
+  }
 };
 
-const getProduct = () => {
+const getProduct = async () => {
   const { id } = route.params;
   isProductLoading.value = true; // 開始載入
   imageLoadedCount.value = 0; // 重置圖片載入計數
 
-  fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`)
-    .then((res) => res.json())
-    .then((data) => {
-      product.value = data.product;
-      // 當產品資料載入完成，檢查是否需要繼續等待圖片載入
-      checkLoadingComplete();
-      getRelatedProducts();
-    })
-    .catch((err) => {
-      isProductLoading.value = false;
-      addMessage({
-        title: '載入失敗',
-        content: `載入產品失敗：${err.message || '未知錯誤'}`,
-        style: 'danger',
-      });
+  try {
+    const response = await fetch(`${VITE_APP_URL}/api/${VITE_APP_PATH}/product/${id}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || '載入產品失敗');
+    }
+
+    product.value = data.product;
+    // 當產品資料載入完成，檢查是否需要繼續等待圖片載入
+    checkLoadingComplete();
+    await getRelatedProducts();
+  } catch (error) {
+    isProductLoading.value = false;
+    toastMessageStore.addMessage({
+      title: '載入失敗',
+      content: error.message || '載入產品失敗，請稍後再試',
+      style: 'danger',
     });
+  }
 };
 
 const increaseQuantity = () => {

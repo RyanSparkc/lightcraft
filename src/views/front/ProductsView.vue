@@ -228,7 +228,6 @@ const route = useRoute();
 
 // Store
 const toastStore = useToastMessageStore();
-const { addMessage } = toastStore;
 const cartStore = useCartStore();
 
 // 響應式數據
@@ -281,46 +280,43 @@ const getCategoryIcon = (categoryName) => {
 };
 
 // API 方法
-const getCategories = () => {
-  axios
-    .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products/all`)
-    .then((res) => {
-      // 從所有產品中提取唯一的分類
-      const uniqueCategories = [...new Set(res.data.products.map((product) => product.category))];
-      categories.value = uniqueCategories
-        .filter((category) => category) // 過濾掉空值
-        .map((categoryName) => ({
-          name: categoryName,
-          icon: getCategoryIcon(categoryName),
-        }));
-    })
-    .catch((err) => {
-      addMessage({
-        style: 'danger',
-        title: '錯誤',
-        content: err.response?.data?.message || '載入分類失敗',
-      });
+const getCategories = async () => {
+  try {
+    const response = await axios.get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products/all`);
+    // 從所有產品中提取唯一的分類
+    const uniqueCategories = [...new Set(response.data.products.map((product) => product.category))];
+    categories.value = uniqueCategories
+      .filter((category) => category) // 過濾掉空值
+      .map((categoryName) => ({
+        name: categoryName,
+        icon: getCategoryIcon(categoryName),
+      }));
+  } catch (error) {
+    toastStore.addMessage({
+      title: '載入分類失敗',
+      content: error.response?.data?.message || '無法載入產品分類，請稍後再試',
+      style: 'danger',
     });
+  }
 };
 
-const getProducts = (page = 1) => {
+const getProducts = async (page = 1) => {
   const { category = '' } = route.query;
   isLoading.value = true;
-  axios
-    .get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${category}&page=${page}`)
-    .then((res) => {
-      products.value = res.data.products;
-      Object.assign(pagination, res.data.pagination);
-      isLoading.value = false;
-    })
-    .catch((err) => {
-      addMessage({
-        style: 'danger',
-        title: '錯誤',
-        content: err.response.data.message,
-      });
-      isLoading.value = false;
+
+  try {
+    const response = await axios.get(`${VITE_APP_URL}/api/${VITE_APP_PATH}/products?category=${category}&page=${page}`);
+    products.value = response.data.products;
+    Object.assign(pagination, response.data.pagination);
+  } catch (error) {
+    toastStore.addMessage({
+      title: '載入產品失敗',
+      content: error.response?.data?.message || '無法載入產品列表，請稍後再試',
+      style: 'danger',
     });
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const changePage = (page) => {

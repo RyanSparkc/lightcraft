@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
@@ -114,8 +114,8 @@ const router = useRouter();
 const cartStore = useCartStore();
 const { carts, total, final_total: finalTotal } = storeToRefs(cartStore);
 
-// 表單數據
-const form = ref({
+// 表單數據 - 使用 reactive 處理複雜對象
+const form = reactive({
   name: '',
   email: '',
   phone: '',
@@ -123,34 +123,38 @@ const form = ref({
   message: '',
 });
 
-// 錯誤處理
-const errors = ref({});
+// 錯誤處理 - 使用 reactive 處理複雜對象
+const errors = reactive({});
 
-// 其他狀態
+// 其他狀態 - 基本類型使用 ref
 const shippingFee = ref('NT$ 0');
 const estimatedDelivery = ref('3–5 個工作天');
 const isSubmitting = ref(false);
 
 // 表單驗證
 const validate = () => {
-  errors.value = {};
-  if (!form.value.name) {
-    errors.value.name = '姓名為必填';
+  // 清空所有錯誤
+  Object.keys(errors).forEach((key) => {
+    delete errors[key];
+  });
+
+  if (!form.name) {
+    errors.name = '姓名為必填';
   }
-  if (!form.value.email) {
-    errors.value.email = 'Email為必填';
-  } else if (!/^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(form.value.email)) {
-    errors.value.email = 'Email格式不正確';
+  if (!form.email) {
+    errors.email = 'Email為必填';
+  } else if (!/^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(form.email)) {
+    errors.email = 'Email格式不正確';
   }
-  if (!form.value.phone) {
-    errors.value.phone = '手機為必填';
-  } else if (!/^[0-9]+$/.test(form.value.phone)) {
-    errors.value.phone = '手機格式需為數字';
+  if (!form.phone) {
+    errors.phone = '手機為必填';
+  } else if (!/^[0-9]+$/.test(form.phone)) {
+    errors.phone = '手機格式需為數字';
   }
-  if (!form.value.address) {
-    errors.value.address = '地址為必填';
+  if (!form.address) {
+    errors.address = '地址為必填';
   }
-  return Object.keys(errors.value).length === 0;
+  return Object.keys(errors).length === 0;
 };
 
 // 提交表單並建立訂單
@@ -172,12 +176,12 @@ const nextStep = async () => {
     // 準備訂單資料，按照 API 文件格式
     const orderData = {
       user: {
-        name: form.value.name,
-        email: form.value.email,
-        tel: form.value.phone,
-        address: form.value.address,
+        name: form.name,
+        email: form.email,
+        tel: form.phone,
+        address: form.address,
       },
-      message: form.value.message || '',
+      message: form.message || '',
     };
 
     // 建立訂單
@@ -199,7 +203,8 @@ const nextStep = async () => {
 const loadAddressData = () => {
   const savedAddress = localStorage.getItem('checkoutAddress');
   if (savedAddress) {
-    form.value = JSON.parse(savedAddress);
+    const addressData = JSON.parse(savedAddress);
+    Object.assign(form, addressData);
   }
 };
 
