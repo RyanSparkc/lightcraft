@@ -237,7 +237,7 @@
   </div>
 
   <OrderModal ref="orderModal" :order="tempOrder" @update-paid="updatePaid" />
-  <DelModal ref="delModal" :item="tempOrder" @del-item="deleteOrder" />
+  <DeleteModal ref="delModal" :item="tempOrder" @confirm="deleteOrder" />
 </template>
 
 <script setup>
@@ -247,7 +247,7 @@ import useToastMessageStore from '@/stores/toastMessage';
 
 import PageHeader from '@/components/PageHeader.vue';
 import OrderModal from '@/components/OrderModal.vue';
-import DelModal from '@/components/DelModal.vue';
+import DeleteModal from '@/components/DeleteModal.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
