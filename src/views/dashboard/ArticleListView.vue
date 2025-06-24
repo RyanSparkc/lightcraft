@@ -209,11 +209,11 @@
     :is-new="isNew"
     @update-article="updateArticle"
   ></ArticleModal>
-  <DelModal
+  <DeleteModal
     ref="delModal"
     :item="tempArticle"
-    @del-item="delArticle"
-  ></DelModal>
+    @confirm="delArticle"
+  ></DeleteModal>
 </template>
 
 <script setup>
@@ -223,7 +223,7 @@ import useToastMessageStore from '@/stores/toastMessage';
 import { date } from '@/methods/filters';
 
 import ArticleModal from '@/components/ArticleModal.vue';
-import DelModal from '@/components/DelModal.vue';
+import DeleteModal from '@/components/DeleteModal.vue';
 import PageHeader from '@/components/PageHeader.vue';
 
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
