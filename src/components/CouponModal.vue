@@ -8,7 +8,7 @@
     tabindex="-1"
     aria-labelledby="staticBackdropLabel"
     aria-hidden="true"
-    ref="modal"
+    ref="modalRef"
   >
     <div class="modal-dialog">
       <div class="modal-content ">
@@ -104,8 +104,8 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-import { Modal } from 'bootstrap';
+import { ref, watch } from 'vue';
+import useModal from '@/composables/useModal';
 
 // Props 定義
 const props = defineProps({
@@ -126,24 +126,8 @@ const emit = defineEmits(['update-coupon']);
 const tempCoupon = ref({});
 const dueDate = ref('');
 
-// 模板引用
-const modal = ref(null);
-
-// Modal 實例
-let modalInstance = null;
-
-// Modal 方法（來自 modalMixin）
-const openModal = () => {
-  if (modalInstance) {
-    modalInstance.show();
-  }
-};
-
-const closeModal = () => {
-  if (modalInstance) {
-    modalInstance.hide();
-  }
-};
+// useModal Composable
+const { modalRef, openModal, closeModal } = useModal();
 
 // 處理更新優惠券
 const handleUpdateCoupon = () => {
@@ -196,15 +180,7 @@ watch(() => props.coupon, (newCoupon) => {
   }
 }, { immediate: true });
 
-// 生命週期
-onMounted(() => {
-  if (modal.value) {
-    modalInstance = new Modal(modal.value, {
-      backdrop: 'static',
-      keyboard: false,
-    });
-  }
-});
+// 生命週期 (已移至 useModal)
 
 // 暴露方法供父組件使用
 defineExpose({
