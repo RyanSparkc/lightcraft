@@ -6,7 +6,7 @@
     role="dialog"
     aria-labelledby="exampleModalLabel"
     aria-hidden="true"
-    ref="modal"
+    ref="modalRef"
   >
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content border-0">
@@ -142,8 +142,8 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-import { Modal } from 'bootstrap';
+import { ref, watch } from 'vue';
+import useModal from '@/composables/useModal';
 import { date, currency } from '@/methods/filters';
 
 // Props 定義
@@ -158,8 +158,7 @@ const props = defineProps({
 const emit = defineEmits(['update-paid']);
 
 // 響應式數據
-const modal = ref(null);
-const modalInstance = ref(null);
+const { modalRef, openModal, closeModal } = useModal();
 const tempOrder = ref({});
 
 // Filter 函數
@@ -173,15 +172,6 @@ const formatCurrency = (amount) => {
   return currency(amount);
 };
 
-// Modal 控制方法 (從 modalMixin 拆解而來)
-const openModal = () => {
-  modalInstance.value?.show();
-};
-
-const closeModal = () => {
-  modalInstance.value?.hide();
-};
-
 // 監聽 order prop 變化
 watch(() => props.order, (newOrder) => {
   if (newOrder && Object.keys(newOrder).length > 0) {
@@ -189,15 +179,7 @@ watch(() => props.order, (newOrder) => {
   }
 }, { immediate: true, deep: true });
 
-// 生命週期
-onMounted(() => {
-  if (modal.value) {
-    modalInstance.value = new Modal(modal.value, {
-      backdrop: 'static',
-      keyboard: false,
-    });
-  }
-});
+// 生命週期 (已移至 useModal)
 
 // 暴露方法供父組件調用
 defineExpose({
