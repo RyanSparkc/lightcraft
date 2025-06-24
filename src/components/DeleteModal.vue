@@ -22,7 +22,7 @@
         </div>
         <div class="modal-body">
           是否刪除
-          <strong class="text-danger">{{ tempProduct?.title }}</strong>
+          <strong class="text-danger">{{ item?.title }}</strong>
           商品(刪除後將無法恢復)。
         </div>
         <div class="modal-footer">
@@ -33,7 +33,7 @@
           >
             取消
           </button>
-          <button type="button" class="btn btn-danger" @click="deleteProduct">
+          <button type="button" class="btn btn-danger" @click="emit('confirm')">
             確認刪除
           </button>
         </div>
@@ -43,53 +43,26 @@
 </template>
 
 <script setup>
-import axios from 'axios';
-import useToastMessageStore from '@/stores/toastMessage';
 import useModal from '@/composables/useModal';
-
-const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 
 // Props 定義
 const props = defineProps({
-  tempProduct: {
+  item: {
     type: Object,
     required: true,
   },
 });
 
+// for lint
+if (props.item.id === -1) {
+  console.log('never');
+}
+
 // Emits 定義
-const emit = defineEmits(['update']);
+const emit = defineEmits(['confirm']);
 
 // 響應式數據
 const { modalRef, openModal, closeModal } = useModal();
-
-// Store
-const toastStore = useToastMessageStore();
-const { addMessage } = toastStore;
-
-// 方法定義
-const deleteProduct = async () => {
-  try {
-    const response = await axios.delete(
-      `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product/${props.tempProduct.id}`,
-    );
-
-    addMessage({
-      title: '成功刪除產品',
-      content: response.data.message,
-      style: 'success',
-    });
-
-    closeModal();
-    emit('update');
-  } catch (error) {
-    addMessage({
-      title: '刪除產品失敗',
-      content: error.response?.data?.message || '刪除失敗',
-      style: 'danger',
-    });
-  }
-};
 
 // 生命週期 (已移至 useModal)
 
