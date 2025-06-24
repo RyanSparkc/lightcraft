@@ -112,8 +112,8 @@
   <!-- 刪除確認模態框 -->
   <DeleteModal
     ref="deleteModal"
-    :temp-product="tempProduct"
-    @update="getProducts"
+    :item="tempProduct"
+    @confirm="deleteProduct"
   ></DeleteModal>
 </template>
 
@@ -209,6 +209,29 @@ const updateProduct = async (item) => {
     isLoading.value = false;
     addMessage({
       title: '更新產品失敗',
+      content: err.response.data.message,
+      style: 'danger',
+    });
+  }
+};
+
+const deleteProduct = async () => {
+  isLoading.value = true;
+  try {
+    const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/admin/product/${tempProduct.value.id}`;
+    const res = await axios.delete(url);
+    isLoading.value = false;
+    getProducts();
+    deleteModal.value.closeModal();
+    addMessage({
+      title: '成功刪除產品',
+      content: res.data.message,
+      style: 'success',
+    });
+  } catch (err) {
+    isLoading.value = false;
+    addMessage({
+      title: '刪除產品失敗',
       content: err.response.data.message,
       style: 'danger',
     });
