@@ -3,27 +3,18 @@
   <StagewiseToolbar v-if="isDevelopment" :config="stagewiseConfig" />
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue';
 import { StagewiseToolbar } from '@stagewise/toolbar-vue';
 import { VuePlugin } from '@stagewise-plugins/vue';
 
-export default {
-  components: {
-    StagewiseToolbar,
-  },
-  data() {
-    return {
-      stagewiseConfig: {
-        plugins: [VuePlugin],
-      },
-    };
-  },
-  computed: {
-    isDevelopment() {
-      return import.meta.env.DEV;
-    },
-  },
-};
+// Stagewise 配置
+const stagewiseConfig = ref({
+  plugins: [VuePlugin],
+});
+
+// 開發環境判斷
+const isDevelopment = computed(() => import.meta.env.MODE === 'development');
 </script>
 
 <style lang="scss">
