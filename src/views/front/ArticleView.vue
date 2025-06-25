@@ -221,8 +221,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import axios from 'axios';
 import useToastMessageStore from '@/stores/toastMessage';
 import { date as formatDate } from '@/methods/filters';
 
@@ -232,7 +233,6 @@ const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env;
 // 路由和 store
 const route = useRoute();
 const toastStore = useToastMessageStore();
-const instance = getCurrentInstance();
 
 // 響應式數據
 const isLoading = ref(false);
@@ -244,8 +244,8 @@ const getArticle = () => {
   const url = `${VITE_APP_URL}/api/${VITE_APP_PATH}/article/${id.value}`;
   isLoading.value = true;
 
-  // 使用全域註冊的 axios
-  instance.proxy.axios.get(url)
+  // 直接使用 axios
+  axios.get(url)
     .then((res) => {
       article.value = res.data.article;
       isLoading.value = false;
