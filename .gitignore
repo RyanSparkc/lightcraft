@@ -35,6 +35,8 @@ docs/rules/*
 .env
 .env.example
 
+.claude/*
+
 
 
 
