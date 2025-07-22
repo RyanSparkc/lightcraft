@@ -170,25 +170,25 @@
             <div class="card-body">
               <ul class="list-unstyled mb-0">
                 <li class="mb-2">
-                  <a href.prevent="" class="text-decoration-none">
+                  <a href="#" class="text-decoration-none">
                     <i class="fas fa-chevron-right text-warning me-2"></i>
                     什麼是 LED 燈泡？
                   </a>
                 </li>
                 <li class="mb-2">
-                  <a href.prevent="" class="text-decoration-none">
+                  <a href="#" class="text-decoration-none">
                     <i class="fas fa-chevron-right text-warning me-2"></i>
                     LED 燈泡的優點
                   </a>
                 </li>
                 <li class="mb-2">
-                  <a href.prevent="" class="text-decoration-none">
+                  <a href="#" class="text-decoration-none">
                     <i class="fas fa-chevron-right text-warning me-2"></i>
                     如何選擇合適的燈泡
                   </a>
                 </li>
                 <li class="mb-0">
-                  <a href.prevent="" class="text-decoration-none">
+                  <a href="#" class="text-decoration-none">
                     <i class="fas fa-chevron-right text-warning me-2"></i>
                     安裝注意事項
                   </a>
