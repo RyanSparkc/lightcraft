@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - '@ckeditor/ckeditor5-vue'
+  - '@parcel/watcher'
+  - esbuild
+  - vue-demi
