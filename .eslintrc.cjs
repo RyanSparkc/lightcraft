@@ -27,5 +27,6 @@ module.exports = {
     'no-console': 'warn',
     'import/no-extraneous-dependencies': 'off',
     'vue/multi-word-component-names': 'off',
+    'linebreak-style': 'off',
   },
 };

@@ -77,7 +77,24 @@
 
 ### 環境需求
 
-* Node.js `v18.17.1` 或以上版本
+* Node.js `v18.17.1` 或以上版本 (建議使用 v20+ 或 v22+)
+* **必須使用 pnpm** (推薦 v8.0+ 版本)
+
+#### 為什麼需要使用 pnpm？
+
+此專案包含 `@rollup/rollup-win32-x64-msvc` 等平台特定的 optionalDependencies，使用 pnpm 可以避免常見的依賴安裝問題，確保在 Windows 環境下的最佳相容性。
+
+#### 安裝 pnpm
+
+如果尚未安裝 pnpm，請執行以下指令：
+
+```bash
+# 使用 npm 全域安裝 pnpm
+npm install -g pnpm
+
+# 或使用官方安裝腳本
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
 
 ### 1. 取得專案
 
@@ -90,11 +107,15 @@ cd your-project-folder
 
 ### 2. 安裝依賴套件
 
-使用 `npm` 安裝所有需要的套件：
+**重要：請使用 pnpm 安裝套件，避免 `@rollup/rollup-win32-x64-msvc` 相關的安裝錯誤**
 
 ```bash
-npm install
+pnpm install
 ```
+
+> ⚠️ **注意事項**：
+> - 請勿使用 `npm install`，會導致 Windows 平台特定依賴安裝失敗
+> - 如果先前使用過 npm，請先刪除 `node_modules` 和 `package-lock.json`
 
 ### 3. 設定環境變數
 
@@ -119,7 +140,7 @@ VITE_API_PATH=your-api-path
 執行以下指令，專案將會在 `http://localhost:5173` (預設) 上運行。
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### 其他可用指令
@@ -127,13 +148,25 @@ npm run dev
 * **建置專案 (用於生產環境)**:
 
   ```bash
-  npm run build
+  pnpm build
   ```
 
 * **檢查程式碼風格**:
 
   ```bash
-  npm run lint
+  pnpm lint
+  ```
+
+* **自動修正程式碼風格**:
+
+  ```bash
+  pnpm lint:fix
+  ```
+
+* **格式化程式碼**:
+
+  ```bash
+  pnpm format
   ```
 
 ---

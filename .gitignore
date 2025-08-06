@@ -7,7 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Package managers
 node_modules
+package-lock.json
+yarn.lock
 .DS_Store
 dist
 dist-ssr
@@ -32,8 +35,12 @@ deploy.sh
 /doc/prd/
 docs/rules/*
 
+# Environment files
 .env
-.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 .claude/*
 
